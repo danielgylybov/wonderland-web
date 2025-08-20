@@ -244,3 +244,49 @@ document.addEventListener('DOMContentLoaded', () => {
   io.observe(hero);
 });
 
+/* ==== Enquire → избери пакет + скрол към формата ==== */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-enquire-package]');
+  if (!btn) return;
+
+  const name = btn.getAttribute('data-enquire-package')?.trim() || 'Пакет';
+  const badge = document.getElementById('selectedPackageBadge');
+  const valueEl = badge?.querySelector('.value');
+  const field = document.getElementById('packageField');
+
+  if (badge && valueEl && field) {
+    valueEl.textContent = name;
+    field.value = name;
+    badge.classList.remove('d-none');
+    // лека „пулсация“ при нов избор
+    badge.style.animation = 'none';
+    // force reflow
+    void badge.offsetWidth;
+    badge.style.animation = '';
+  }
+
+  // скрол към формата (ползваме твоя общ скрол)
+  scrollToWithOffset('#contact');
+});
+
+/* Изчистване на избрания пакет */
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#selectedPackageBadge .clear')) return;
+  const badge = document.getElementById('selectedPackageBadge');
+  const field = document.getElementById('packageField');
+  if (badge) badge.classList.add('d-none');
+  if (field) field.value = '';
+});
+
+/* Минимална дата = днес (локално време) */
+document.addEventListener('DOMContentLoaded', () => {
+  const date = document.getElementById('dateField');
+  if (!date) return;
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  date.min = `${yyyy}-${mm}-${dd}`;
+});
+
+
