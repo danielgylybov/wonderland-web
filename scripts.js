@@ -229,3 +229,18 @@ document.addEventListener('DOMContentLoaded', () => {
     goTo(index);
   });
 });
+
+// Scroll Indicator visibility: показвай само на Hero
+document.addEventListener('DOMContentLoaded', () => {
+  const indicator = document.getElementById('scroll-indicator');
+  const hero = document.getElementById('hero') || document.querySelector('.hero.snap');
+  if (!indicator || !hero) return;
+
+  const io = new IntersectionObserver(([entry]) => {
+    // показвай, ако hero е видим поне частично
+    indicator.classList.toggle('hidden', !entry.isIntersecting);
+  }, { threshold: 0, rootMargin: '-20% 0px -20% 0px' });
+
+  io.observe(hero);
+});
+
