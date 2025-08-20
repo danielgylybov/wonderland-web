@@ -119,3 +119,16 @@ document.addEventListener("DOMContentLoaded", () => {
     t = setTimeout(buildStars, 150);
   });
 });
+
+// INTRO CURTAIN
+
+// автоматично отваряне; без бутон
+window.addEventListener('load', () => {
+  const curtain = document.getElementById('intro-curtain');
+  if (!curtain) return;
+  setTimeout(() => curtain.classList.add('open'), 250);
+  curtain.addEventListener('animationend', (ev) => {
+    if (ev.animationName === 'curtain-fade-out') curtain.remove();
+  });
+});
+
