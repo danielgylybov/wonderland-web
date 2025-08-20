@@ -232,6 +232,12 @@ body.use-real-stars::after {
   color: var(--muted);
 }
 
+@media (min-width: 768px) {
+ .hero .lead {
+   font-size: 1rem
+ }
+}
+
 /* Текстова версия (ако се ползва) */
 .hero .hero-logo-text {
   font-family: "Rosarium", serif;
@@ -251,7 +257,7 @@ body.use-real-stars::after {
 /* SVG лого (маска) — responsive височина */
 .logo-svg {
   width: 100%;
-  height: 250px; /* мобилно */
+  height: 35svh; /* мобилно */
   background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
   background-size: 200%;
   -webkit-mask: url("assets/img/Gold-5.svg") no-repeat center / contain;
