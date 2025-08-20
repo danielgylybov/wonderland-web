@@ -2,370 +2,624 @@
    1) ШРИФТОВЕ
 =========================== */
 @font-face {
-  font-family: 'Rosarium';
-  src: url('assets/Rosarium.woff2') format('woff2'),
-       url('assets/Rosarium.ttf') format('truetype');
-  font-weight: normal;
+  font-family: "Rosarium";
+  src: url("assets/Rosarium.woff2") format("woff2"),
+    url("assets/Rosarium.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
-/* Craftwork Grotesk */
-@font-face { font-family:'CraftworkGrotesk'; src:url('assets/CraftworkGrotesk-Regular.woff2') format('woff2'), url('assets/CraftworkGrotesk-Regular.otf') format('opentype'); font-weight:400; font-display:swap; }
-@font-face { font-family:'CraftworkGrotesk'; src:url('assets/CraftworkGrotesk-Medium.woff2')  format('woff2'), url('assets/CraftworkGrotesk-Medium.otf')  format('opentype'); font-weight:500; font-display:swap; }
-@font-face { font-family:'CraftworkGrotesk'; src:url('assets/CraftworkGrotesk-SemiBold.woff2')format('woff2'), url('assets/CraftworkGrotesk-SemiBold.otf')format('opentype'); font-weight:600; font-display:swap; }
-@font-face { font-family:'CraftworkGrotesk'; src:url('assets/CraftworkGrotesk-Bold.woff2')   format('woff2'), url('assets/CraftworkGrotesk-Bold.otf')   format('opentype'); font-weight:700; font-display:swap; }
-@font-face { font-family:'CraftworkGrotesk'; src:url('assets/CraftworkGrotesk-Heavy.woff2')  format('woff2'), url('assets/CraftworkGrotesk-Heavy.otf')  format('opentype'); font-weight:800; font-display:swap; }
+/* Craftwork Grotesk (вариации за тегло) */
+@font-face {
+  font-family: "CraftworkGrotesk";
+  src: url("assets/CraftworkGrotesk-Regular.woff2") format("woff2"),
+    url("assets/CraftworkGrotesk-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "CraftworkGrotesk";
+  src: url("assets/CraftworkGrotesk-Medium.woff2") format("woff2"),
+    url("assets/CraftworkGrotesk-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "CraftworkGrotesk";
+  src: url("assets/CraftworkGrotesk-SemiBold.woff2") format("woff2"),
+    url("assets/CraftworkGrotesk-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "CraftworkGrotesk";
+  src: url("assets/CraftworkGrotesk-Bold.woff2") format("woff2"),
+    url("assets/CraftworkGrotesk-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "CraftworkGrotesk";
+  src: url("assets/CraftworkGrotesk-Heavy.woff2") format("woff2"),
+    url("assets/CraftworkGrotesk-Heavy.otf") format("opentype");
+  font-weight: 800;
+  font-display: swap;
+}
 
 /* ===========================
    2) ПАЛИТРА / БАЗА
 =========================== */
-:root{
-  /* Визуална тема */
-  --bg:#0f1730;          /* тъмнонощно синьо */
-  --bg-2:#0b1226;        /* още по-дълбоко */
-  --text:#f7f8ff;        /* почти бяло */
-  --muted:#b8c6ff;       /* мек синкав текст */
-  --blue:#657bbb;        /* звездни акценти */
-  --blue-2:#8ea2ff;
-  --blue-3:#aebcff;
-  --gold:#d89e58;        /* злато (лого/бутони) */
-  --gold-2:#f1c37a;      /* по-светло за shimmer */
-  --shadow:rgba(0,0,0,.35);
+:root {
+  /* Тема */
+  --bg: #0f1730;
+  --bg-2: #0b1226;
+  --text: #f7f8ff;
+  --muted: #b8c6ff;
 
-  /* Старо име (за съвместимост) */
+  --blue: #657bbb; /* звездички */
+  --blue-2: #8ea2ff;
+  --blue-3: #aebcff;
+
+  --gold: #d89e58; /* бранд злато */
+  --gold-2: #f1c37a; /* по-светло за shimmer */
+
+  --shadow: rgba(0, 0, 0, 0.35);
+
+  /* Съвместимост със старо име */
   --wantgold: var(--gold);
+
+  /* iOS safe area */
+  --safe-top: env(safe-area-inset-top);
+
+  --headerH: 83px;
 }
 
-html{ scroll-behavior:smooth; }
-
-/* iOS safe-area за notch – да няма „бяла лента“ над хедъра */
-:root { --safe-top: env(safe-area-inset-top); }
-
-.magic-header{
-  padding-top: calc(8px + var(--safe-top, 0px));
+html {
+  scroll-behavior: smooth;
+  height: 100%;
 }
 
-/* за да пълним фона под системната зона */
-html, body { background-color: var(--midnight-forest); }
-
-body{
-  margin:0;
-  background: radial-gradient(90% 120% at 20% 10%, var(--bg) 0%, var(--bg-2) 70%);
-  color:var(--text);
-  overflow-x:hidden;
-  font-family:'CraftworkGrotesk',sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
+body {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(
+    90% 120% at 20% 10%,
+    var(--bg) 0%,
+    var(--bg-2) 70%
+  );
+  color: var(--text);
+  overflow-x: hidden;
+  font-family: "CraftworkGrotesk", system-ui, -apple-system, Segoe UI, Roboto,
+    Ubuntu, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Заглавия с бранд шрифт */
-h1,h2,h3{ font-family:'Rosarium',serif; color:var(--text); }
+h1,
+h2,
+h3 {
+  font-family: "Rosarium", serif;
+  color: var(--text);
+}
 
 /* ===========================
-   3) ЗВЕЗДНО НЕБЕ
+   3) ЗВЕЗДНО НЕБЕ (реални SVG звезди)
 =========================== */
-/* Реални звездички слой (SVG #starfield) */
-.starfield{
-  position:fixed; inset:0;
-  width:100%; height:100%;
-  pointer-events:none;
-  z-index:0;             /* над фона, под съдържанието */
-  opacity:0.9;
+.starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0; /* над фона, под съдържанието */
+  opacity: 0.9;
 }
-.star{
+.star {
   fill: var(--blue-3);
-  opacity:.85;
-  animation: twinkle var(--twinkle,6s) ease-in-out infinite,
-             drift var(--drift,120s) linear infinite;
+  opacity: 0.85;
+  animation: twinkle var(--twinkle, 6s) ease-in-out infinite,
+    drift var(--drift, 120s) linear infinite;
 }
-.star:nth-child(3n){ fill: var(--blue-2); opacity:.8; }
-.star:nth-child(5n){ fill: var(--blue);   opacity:.75; }
-
-@keyframes twinkle{
-  0%,100%{ opacity:.30; transform:scale(var(--pulse,1)); }
-  50%    { opacity:1;   transform:scale(calc(var(--pulse,1)*1.12)); }
+.star:nth-child(3n) {
+  fill: var(--blue-2);
+  opacity: 0.8;
 }
-@keyframes drift{
-  0%{ transform: translate(0,0); }
-  100%{ transform: translate(-2%, -2%); }
+.star:nth-child(5n) {
+  fill: var(--blue);
+  opacity: 0.75;
 }
 
-/* Ако още имаш стария фон с псевдо-елементи – скрий го когато ползваме реални звезди */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(var(--pulse, 1));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(calc(var(--pulse, 1) * 1.12));
+  }
+}
+@keyframes drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-2%, -2%);
+  }
+}
+
+/* Ако има стар „fake stars“ фон през ::before/::after – скрий го, когато ползваме истински звезди */
 body.use-real-stars::before,
-body.use-real-stars::after{ display:none !important; }
+body.use-real-stars::after {
+  display: none !important;
+}
 
 /* ===========================
    4) HEADER / ЛОГО
 =========================== */
-.magic-header{
-  position:fixed; top:0; left:0; right:0;
-  background:rgba(7,12,27,.55);
-  backdrop-filter:saturate(120%) blur(8px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  box-shadow:0 8px 30px -12px var(--shadow);
-  transition: opacity .35s ease, transform .35s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease;
-  z-index:1030;
-  opacity:0; pointer-events:none; transform:translateY(-20px);
+.magic-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: calc(8px + var(--safe-top, 0px));
+  background: rgba(7, 12, 27, 0.55);
+  backdrop-filter: saturate(120%) blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 30px -12px var(--shadow);
+  z-index: 1030;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px);
+  transition: opacity 0.35s ease, transform 0.35s ease, background 0.35s ease,
+    border-color 0.35s ease, box-shadow 0.35s ease;
 }
-.magic-header.show-logo{
-  opacity:1; pointer-events:auto; transform:translateY(0);
-  background:rgba(7,12,27,.82);
+.magic-header.show-logo {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  background: rgba(7, 12, 27, 0.82);
 }
 
 /* Текстово лого (fallback) */
-.logo-text{
-  font-family:'Rosarium',serif;
-  font-size:1.8rem;
-  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
-  background-size:200%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:shimmer 5s linear infinite;
-  opacity:0; transform:scale(.92);
-  transition:opacity .35s ease, transform .35s ease;
+.logo-text {
+  font-family: "Rosarium", serif;
+  font-size: 1.8rem;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
-.magic-header.show-logo .logo-text{ opacity:1; transform:scale(1); }
+.magic-header.show-logo .logo-text {
+  opacity: 1;
+  transform: scale(1);
+}
 
-/* SVG лого в Header (когато ползваш маска) */
-.header-logo-svg{
-  height:52px;
-  margin-top:14px;
-  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
-  background-size:200%;
-  -webkit-mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
-  mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
-  animation:shimmer 5s linear infinite;
-  opacity:0; transform:scale(.92);
-  transition:opacity .35s ease, transform .35s ease;
+/* SVG лого в Header (маска) — ако го използваш */
+.header-logo-svg {
+  height: 52px;
+  margin-top: 14px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+  background-size: 200%;
+  -webkit-mask: url("assets/img/Gold-6-trimmed.svg") no-repeat center / contain;
+  mask: url("assets/img/Gold-6-trimmed.svg") no-repeat center / contain;
+  animation: shimmer 5s linear infinite;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
-.magic-header.show-logo .header-logo-svg{ opacity:1; transform:scale(1); }
+.magic-header.show-logo .header-logo-svg {
+  opacity: 1;
+  transform: scale(1);
+}
 
 /* ===========================
    5) HERO
 =========================== */
-.hero{
-  text-align:center;
-  padding:120px 20px 80px;
-  position:relative;
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 0 20px 80px;
 }
-.hero .lead{ color:var(--muted); }
+.hero .lead {
+  color: var(--muted);
+}
 
-/* Текстова версия на логото в Hero (ако се използва) */
-.hero .hero-logo-text{
-  font-family:'Rosarium',serif;
-  font-size:3.5rem;
-  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
-  background-size:200%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:shimmer 5s linear infinite;
-  transition:opacity .4s ease, transform .5s ease;
+/* Текстова версия (ако се ползва) */
+.hero .hero-logo-text {
+  font-family: "Rosarium", serif;
+  font-size: 3.5rem;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s linear infinite;
+  transition: opacity 0.4s ease, transform 0.5s ease;
 }
-.hero .hero-logo-text.fade-out{ opacity:0; transform:translateY(-10px) scale(.94); }
+.hero .hero-logo-text.fade-out {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.94);
+}
 
-/* SVG лого в Hero (маска) – responsive височина */
-.logo-svg{
-  width:100%;
-  height:320px; /* мобилно */
-  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
-  background-size:200%;
-  -webkit-mask: url('assets/img/Gold-5.svg') no-repeat center / contain;
-  mask: url('assets/img/Gold-5.svg') no-repeat center / contain;
-  animation:shimmer 5s linear infinite;
+/* SVG лого (маска) — responsive височина */
+.logo-svg {
+  width: 100%;
+  height: 320px; /* мобилно */
+  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+  background-size: 200%;
+  -webkit-mask: url("assets/img/Gold-5.svg") no-repeat center / contain;
+  mask: url("assets/img/Gold-5.svg") no-repeat center / contain;
+  animation: shimmer 5s linear infinite;
 }
-@media (min-width:768px){  .logo-svg{ height:420px; } }   /* таблет */
-@media (min-width:1200px){ .logo-svg{ height:540px; } }  /* десктоп */
+@media (min-width: 768px) {
+  .logo-svg {
+    height: 420px;
+  }
+} /* таблет */
+@media (min-width: 1200px) {
+  .logo-svg {
+    height: 540px;
+  }
+} /* десктоп */
 
 /* ===========================
-   6) КОМПОНЕНТИ / СЕКЦИИ
+   6) СЕКЦИИ / КОМПОНЕНТИ
 =========================== */
-.card{
-  background: rgba(12,18,38,.6);
-  border: 1px solid rgba(255,255,255,.06);
+/* Карти / панели */
+.card {
+  background: rgba(12, 18, 38, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 10px 30px -12px var(--shadow);
   color: var(--text);
 }
 
-/* бутони */
-.btn-primary{
-  color:#1d1205;
-  background:linear-gradient(180deg,var(--gold-2),var(--gold));
-  border:0;
-  box-shadow:0 8px 20px -8px rgba(216,158,88,.6), inset 0 1px 0 rgba(255,255,255,.35);
+/* Бутони */
+.btn-primary {
+  color: #1d1205;
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+  border: 0;
+  box-shadow: 0 8px 20px -8px rgba(216, 158, 88, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
-.btn-primary:hover{ filter:brightness(1.05); box-shadow:0 10px 24px -8px rgba(216,158,88,.75); }
-.btn-secondary{
-  color:var(--text);
-  background:linear-gradient(180deg,var(--blue-2),var(--blue));
-  border:0;
-  box-shadow:0 8px 20px -8px rgba(101,123,187,.5);
+.btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 24px -8px rgba(216, 158, 88, 0.75);
 }
-.btn-secondary:hover{ filter:brightness(1.05); }
-
-/* ГАЛЕРИЯ (Bootstrap Carousel) */
-.carousel{ box-shadow:0 0 20px rgba(0,0,0,.4); border-radius:16px; overflow:hidden; }
-.carousel-item img{ display:block; width:100%; }
-.carousel-indicators [data-bs-target]{ background-color:var(--gold); }
-.carousel-control-prev-icon, .carousel-control-next-icon{ filter:drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
-
-/* ОПИСАНИЕ */
-.description{
-  max-width:800px;
-  margin:50px auto;
-  padding:0 20px;
-  text-align:center;
-  font-size:1.1rem;
-  line-height:1.6;
-  color:var(--text);
+.btn-secondary {
+  color: var(--text);
+  background: linear-gradient(180deg, var(--blue-2), var(--blue));
+  border: 0;
+  box-shadow: 0 8px 20px -8px rgba(101, 123, 187, 0.5);
+}
+.btn-secondary:hover {
+  filter: brightness(1.05);
 }
 
-/* ФОРМА */
-.contact{ background:transparent; }
-.contact h2{ color:var(--gold); text-align:center; }
-.contact .form-control{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  color:var(--text);
-}
-.contact .form-control::placeholder{ color:rgba(255,255,255,.45); }
-.contact .btn{
-  background:linear-gradient(180deg,var(--gold-2),var(--gold));
-  color:#1d1205;
-  border:0;
-  transition:box-shadow .3s ease, transform .1s ease-in-out;
-}
-.contact .btn:hover{ box-shadow:0 0 15px rgba(216,158,88,.6); }
-.contact .btn:active{ transform:translateY(1px); }
-
-/* FOOTER */
-footer{ text-align:center; padding:20px; font-size:.9rem; color:#ccc; }
-
-/* ===========================
-   7) ЕФЕКТИ / SHIMMER
-=========================== */
-@keyframes shimmer{
-  0%{ background-position:200% center; }
-  100%{ background-position:-200% center; }
+/* Описание */
+.description {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 0 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text);
 }
 
 /* ===========================
-   8) ДОСТЪПНОСТ
+   7) ГАЛЕРИЯ (Bootstrap Carousel + Drive)
 =========================== */
-
-
-@media (prefers-reduced-motion:reduce){
-  *{ animation:none !important; transition:none !important; }
+.carousel {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
 }
-/* ---------------------------
-   INTRO OVERLAY (ЗАВЕСА)
----------------------------- */
-
-/* сайтът да се вижда през средата – нямаме фон на overlay-а */
-#intro-curtain{
-  position:fixed; inset:0; z-index:9999;
-  pointer-events:none;
-  overflow:hidden;
+.carousel-item img {
+  display: block;
+  width: 100%;
 }
-
-/* двете половини-завеси */
-#intro-curtain .curtain-panel{
-  position:absolute; top:0; bottom:0; width:50%;
-  background: rgba(7,12,27,.92);
-  box-shadow: 0 0 40px rgba(0,0,0,.45) inset;
-  will-change: transform;
+.carousel-indicators [data-bs-target] {
+  background-color: var(--gold);
 }
-#intro-curtain .curtain-panel.left{  left:0;  transform:translateX(0); }
-#intro-curtain .curtain-panel.right{ right:0; transform:translateX(0); }
-
-/* Центърът (линии + лого) е захванат за РАЗРЕЗА на дясното перде,
-   за да се движи 1:1 с него */
-#intro-curtain .curtain-center{
-  position:absolute;           /* вътре в .curtain-panel.right */
-  left:0; top:50%;
-  transform:translate(-50%, -50%); /* центърът точно на линията между пердетата */
-  display:grid; place-items:center; gap:14px;
-  pointer-events:none; z-index:2;
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
 
-#intro-curtain .curtain-line{
-  width:2px; height:16vh;
-  background:linear-gradient(var(--wantgold,#d89e58),transparent);
-  opacity:.9;
-  &.top {
-  background:linear-gradient(transparent, var(--wantgold,#d89e58));
-  }
-}
-
-/* ЛОГО + ЗЛАТЕН КРЪГ (кръгът е ::before върху самото лого) */
-#intro-curtain .curtain-logo{
-  width:min(36vw,250px); height:min(28vw,150px);
-  background: linear-gradient(90deg, var(--wantgold,#d89e58), #f1c37a, var(--wantgold,#d89e58));
-  background-size:200%;
-  -webkit-mask: url('assets/img/Gold-4.svg') no-repeat center / 60%;
-  mask: url('assets/img/Gold-4.svg') no-repeat center / 60%;
-  border-radius:50%;
-  position:relative;
-  animation: shimmer 5s linear infinite, logo-pop .55s ease-out .2s both;
-}
-#intro-curtain .curtain-panel.right::before{
-  content:"";
-  position:absolute;
-  left:0; top:50%; transform:translate(-50%, -50%);  /* центърът на екрана */
-  width:min(32vw, 180px); height:min(32vw, 180px);
-  border-radius:50%;
-  /* златен пръстен + меко сияние */
-  box-shadow:
-    inset 0 0 0 3px var(--wantgold, #d89e58),
-    0 8px 28px rgba(216,158,88,.35);
-  z-index:3;
-}
-
-/* Анимации */
-@keyframes logo-pop{ 0%{ transform:scale(.9); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
-@keyframes curtain-open-left { to{ transform:translateX(-100%); } }
-@keyframes curtain-open-right{ to{ transform:translateX(100%); } }
-@keyframes curtain-fade-out { to{ opacity:0; visibility:hidden; } }
-
-/* старт на отварянето – добавя се .open от JS */
-#intro-curtain.open .curtain-panel.left{  animation:curtain-open-left  .9s ease-in forwards; }
-#intro-curtain.open .curtain-panel.right{ animation:curtain-open-right .9s ease-in forwards; }
-/* fade на целия overlay накрая */
-#intro-curtain.open{ animation:curtain-fade-out .5s ease .9s forwards; }
-
-@media (prefers-reduced-motion: reduce){
-  #intro-curtain{ display:none !important; }
-}
-
-
-
-/* Mobile-first височина на карусела + коректно кадриране */
+/* Mobile‑first височина + коректно кадриране за динамичната галерия */
 .drive-gallery .carousel-inner,
 .drive-gallery .carousel-item {
-  height: 72vh;              /* мобилно: почти цял екран */
+  height: 72vh;
   min-height: 320px;
 }
 @media (min-width: 768px) {
   .drive-gallery .carousel-inner,
-  .drive-gallery .carousel-item { height: 70vh; }
+  .drive-gallery .carousel-item {
+    height: 70vh;
+  }
 }
 @media (min-width: 1200px) {
   .drive-gallery .carousel-inner,
-  .drive-gallery .carousel-item { height: 68vh; }
+  .drive-gallery .carousel-item {
+    height: 68vh;
+  }
 }
-
 .drive-gallery img {
   width: 100%;
   height: 100%;
-  object-fit: cover;         /* пълни кадъра без изкривяване */
+  object-fit: cover;
   object-position: center;
   display: block;
 }
 
-/* Индикатори да личат върху тъмен фон */
-.drive-gallery .carousel-indicators [data-bs-target]{
-  background-color: var(--wantgold);
-  width: 10px; height: 10px; border-radius: 50%;
+/* ===========================
+   8) ФОРМА ЗА ЗАПИТВАНЕ
+=========================== */
+.contact {
+  background: transparent;
+}
+ h2 {
+  color: var(--gold);
+  font-size: 42px;
+  text-align: center;
+}
+.contact .form-control {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+.contact .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+.contact .btn {
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+  color: #1d1205;
+  border: 0;
+  transition: box-shadow 0.3s ease, transform 0.1s ease-in-out;
+}
+.contact .btn:hover {
+  box-shadow: 0 0 15px rgba(216, 158, 88, 0.6);
+}
+.contact .btn:active {
+  transform: translateY(1px);
+}
+
+/* ===========================
+   9) FOOTER
+=========================== */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+/* ===========================
+   10) ЗАВЕСА (Intro Curtain)
+=========================== */
+#intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Ляво/дясно перде */
+#intro-curtain .curtain-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: rgba(7, 12, 27, 0.92);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.45) inset;
+  will-change: transform;
+}
+#intro-curtain .curtain-panel.left {
+  left: 0;
+  transform: translateX(0);
+}
+#intro-curtain .curtain-panel.right {
+  right: 0;
+  transform: translateX(0);
+}
+
+/* Център (линии + лого) е „захванат“ за разреза на дясното перде */
+#intro-curtain .curtain-center {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  pointer-events: none;
+  z-index: 2;
+}
+#intro-curtain .curtain-line {
+  width: 2px;
+  height: 16vh;
+  background: linear-gradient(var(--wantgold), transparent);
+  opacity: 0.9;
+}
+#intro-curtain .curtain-line.top {
+  background: linear-gradient(transparent, var(--wantgold));
+}
+
+/* Лого (маска) + златен пръстен, който се движи с дясната завеса */
+#intro-curtain .curtain-logo {
+  width: min(36vw, 250px);
+  height: min(28vw, 150px);
+  background: linear-gradient(
+    90deg,
+    var(--wantgold),
+    var(--gold-2),
+    var(--wantgold)
+  );
+  background-size: 200%;
+  -webkit-mask: url("assets/img/Gold-4.svg") no-repeat center / 60%;
+  mask: url("assets/img/Gold-4.svg") no-repeat center / 60%;
+  border-radius: 50%;
+  position: relative;
+  animation: shimmer 5s linear infinite, logo-pop 0.55s ease-out 0.2s both;
+}
+#intro-curtain .curtain-panel.right::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(32vw, 180px);
+  height: min(32vw, 180px);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--wantgold),
+    0 8px 28px rgba(216, 158, 88, 0.35);
+  z-index: 3;
+}
+
+/* Анимации за завесата */
+@keyframes logo-pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes curtain-open-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes curtain-open-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes curtain-fade-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+#intro-curtain.open .curtain-panel.left {
+  animation: curtain-open-left 0.9s ease-in forwards;
+}
+#intro-curtain.open .curtain-panel.right {
+  animation: curtain-open-right 0.9s ease-in forwards;
+}
+#intro-curtain.open {
+  animation: curtain-fade-out 0.5s ease 0.9s forwards;
+}
+
+/* ===========================
+   11) SNAP НА СЕКЦИИ (поток: Как работи → Пакети → Галерия → Форма)
+=========================== */
+main.page-snap {
+  scroll-snap-type: y mandatory;
+  overflow-x: hidden;
+  scroll-padding-top: var(--headerH);
+}
+section.snap {
+  min-height: 100svh; /* safe viewport за мобилни */
+  display: grid;
+  place-items: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: var(--headerH);
+}
+
+/* Карти за Пакети */
+.pack-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.pack-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  border-color: rgba(212, 175, 55, 0.35);
+}
+.price {
+  font-family: "Rosarium", serif;
+  font-size: 2rem;
+  color: var(--wantgold);
+}
+
+/* ===========================
+   12) ЕФЕКТИ / SHIMMER
+=========================== */
+@keyframes shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* ===========================
+   13) ДОСТЪПНОСТ
+=========================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Стъпки (златни кръгове с числа) */
+.step-box {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(212,175,55,.18);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-circle {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--wantgold), #f1c37a, var(--wantgold));
+  display: flex;
+  align-items: center;   /* вертикално центриране */
+  justify-content: center; /* хоризонтално */
+  font-family: 'Rosarium', serif;
+  font-size: 1.6rem;
+  line-height: 0;        /* занулява излишното пространство */
+  color: #111;
+  box-shadow: 0 0 10px rgba(212,175,55,.5);
+}
+
+.step-text {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.inline-logo {
+  display:inline-block;
+  vertical-align:middle;
+  width: 130px;          /* може да го намалиш/увеличиш според текста */
+  height: 32px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
+  background-size: 200%;
+  -webkit-mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
+  mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
+  animation: shimmer 5s linear infinite;
 }
 
 

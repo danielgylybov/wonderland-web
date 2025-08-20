@@ -171,3 +171,48 @@ window.addEventListener('load', () => {
   });
 });
 
+// Гладко превъртане с корекция за header
+function scrollToWithOffset(target) {
+  const el = document.querySelector(target);
+  if (!el) return;
+
+  const header = document.querySelector('.magic-header');
+  const headerH = header ? header.getBoundingClientRect().height : 0;
+  const top = window.scrollY + el.getBoundingClientRect().top - (headerH - 40);
+
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-scroll]');
+  if (!t) return;
+  e.preventDefault();
+  scrollToWithOffset(t.getAttribute('data-scroll'));
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.innerWidth >= 992) { // само на десктоп
+    const sections = document.querySelectorAll("section.snap");
+    let index = 0;
+    let scrolling = false;
+
+    function scrollToSection(i) {
+      if (i < 0 || i >= sections.length) return;
+      scrolling = true;
+      index = i;
+      sections[i].scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => { scrolling = false; }, 1000); // заключваме ~1 сек
+    }
+
+    window.addEventListener("wheel", (e) => {
+      if (scrolling) return;
+      if (e.deltaY > 0) {
+        scrollToSection(index + 1);
+      } else if (e.deltaY < 0) {
+        scrollToSection(index - 1);
+      }
+    }, { passive:false });
+  }
+});
+
+
