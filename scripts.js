@@ -1,118 +1,104 @@
-// ЛОГО: от Hero в Header при скрол
-      document.addEventListener("DOMContentLoaded", function () {
-        const header = document.getElementById("stickyHeader");
+/* ---------------------------------------------------------
+   0) Малки помощници
+--------------------------------------------------------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
-        // Търсим логото/елемента в hero по няколко възможни селектора,
-        // а ако го няма – ползваме самата секция .hero.
-        const target =
-          document.querySelector(".hero-logo-text") ||          // старият H1
-          document.querySelector(".hero .logo-svg") ||          // ако ползваш маска/див за SVG
-          document.querySelector(".hero img, .hero svg") ||     // ако е <img> или inline <svg>
-          document.querySelector(".hero");                      // fallback – цялата секция
+/* височината на fixed хедъра (ако е видим) */
+function getHeaderH() {
+  const header = $('.magic-header');
+  return header ? Math.round(header.getBoundingClientRect().height) : 0;
+}
 
-        if (!header || !target) {
-          // ако нещо липсва, просто показваме хедъра
-          header?.classList.add("show-logo");
-          return;
-        }
+/* Гладко превъртане с корекция за header (твоята „ключова“ функция) */
+function scrollToWithOffset(target, extraOffset = 0) {
+  const el = typeof target === 'string' ? document.querySelector(target) : target;
+  if (!el) return;
 
-        // По-устойчиво: IntersectionObserver вместо изчисления на пиксели
-        const io = new IntersectionObserver(
-          ([entry]) => {
-            // показваме хедъра когато target излезе от екрана
-            header.classList.toggle("show-logo", !entry.isIntersecting);
-          },
-          {
-            threshold: 0,
-            // ако хедърът е ~56px висок, това маха "премигването" на границата
-            rootMargin: "-56px 0px 0px 0px"
-          }
-        );
+  const header = document.querySelector('.magic-header');
+  const headerH = header ? header.getBoundingClientRect().height : 0;
 
-        io.observe(target);
-      });
+  const rect = el.getBoundingClientRect();
+  const absoluteTop = window.scrollY + rect.top;
 
+  // по твоя формула – малко „повдигане“ (−headerH + 40px)
+  const top = absoluteTop - (headerH - 40) + extraOffset;
 
+  window.scrollTo({ top, behavior: 'smooth' });
+}
 
-// ВИЖ ГАЛЕРИЯТА БУТОН
+/* debounce helper */
+function debounce(fn, t) {
+  let h;
+  return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), t); };
+}
 
-  // центрира target-а във viewport-а (взема предвид и фикснатия header)
-  function scrollToCenter(sel) {
-    const el = document.querySelector(sel);
-    if (!el) return;
+/* ---------------------------------------------------------
+   1) Header: показване след като hero излезе
+--------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const header = $('#stickyHeader');
+  const heroTarget =
+    $('.hero-logo-text') ||
+    $('.hero .logo-svg') ||
+    $('.hero img, .hero svg') ||
+    $('.hero');
 
-    const header = document.getElementById('stickyHeader');
-    const headerH = header ? header.getBoundingClientRect().height : 0;
-
-    const rect = el.getBoundingClientRect();
-    const absoluteTop = window.scrollY + rect.top;
-    const centerOffset = absoluteTop - (window.innerHeight - rect.height) / 2;
-
-    window.scrollTo({
-      top: Math.max(0, centerOffset - headerH / 2),
-      behavior: 'smooth'
-    });
+  if (!header || !heroTarget) {
+    header?.classList.add('show-logo');
+    return;
   }
 
-  // клик по бутон/линк с data-scroll
-  document.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-scroll]');
-    if (!t) return;
+  const io = new IntersectionObserver(
+    ([entry]) => header.classList.toggle('show-logo', !entry.isIntersecting),
+    { threshold: 0, rootMargin: '-56px 0px 0px 0px' }
+  );
+  io.observe(heroTarget);
+});
+
+/* ---------------------------------------------------------
+   2) Click навигация (бутони + линкове) – ползва scrollToWithOffset
+--------------------------------------------------------- */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-scroll]');
+  if (btn) {
     e.preventDefault();
-    const sel = t.getAttribute('data-scroll');
-    if (sel) scrollToCenter(sel);
-  });
+    const sel = btn.getAttribute('data-scroll');
+    scrollToWithOffset(sel);
+    return;
+  }
 
-  // ако все пак има стари линкове с href="#gallery", прехващаме ги
-  document.querySelectorAll('a[href^="#gallery"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToCenter('#gallery');
-    });
-  });
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  // показване на логото при скрол (ако още ползваш текста в hero)
-  const header = document.getElementById("stickyHeader");
-  const heroTarget =
-    document.querySelector(".hero-logo-text") ||
-    document.querySelector(".hero .logo-svg") ||
-    document.querySelector(".hero img, .hero svg") ||
-    document.querySelector(".hero");
-  if (header && heroTarget) {
-    const io = new IntersectionObserver(
-      ([entry]) => header.classList.toggle("show-logo", !entry.isIntersecting),
-      { threshold: 0, rootMargin: "-56px 0px 0px 0px" }
-    );
-    io.observe(heroTarget);
+  const a = e.target.closest('a[href^="#"]');
+  if (a && a.getAttribute('href') !== '#') {
+    e.preventDefault();
+    const id = a.getAttribute('href');
+    scrollToWithOffset(id);
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const svg = document.getElementById('starfield');
+/* ---------------------------------------------------------
+   3) Starfield (както си беше)
+--------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const svg = $('#starfield');
   if (!svg) return;
 
   const variants = ['#star-shape', '#star-shape-rot', '#star-shape-slim'];
-  const BASE_H = 100;             // фиксираме височина на viewBox
-  const STAR_COUNT_BASE = 120;     // броят за aspect ratio ~1:1
+  const BASE_H = 100;
+  const STAR_COUNT_BASE = 120;
 
   function clearStars() {
-    // пазим <defs>, махаме останалото
     [...svg.querySelectorAll(':scope > g, :scope > use')].forEach(n => n.remove());
   }
 
   function buildStars() {
     clearStars();
-
     const w = window.innerWidth;
     const h = window.innerHeight;
     const vbH = BASE_H;
-    const vbW = BASE_H * (w / h);         // ширина на viewBox според екрана
+    const vbW = BASE_H * (w / h);
     svg.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
 
-    // по желание: скалирай броя спрямо площта, за да е с еднаква плътност
     const areaFactor = vbW * vbH / (100 * 100);
     const STAR_COUNT = Math.round(STAR_COUNT_BASE * areaFactor);
 
@@ -123,47 +109,35 @@ document.addEventListener("DOMContentLoaded", () => {
       use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', ref);
       use.setAttribute('class', 'star');
 
-      // позиция в новия viewBox
       const x = Math.random() * vbW;
       const y = Math.random() * vbH;
-
-      // размер – 0.8–2.2 единици от viewBox (не се влияе от aspect ratio)
       const size = (Math.random() * 1.4 + 0.8).toFixed(2);
       use.setAttribute('x', x.toFixed(2));
       use.setAttribute('y', y.toFixed(2));
       use.setAttribute('width', size);
       use.setAttribute('height', size);
 
-      // леко пулсиране и дрейф
-      use.style.setProperty('--pulse', (0.95 + Math.random()*0.1).toFixed(2));
-      use.style.setProperty('--twinkle', (4 + Math.random()*4).toFixed(1) + 's');
-      use.style.setProperty('--drift', (90 + Math.random()*60).toFixed(0) + 's');
-      use.style.animationDelay = (Math.random()*6).toFixed(2) + 's';
+      use.style.setProperty('--pulse', (0.95 + Math.random() * 0.1).toFixed(2));
+      use.style.setProperty('--twinkle', (4 + Math.random() * 4).toFixed(1) + 's');
+      use.style.setProperty('--drift', (90 + Math.random() * 60).toFixed(0) + 's');
+      use.style.animationDelay = (Math.random() * 6).toFixed(2) + 's';
 
-      // опционално: ротация около собствената позиция
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('transform', `rotate(${Math.floor(Math.random()*360)} ${x} ${y})`);
+      g.setAttribute('transform', `rotate(${Math.floor(Math.random() * 360)} ${x} ${y})`);
       g.appendChild(use);
       svg.appendChild(g);
     }
   }
 
-  // първоначално
   buildStars();
-
-  // прегенерираме при resize / ориентация (с debounce)
-  let t;
-  window.addEventListener('resize', () => {
-    clearTimeout(t);
-    t = setTimeout(buildStars, 150);
-  });
+  window.addEventListener('resize', debounce(buildStars, 150));
 });
 
-// INTRO CURTAIN
-
-// автоматично отваряне; без бутон
+/* ---------------------------------------------------------
+   4) Intro Curtain – auto open, remove on end
+--------------------------------------------------------- */
 window.addEventListener('load', () => {
-  const curtain = document.getElementById('intro-curtain');
+  const curtain = $('#intro-curtain');
   if (!curtain) return;
   setTimeout(() => curtain.classList.add('open'), 250);
   curtain.addEventListener('animationend', (ev) => {
@@ -171,48 +145,87 @@ window.addEventListener('load', () => {
   });
 });
 
-// Гладко превъртане с корекция за header
-function scrollToWithOffset(target) {
-  const el = document.querySelector(target);
-  if (!el) return;
+/* ---------------------------------------------------------
+   5) Desktop full-page snap (wheel = 1 секция) – ползва scrollToWithOffset
+--------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const isDesktop = window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 992;
+  if (!isDesktop) return;
 
-  const header = document.querySelector('.magic-header');
-  const headerH = header ? header.getBoundingClientRect().height : 0;
-  const top = window.scrollY + el.getBoundingClientRect().top - (headerH - 40);
+  const sections = $$('.snap');
+  if (!sections.length) return;
 
-  window.scrollTo({ top, behavior: 'smooth' });
-}
+  const headerH = () => getHeaderH();
 
-document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-scroll]');
-  if (!t) return;
-  e.preventDefault();
-  scrollToWithOffset(t.getAttribute('data-scroll'));
-});
+  let index = 0;
+  function recalcIndex() {
+    const y = window.scrollY + headerH() + 1;
+    let best = 0, bestDist = Infinity;
+    sections.forEach((s, i) => {
+      const top = s.offsetTop;
+      const d = Math.abs(top - y);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    index = best;
+  }
+  recalcIndex();
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.innerWidth >= 992) { // само на десктоп
-    const sections = document.querySelectorAll("section.snap");
-    let index = 0;
-    let scrolling = false;
+  let animating = false, unlockTimer = 0;
+  function goTo(i) {
+    if (i < 0 || i >= sections.length) return;
+    animating = true;
 
-    function scrollToSection(i) {
-      if (i < 0 || i >= sections.length) return;
-      scrolling = true;
-      index = i;
-      sections[i].scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => { scrolling = false; }, 1000); // заключваме ~1 сек
+    // За първата секция не вадим header (както искаше логиката)
+    const sel = `#${sections[i].id}`;
+    if (i === 0) {
+      // леко „повдигане“, за да изглежда идентично с клик-скрола
+      scrollToWithOffset(sel, 0);
+    } else {
+      scrollToWithOffset(sel, 0);
     }
 
-    window.addEventListener("wheel", (e) => {
-      if (scrolling) return;
-      if (e.deltaY > 0) {
-        scrollToSection(index + 1);
-      } else if (e.deltaY < 0) {
-        scrollToSection(index - 1);
-      }
-    }, { passive:false });
+    index = i;
+    clearTimeout(unlockTimer);
+    unlockTimer = setTimeout(() => (animating = false), 700);
   }
+
+  let accum = 0;
+  const THRESHOLD = 60;
+
+  const onWheel = (e) => {
+    e.preventDefault();
+    if (animating) return;
+
+    const dy = Math.max(-120, Math.min(120, e.deltaY));
+    accum += dy;
+
+    if (accum > THRESHOLD) {
+      accum = 0; goTo(index + 1);
+    } else if (accum < -THRESHOLD) {
+      accum = 0; goTo(index - 1);
+    }
+  };
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+
+  window.addEventListener('keydown', (e) => {
+    if (animating) return;
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+      e.preventDefault(); goTo(index + 1);
+    } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+      e.preventDefault(); goTo(index - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); goTo(sections.length - 1);
+    }
+  });
+
+  const onScrollPassive = () => { if (!animating) recalcIndex(); };
+  window.addEventListener('scroll', onScrollPassive, { passive: true });
+
+  window.addEventListener('resize', () => {
+    recalcIndex();
+    goTo(index);
+  });
 });
-
-
