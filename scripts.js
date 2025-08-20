@@ -34,6 +34,45 @@
 
 
 
+// ВИЖ ГАЛЕРИЯТА БУТОН
+
+  // центрира target-а във viewport-а (взема предвид и фикснатия header)
+  function scrollToCenter(sel) {
+    const el = document.querySelector(sel);
+    if (!el) return;
+
+    const header = document.getElementById('stickyHeader');
+    const headerH = header ? header.getBoundingClientRect().height : 0;
+
+    const rect = el.getBoundingClientRect();
+    const absoluteTop = window.scrollY + rect.top;
+    const centerOffset = absoluteTop - (window.innerHeight - rect.height) / 2;
+
+    window.scrollTo({
+      top: Math.max(0, centerOffset - headerH / 2),
+      behavior: 'smooth'
+    });
+  }
+
+  // клик по бутон/линк с data-scroll
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-scroll]');
+    if (!t) return;
+    e.preventDefault();
+    const sel = t.getAttribute('data-scroll');
+    if (sel) scrollToCenter(sel);
+  });
+
+  // ако все пак има стари линкове с href="#gallery", прехващаме ги
+  document.querySelectorAll('a[href^="#gallery"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      scrollToCenter('#gallery');
+    });
+  });
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
   // показване на логото при скрол (ако още ползваш текста в hero)
   const header = document.getElementById("stickyHeader");

@@ -39,6 +39,16 @@
 
 html{ scroll-behavior:smooth; }
 
+/* iOS safe-area за notch – да няма „бяла лента“ над хедъра */
+:root { --safe-top: env(safe-area-inset-top); }
+
+.magic-header{
+  padding-top: calc(8px + var(--safe-top, 0px));
+}
+
+/* за да пълним фона под системната зона */
+html, body { background-color: var(--midnight-forest); }
+
 body{
   margin:0;
   background: radial-gradient(90% 120% at 20% 10%, var(--bg) 0%, var(--bg-2) 70%);
@@ -325,6 +335,37 @@ footer{ text-align:center; padding:20px; font-size:.9rem; color:#ccc; }
 
 @media (prefers-reduced-motion: reduce){
   #intro-curtain{ display:none !important; }
+}
+
+
+
+/* Mobile-first височина на карусела + коректно кадриране */
+.drive-gallery .carousel-inner,
+.drive-gallery .carousel-item {
+  height: 72vh;              /* мобилно: почти цял екран */
+  min-height: 320px;
+}
+@media (min-width: 768px) {
+  .drive-gallery .carousel-inner,
+  .drive-gallery .carousel-item { height: 70vh; }
+}
+@media (min-width: 1200px) {
+  .drive-gallery .carousel-inner,
+  .drive-gallery .carousel-item { height: 68vh; }
+}
+
+.drive-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* пълни кадъра без изкривяване */
+  object-position: center;
+  display: block;
+}
+
+/* Индикатори да личат върху тъмен фон */
+.drive-gallery .carousel-indicators [data-bs-target]{
+  background-color: var(--wantgold);
+  width: 10px; height: 10px; border-radius: 50%;
 }
 
 
