@@ -662,4 +662,28 @@ section.snap {
 .scroll-indicator.hidden { opacity: 0; pointer-events: none; }
 
 
+/* Избран пакет – пилюлка над формата */
+.selected-package{
+  display:flex; gap:.5rem; align-items:center; justify-content:center;
+  margin:-6px auto 18px; padding:.5rem .75rem;
+  width:fit-content; border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(212,175,55,.35);
+  box-shadow:0 8px 20px -10px rgba(0,0,0,.35);
+  animation: pkg-pop .28s ease-out;
+}
+.selected-package .label{ color:#cfcfcf; font-size:.9rem; }
+.selected-package .value{
+  color: var(--wantgold); font-weight:700;
+  font-family:'Rosarium',serif; letter-spacing:.2px;
+}
+.selected-package .clear{
+  border:0; background:transparent; color:#fff; opacity:.6;
+  font-size:1.1rem; line-height:1; padding:.1rem .25rem; cursor:pointer;
+}
+.selected-package .clear:hover{ opacity:.9; }
+.d-none{ display:none !important; }
+@keyframes pkg-pop{ from{ transform:scale(.96); opacity:0 } to{ transform:scale(1); opacity:1 } }
+
+
 

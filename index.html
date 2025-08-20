@@ -76,7 +76,8 @@
       <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Как работи</h2>
 
       <p class="how-sublead text-center mx-auto mb-4">
-        Планираме, декорираме и създаваме преживявания, които остават. Ето как протича всичко:
+        Всяко приключение в <span class="inline-logo"></span> започва с искра на въображението.
+        Ние я превръщаме в пълен с магия път, по който ще преминем заедно:
       </p>
 
       <div class="row justify-content-center">
@@ -84,17 +85,17 @@
           <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
             <div class="flex-fill p-3 rounded-4 step-box">
               <div class="step-circle"><span>1</span></div>
-              <div class="step-text">Кратък разговор за визията и бюджета</div>
+              <div class="step-text">Избери своя вълшебен пакет – натисни бутона „Запитване“ и отключи портала</div>
             </div>
 
             <div class="flex-fill p-3 rounded-4 step-box">
               <div class="step-circle"><span>2</span></div>
-              <div class="step-text">Предложение &amp; moodboard</div>
+              <div class="step-text">Определи дата – денят, в който магията ще оживее</div>
             </div>
 
             <div class="flex-fill p-3 rounded-4 step-box">
               <div class="step-circle"><span>3</span></div>
-              <div class="step-text">Реализация &amp; магия на място</div>
+              <div class="step-text">Изпрати своето послание и скоро ще чуеш от нас – вратата към Wonderland ще се отвори</div>
             </div>
           </div>
         </div>
@@ -106,6 +107,7 @@
       </div>
     </div>
   </section>
+
 
 
   <!-- ПАКЕТИ (втора секция) -->
@@ -125,7 +127,7 @@
               <li>До 2 тематични акцента</li>
               <li>Подредба на място</li>
             </ul>
-            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+            <button class="btn btn-primary w-100" type="button" data-enquire-package="Basic">Запитване</button>
           </div>
         </div>
 
@@ -139,7 +141,7 @@
               <li>Персонализирани табели</li>
               <li>Координация на доставчици</li>
             </ul>
-            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+            <button class="btn btn-primary w-100" type="button" data-enquire-package="Signature">Запитване</button>
           </div>
         </div>
 
@@ -153,7 +155,7 @@
               <li>Специални ефекти &amp; светлина</li>
               <li>Пълна координация</li>
             </ul>
-            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+            <button class="btn btn-primary w-100" type="button" data-enquire-package="Wonder">Запитване</button>
           </div>
         </div>
       </div>
@@ -193,27 +195,52 @@
   <section id="contact" class="contact snap py-5">
     <div class="container" style="max-width: 860px;">
       <h2 class="text-center mb-3" style="font-family:'Rosarium',serif;">Изпрати запитване</h2>
-      <p class="text-center opacity-75 mb-4">Опиши накратко събитието и желаната дата – ще върнем идея и ориентир.</p>
-      <form>
+      <p class="text-center opacity-75 mb-4">
+        Опиши накратко събитието и желаната дата – ще върнем идея и ориентир.
+      </p>
+
+      <!-- Индикация за избран пакет -->
+      <div id="selectedPackageBadge" class="selected-package d-none" aria-live="polite">
+        <span class="label">Избран пакет:</span>
+        <strong class="value"></strong>
+        <button class="clear" type="button" aria-label="Премахни избрания пакет">×</button>
+      </div>
+
+      <form id="contactForm">
+        <!-- скрито поле за пакета -->
+        <input type="hidden" name="package" id="packageField" value="">
+
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Име</label>
-            <input type="text" class="form-control" placeholder="Име" required>
+            <input type="text" class="form-control" name="name" placeholder="Име" required>
           </div>
           <div class="col-md-6">
             <label class="form-label">Имейл</label>
-            <input type="email" class="form-control" placeholder="Имейл" required>
+            <input type="email" class="form-control" name="email" placeholder="Имейл" required>
           </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Дата</label>
+            <input type="date" class="form-control" name="date" id="dateField" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Телефон (по желание)</label>
+            <input type="tel" class="form-control" name="phone" inputmode="tel" placeholder="+359 ...">
+          </div>
+
           <div class="col-12">
             <label class="form-label">Съобщение</label>
-            <textarea class="form-control" rows="5" placeholder="Дата, място, идея…" required></textarea>
+            <textarea class="form-control" name="message" rows="5" placeholder="Дата, място, идея…" required></textarea>
           </div>
+
           <div class="col-12 text-center">
             <button type="submit" class="btn btn-lg mt-2">Изпрати</button>
           </div>
         </div>
       </form>
     </div>
+
     <!-- FOOTER -->
     <footer class="py-4 text-center">
       <div class="container">
@@ -221,6 +248,7 @@
       </div>
     </footer>
   </section>
+
 </main>
 
 
