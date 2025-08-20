@@ -4,24 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- iOS/Safari UI цветове над адрес бара -->
+  <!-- iOS/Safari UI цвет над адрес бара -->
   <meta name="theme-color" content="#0B1226" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0B1226" media="(prefers-color-scheme: dark)">
-
-  <!-- iOS статус бар (ако се запази като web app) -->
+  <!-- Ако се добави към Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <title>Wonderland</title>
   <link rel="icon" type="image/png" href="assets/img/Gold-4.png">
-  <!-- Bootstrap CSS -->
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Твоите стилове (шрифтове + цветове + фон + др.) -->
+  <!-- Основни стилове -->
   <link rel="stylesheet" href="styles.css">
+
 </head>
 <body>
-<!-- INTRO CURTAIN -->
 <div id="intro-curtain" aria-hidden="true">
   <div class="curtain-panel left"></div>
 
@@ -34,122 +34,185 @@
     </div>
   </div>
 </div>
-
-<!-- Реално звездно небе -->
+<!-- Реално звездно небе (ползваме твоя custom shape) -->
 <svg id="starfield" class="starfield" viewBox="0 0 100 100" aria-hidden="true">
-
   <defs>
-    <!-- базова звезда – твоя shape -->
     <symbol id="star-shape" viewBox="280 520 20 20">
       <path d="M286.52,527.53c-1.22,1.37-2.64,1.97-4.57,2.18-.22.02-.23.32-.02.37,1.76.38,3.3,1.06,4.52,2.33,1.3,1.34,1.62,3.06,1.88,4.94.03.23.37.23.39,0,.14-1.6.25-3.23,1.25-4.47,1.08-1.34,2.84-2.57,4.59-2.88.14-.02.14-.22,0-.25-1.67-.36-3.3-1.18-4.34-2.4-.73-.85-1.34-2.88-1.76-4.49-.05-.2-.34-.17-.36.03-.18,1.86-.49,3.42-1.58,4.65Z"/>
     </symbol>
-
-    <!-- завъртяна версия -->
     <symbol id="star-shape-rot" viewBox="280 520 20 20">
-      <g transform="rotate(35 540 540)">
-        <use href="#star-shape"/>
-      </g>
+      <g transform="rotate(35 540 540)"><use href="#star-shape"/></g>
     </symbol>
-
-    <!-- по-сплескана версия -->
     <symbol id="star-shape-slim" viewBox="280 520 20 20">
-      <g transform="translate(540 540) scale(1,0.8) translate(-540 -540)">
-        <use href="#star-shape"/>
-      </g>
+      <g transform="translate(540 540) scale(1,0.8) translate(-540 -540)"><use href="#star-shape"/></g>
     </symbol>
   </defs>
 </svg>
 
-
-
-
-
 <!-- HEADER -->
 <header id="stickyHeader" class="magic-header py-2">
   <div class="container text-center">
-    <div id="headerLogoSvg" class="header-logo-svg"></div>
+    <!-- В хедъра използваме SVG-маска (виж styles.css: .header-logo-svg) -->
+    <div id="headerLogoSvg" class="header-logo-svg mx-auto"></div>
   </div>
 </header>
 
-<!-- HERO -->
-<section class="hero text-center d-flex align-items-center justify-content-center" style="min-height: 72vh;">
-  <div class="container">
-    <div class="logo-svg"></div>
-    <p class="lead mx-auto" style="max-width: 720px;">
-      Потопи се в свят, изпълнен с мистерия, усмивки и незабравими моменти.
-    </p>
-    <button type="button"
-            class="btn btn-lg mt-3"
-            data-scroll="#gallery"
-            style="background: var(--wantgold); color: #fff;">
-      Виж галерията
-    </button>
-  </div>
-</section>
+<!-- Основно съдържание със snap секции -->
+<main class="page-snap">
 
-<!-- ОПИСАНИЕ -->
-<section id="description" class="description py-5">
-  <div class="container">
-    <div class="row justify-content-center text-center">
-      <div class="col-lg-8">
-        <p class="mb-0">
-          Добре дошли в Wonderland – мястото, където всяко дете и родител ще открият вълшебство.
-          От мистична атмосфера до топло посрещане, тук вашите събития оживяват по неповторим начин.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- HERO / Как работи (първа секция) -->
+  <section id="how" class="hero snap text-center d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div style="margin-bottom:-3rem; margin-top:-1rem" class="logo-svg"></div>
+      <p class="lead mx-auto" style="max-width: 760px;">
+        Потопи се в
+        <span class="inline-logo"></span>
+        Планираме, декорираме и създаваме
+        преживявания, които остават. <br>Ето как протича всичко
+      </p>
 
-<!-- ГАЛЕРИЯ (динамична от Google Drive) -->
-<section id="gallery" class="py-5">
-  <div class="container">
-    <div id="galleryCarousel"
-         class="carousel slide shadow-lg rounded-4 overflow-hidden drive-gallery"
-         data-bs-ride="carousel" data-bs-interval="4000" aria-label="Галерия">
-      <div class="carousel-inner"></div>
+      <div class="row g-3 mt-3 justify-content-center">
+        <div class="col-12 col-md-10">
+          <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
 
-      <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev" aria-label="Предишен">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next" aria-label="Следващ">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      </button>
+            <div class="flex-fill p-3 rounded-4 step-box">
+              <div class="step-circle">1</div>
+              <div class="step-text">Кратък разговор за визията и бюджета</div>
+            </div>
 
-      <div class="carousel-indicators m-0"></div>
-    </div>
-  </div>
-</section>
+            <div class="flex-fill p-3 rounded-4 step-box">
+              <div class="step-circle">2</div>
+              <div class="step-text">Предложение &amp; moodboard</div>
+            </div>
 
-<!-- ФОРМА ЗА ЗАПИТВАНЕ -->
-<section id="contact" class="contact py-5">
-  <div class="container">
-    <h2 class="text-center mb-4">Изпрати запитване</h2>
-    <form class="mx-auto" style="max-width: 640px;">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Име</label>
-          <input type="text" class="form-control" placeholder="Име" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Имейл</label>
-          <input type="email" class="form-control" placeholder="Имейл" required>
-        </div>
-        <div class="col-12">
-          <label class="form-label">Съобщение</label>
-          <textarea class="form-control" rows="5" placeholder="Съобщение" required></textarea>
-        </div>
-        <div class="col-12 text-center z-1">
-          <button type="submit" class="btn btn-lg mt-2" style="background: var(--wantgold); color: #fff;">
-            Изпрати
-          </button>
+            <div class="flex-fill p-3 rounded-4 step-box">
+              <div class="step-circle">3</div>
+              <div class="step-text">Реализация &amp; магия на място</div>
+            </div>
+
+          </div>
         </div>
       </div>
-    </form>
-  </div>
-</section>
 
-<!-- FOOTER -->
+
+      <div class="mt-4 d-flex gap-3 justify-content-center">
+        <button class="btn btn-primary btn-lg" data-scroll="#packages">Виж пакетите</button>
+        <button class="btn btn-outline-light btn-lg" data-scroll="#gallery">Галерия</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ПАКЕТИ (втора секция) -->
+  <section id="packages" class="snap py-5">
+    <div class="container">
+      <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Пакети</h2>
+      <p class="text-center mb-5">Избери ниво според мечтата и мащаба. Винаги може да персонализираме.</p>
+
+      <div class="row g-4">
+        <div class="col-12 col-md-4 d-flex">
+          <div class="pack-card p-4 w-100">
+            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Basic</h3>
+            <p class="opacity-75 mb-3">Елегантен старт за малки празници.</p>
+            <div class="price mb-3">от 390 лв</div>
+            <ul class="mb-4 opacity-90">
+              <li>Базов декор &amp; цветове</li>
+              <li>До 2 тематични акцента</li>
+              <li>Подредба на място</li>
+            </ul>
+            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+          <div class="pack-card p-4 w-100" style="border-color: rgba(212,175,55,.35)">
+            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Signature</h3>
+            <p class="opacity-75 mb-3">Най-популярният ни баланс цена/уоу.</p>
+            <div class="price mb-3">от 790 лв</div>
+            <ul class="mb-4 opacity-90">
+              <li>Разширен декор &amp; арки</li>
+              <li>Персонализирани табели</li>
+              <li>Координация на доставчици</li>
+            </ul>
+            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+          <div class="pack-card p-4 w-100">
+            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Wonder</h3>
+            <p class="opacity-75 mb-3">Пълно изживяване – истинска сцена.</p>
+            <div class="price mb-3">от 1490 лв</div>
+            <ul class="mb-4 opacity-90">
+              <li>Пълен декор &amp; сценография</li>
+              <li>Специални ефекти &amp; светлина</li>
+              <li>Пълна координация</li>
+            </ul>
+            <button class="btn btn-sm btn-outline-light mt-auto" data-scroll="#contact">Запитване</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-lg btn-primary" data-scroll="#gallery">Виж Галерия</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ГАЛЕРИЯ (динамична от Google Drive) – трета секция -->
+  <section id="gallery" class="snap py-5">
+    <div class="container">
+      <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Галерия</h2>
+      <div id="galleryCarousel"
+           class="carousel slide shadow-lg rounded-4 overflow-hidden drive-gallery"
+           data-bs-ride="carousel" data-bs-interval="4000" aria-label="Галерия">
+        <div class="carousel-inner"></div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev" aria-label="Предишен">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next" aria-label="Следващ">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+
+        <div class="carousel-indicators m-0"></div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-light" data-scroll="#contact">Имам въпрос</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ФОРМА ЗА ЗАПИТВАНЕ – четвърта секция -->
+  <section id="contact" class="contact snap py-5">
+    <div class="container" style="max-width: 860px;">
+      <h2 class="text-center mb-3" style="font-family:'Rosarium',serif;">Изпрати запитване</h2>
+      <p class="text-center opacity-75 mb-4">Опиши накратко събитието и желаната дата – ще върнем идея и ориентир.</p>
+      <form>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Име</label>
+            <input type="text" class="form-control" placeholder="Име" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Имейл</label>
+            <input type="email" class="form-control" placeholder="Имейл" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Съобщение</label>
+            <textarea class="form-control" rows="5" placeholder="Дата, място, идея…" required></textarea>
+          </div>
+          <div class="col-12 text-center">
+            <button type="submit" class="btn btn-lg mt-2">Изпрати</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER (извън snap, за да не щрака) -->
 <footer class="py-4 text-center">
   <div class="container">
     <small class="d-block" style="color:#ccc;">Wonderland © 2025</small>
@@ -158,7 +221,35 @@
 
 <!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Скрол до секция по data-scroll + профилактика на "glitch" при reload на iOS -->
+<script>
+  (function(){
+    const OFFSET = 0; // ако имаш фиксиран header с височина – можеш да компенсираш тук
+    function smoothTo(target){
+      const el = document.querySelector(target);
+      if(!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - OFFSET;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('[data-scroll]');
+      if(!a) return;
+      e.preventDefault();
+      smoothTo(a.getAttribute('data-scroll'));
+    });
+
+    // iOS Safari reload scroll-jump guard
+    window.history.scrollRestoration = 'manual';
+    window.addEventListener('pageshow', (e)=>{
+      if (e.persisted) window.scrollTo(0,0);
+    }, { passive:true });
+  })();
+</script>
+
+<!-- Твоите скриптове (хедър лого, starfield, curtain и др.) -->
 <script src="scripts.js" defer></script>
+<!-- Галерия от Google Drive (ползва thumbnail endpoint) -->
 <script src="drive-gallery.js" defer></script>
 </body>
 </html>
