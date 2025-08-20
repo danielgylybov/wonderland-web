@@ -242,6 +242,89 @@ footer{ text-align:center; padding:20px; font-size:.9rem; color:#ccc; }
 /* ===========================
    8) ДОСТЪПНОСТ
 =========================== */
+
+
 @media (prefers-reduced-motion:reduce){
   *{ animation:none !important; transition:none !important; }
 }
+/* ---------------------------
+   INTRO OVERLAY (ЗАВЕСА)
+---------------------------- */
+
+/* сайтът да се вижда през средата – нямаме фон на overlay-а */
+#intro-curtain{
+  position:fixed; inset:0; z-index:9999;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+/* двете половини-завеси */
+#intro-curtain .curtain-panel{
+  position:absolute; top:0; bottom:0; width:50%;
+  background: rgba(7,12,27,.92);
+  box-shadow: 0 0 40px rgba(0,0,0,.45) inset;
+  will-change: transform;
+}
+#intro-curtain .curtain-panel.left{  left:0;  transform:translateX(0); }
+#intro-curtain .curtain-panel.right{ right:0; transform:translateX(0); }
+
+/* Центърът (линии + лого) е захванат за РАЗРЕЗА на дясното перде,
+   за да се движи 1:1 с него */
+#intro-curtain .curtain-center{
+  position:absolute;           /* вътре в .curtain-panel.right */
+  left:0; top:50%;
+  transform:translate(-50%, -50%); /* центърът точно на линията между пердетата */
+  display:grid; place-items:center; gap:14px;
+  pointer-events:none; z-index:2;
+}
+
+#intro-curtain .curtain-line{
+  width:2px; height:16vh;
+  background:linear-gradient(var(--wantgold,#d89e58),transparent);
+  opacity:.9;
+  &.top {
+  background:linear-gradient(transparent, var(--wantgold,#d89e58));
+  }
+}
+
+/* ЛОГО + ЗЛАТЕН КРЪГ (кръгът е ::before върху самото лого) */
+#intro-curtain .curtain-logo{
+  width:min(36vw,250px); height:min(28vw,150px);
+  background: linear-gradient(90deg, var(--wantgold,#d89e58), #f1c37a, var(--wantgold,#d89e58));
+  background-size:200%;
+  -webkit-mask: url('assets/img/Gold-4.svg') no-repeat center / 60%;
+  mask: url('assets/img/Gold-4.svg') no-repeat center / 60%;
+  border-radius:50%;
+  position:relative;
+  animation: shimmer 5s linear infinite, logo-pop .55s ease-out .2s both;
+}
+#intro-curtain .curtain-panel.right::before{
+  content:"";
+  position:absolute;
+  left:0; top:50%; transform:translate(-50%, -50%);  /* центърът на екрана */
+  width:min(32vw, 180px); height:min(32vw, 180px);
+  border-radius:50%;
+  /* златен пръстен + меко сияние */
+  box-shadow:
+    inset 0 0 0 3px var(--wantgold, #d89e58),
+    0 8px 28px rgba(216,158,88,.35);
+  z-index:3;
+}
+
+/* Анимации */
+@keyframes logo-pop{ 0%{ transform:scale(.9); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+@keyframes curtain-open-left { to{ transform:translateX(-100%); } }
+@keyframes curtain-open-right{ to{ transform:translateX(100%); } }
+@keyframes curtain-fade-out { to{ opacity:0; visibility:hidden; } }
+
+/* старт на отварянето – добавя се .open от JS */
+#intro-curtain.open .curtain-panel.left{  animation:curtain-open-left  .9s ease-in forwards; }
+#intro-curtain.open .curtain-panel.right{ animation:curtain-open-right .9s ease-in forwards; }
+/* fade на целия overlay накрая */
+#intro-curtain.open{ animation:curtain-fade-out .5s ease .9s forwards; }
+
+@media (prefers-reduced-motion: reduce){
+  #intro-curtain{ display:none !important; }
+}
+
+
