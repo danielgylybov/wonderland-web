@@ -4,6 +4,10 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
+// най-горе в scripts.js
+const isOverlayOpen = () => document.body.classList.contains('no-scroll');
+
+
 /* височината на fixed хедъра (ако е видим) */
 function getHeaderH() {
   const header = $('.magic-header');
@@ -24,7 +28,7 @@ function scrollToWithOffset(target, extraOffset = 0) {
   // по твоя формула – малко „повдигане“ (−headerH + 40px)
   const top = absoluteTop - (headerH - 40) + extraOffset;
 
-  window.scrollTo({ top, behavior: 'smooth' });
+  window.scrollTo({ top, behavior: isOverlayOpen() ? 'auto' : 'smooth' });
 }
 
 /* debounce helper */
@@ -60,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
    2) Click навигация (бутони + линкове) – ползва scrollToWithOffset
 --------------------------------------------------------- */
 document.addEventListener('click', (e) => {
+  if (isOverlayOpen()) return;
   const btn = e.target.closest('[data-scroll]');
   if (btn) {
     e.preventDefault();
@@ -136,14 +141,85 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ---------------------------------------------------------
    4) Intro Curtain – auto open, remove on end
 --------------------------------------------------------- */
+/* Intro Curtain – auto open, then hide (не remove) */
+/* ===== Reusable Intro Curtain helpers ===== */
+function getCurtain(){ return document.getElementById('intro-curtain'); }
+
+/* Първоначално поведение при зареждане: отваря се и се “скрива”, без remove() */
 window.addEventListener('load', () => {
-  const curtain = $('#intro-curtain');
-  if (!curtain) return;
-  setTimeout(() => curtain.classList.add('open'), 250);
-  curtain.addEventListener('animationend', (ev) => {
-    if (ev.animationName === 'curtain-fade-out') curtain.remove();
+  const c = getCurtain();
+  if (!c) return;
+
+  // първо отваряне
+  setTimeout(() => c.classList.add('open'), 250);
+
+  // след fade-out → скрий и махни .open (готови за повторна употреба)
+  c.addEventListener('animationend', (ev) => {
+    if (ev.animationName === 'curtain-fade-out') {
+      c.classList.add('gone');
+      c.classList.remove('open');
+      c.classList.remove('closing');
+      c.classList.remove('prep-close');
+    }
   });
 });
+
+/* Затвори завесите към центъра (за показване на модал) → Promise */
+function curtainsClose(){
+  return new Promise((resolve) => {
+    const c = getCurtain();
+    if (!c) return resolve();
+
+    // покажи, подготви паната “отворени”, после анимирай към центъра
+    c.classList.remove('gone','open','closing');
+    c.classList.add('prep-close');
+
+    // force reflow, за да сработят анимациите надеждно
+    // eslint-disable-next-line no-unused-expressions
+    c.offsetHeight;
+
+    c.classList.add('closing');
+
+    let ended = 0;
+    const onEnd = () => {
+      ended++;
+      if (ended >= 2) {                 // чакаме ляво + дясно пано
+        c.classList.remove('closing','prep-close');
+        resolve();
+      }
+    };
+    const left  = c.querySelector('.curtain-panel.left');
+    const right = c.querySelector('.curtain-panel.right');
+    if (!left || !right){ resolve(); return; }
+
+    left.addEventListener('animationend', onEnd, { once:true });
+    right.addEventListener('animationend', onEnd, { once:true });
+  });
+}
+
+/* Отвори завесите (както интрото) и после ги скрий → Promise */
+function curtainsOpen(){
+  return new Promise((resolve) => {
+    const c = getCurtain();
+    if (!c) return resolve();
+
+    c.classList.remove('gone','closing','prep-close');
+
+    const onFade = (ev) => {
+      if (ev.animationName === 'curtain-fade-out') {
+        c.classList.add('gone');   // скрий
+        c.classList.remove('open');
+        c.removeEventListener('animationend', onFade);
+        resolve();
+      }
+    };
+    c.addEventListener('animationend', onFade);
+    // тригерни отварянето (паната се разтварят + fade-out)
+    c.classList.add('open');
+  });
+}
+
+
 
 /* ---------------------------------------------------------
    5) Desktop full-page snap (wheel = 1 секция) – ползва scrollToWithOffset
@@ -193,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const THRESHOLD = 60;
 
   const onWheel = (e) => {
+    if (isOverlayOpen()) return;
     e.preventDefault();
     if (animating) return;
 
@@ -209,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('wheel', onWheel, { passive: false });
 
   window.addEventListener('keydown', (e) => {
+    if (isOverlayOpen()) return;
     if (animating) return;
     if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
       e.preventDefault(); goTo(index + 1);
@@ -221,10 +299,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const onScrollPassive = () => { if (!animating) recalcIndex(); };
+  const onScrollPassive = () => { if (!animating && !isOverlayOpen()) recalcIndex(); };
   window.addEventListener('scroll', onScrollPassive, { passive: true });
 
   window.addEventListener('resize', () => {
+    if (isOverlayOpen()) return;
     recalcIndex();
     goTo(index);
   });
