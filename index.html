@@ -110,61 +110,11 @@
 
 
 
-  <!-- ПАКЕТИ (втора секция) -->
   <section id="packages" class="snap py-5">
-    <div class="container">
-      <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Пакети</h2>
-      <p class="text-center mb-5">Избери ниво според мечтата и мащаба. Винаги може да персонализираме.</p>
-
-      <div class="row g-4">
-        <div class="col-12 col-md-4 d-flex">
-          <div class="pack-card p-4 w-100">
-            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Basic</h3>
-            <p class="opacity-75 mb-3">Елегантен старт за малки празници.</p>
-            <div class="price mb-3">от 390 лв</div>
-            <ul class="mb-4 opacity-90">
-              <li>Базов декор &amp; цветове</li>
-              <li>До 2 тематични акцента</li>
-              <li>Подредба на място</li>
-            </ul>
-            <button class="btn btn-primary w-100" type="button" data-enquire-package="Basic">Запитване</button>
-          </div>
-        </div>
-
-        <div class="col-12 col-md-4 d-flex">
-          <div class="pack-card p-4 w-100" style="border-color: rgba(212,175,55,.35)">
-            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Signature</h3>
-            <p class="opacity-75 mb-3">Най-популярният ни баланс цена/уоу.</p>
-            <div class="price mb-3">от 790 лв</div>
-            <ul class="mb-4 opacity-90">
-              <li>Разширен декор &amp; арки</li>
-              <li>Персонализирани табели</li>
-              <li>Координация на доставчици</li>
-            </ul>
-            <button class="btn btn-primary w-100" type="button" data-enquire-package="Signature">Запитване</button>
-          </div>
-        </div>
-
-        <div class="col-12 col-md-4 d-flex">
-          <div class="pack-card p-4 w-100">
-            <h3 class="mb-2" style="font-family:'Rosarium',serif;">Wonder</h3>
-            <p class="opacity-75 mb-3">Пълно изживяване – истинска сцена.</p>
-            <div class="price mb-3">от 1490 лв</div>
-            <ul class="mb-4 opacity-90">
-              <li>Пълен декор &amp; сценография</li>
-              <li>Специални ефекти &amp; светлина</li>
-              <li>Пълна координация</li>
-            </ul>
-            <button class="btn btn-primary w-100" type="button" data-enquire-package="Wonder">Запитване</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center mt-4">
-        <button class="btn btn-lg btn-primary" data-scroll="#gallery">Виж Галерия</button>
-      </div>
-    </div>
+    <div class="container" id="packages-root"></div>
   </section>
+
+
 
   <!-- ГАЛЕРИЯ (динамична от Google Drive) – трета секция -->
   <section id="gallery" style="padding-top: -3rem;" class="snap">
@@ -280,6 +230,8 @@
     }, { passive:true });
   })();
 </script>
+<script src="packages-data.js" defer></script>
+<script src="packages.js" defer></script>
 
 <!-- Твоите скриптове (хедър лого, starfield, curtain и др.) -->
 <script src="scripts.js" defer></script>
@@ -294,5 +246,6 @@
         data-scroll="#how">
   <span class="chev"></span>
 </button>
+<div id="package-overlay" class="pkg-overlay d-none" aria-hidden="true"></div>
 </body>
 </html>

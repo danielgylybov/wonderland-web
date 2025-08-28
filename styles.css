@@ -4,7 +4,7 @@
 @font-face {
   font-family: "Rosarium";
   src: url("assets/Rosarium.woff2") format("woff2"),
-    url("assets/Rosarium.ttf") format("truetype");
+       url("assets/Rosarium.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,676 +14,570 @@
 @font-face {
   font-family: "CraftworkGrotesk";
   src: url("assets/CraftworkGrotesk-Regular.woff2") format("woff2"),
-    url("assets/CraftworkGrotesk-Regular.otf") format("opentype");
+       url("assets/CraftworkGrotesk-Regular.otf") format("opentype");
   font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "CraftworkGrotesk";
   src: url("assets/CraftworkGrotesk-Medium.woff2") format("woff2"),
-    url("assets/CraftworkGrotesk-Medium.otf") format("opentype");
+       url("assets/CraftworkGrotesk-Medium.otf") format("opentype");
   font-weight: 500;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "CraftworkGrotesk";
   src: url("assets/CraftworkGrotesk-SemiBold.woff2") format("woff2"),
-    url("assets/CraftworkGrotesk-SemiBold.otf") format("opentype");
+       url("assets/CraftworkGrotesk-SemiBold.otf") format("opentype");
   font-weight: 600;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "CraftworkGrotesk";
   src: url("assets/CraftworkGrotesk-Bold.woff2") format("woff2"),
-    url("assets/CraftworkGrotesk-Bold.otf") format("opentype");
+       url("assets/CraftworkGrotesk-Bold.otf") format("opentype");
   font-weight: 700;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "CraftworkGrotesk";
   src: url("assets/CraftworkGrotesk-Heavy.woff2") format("woff2"),
-    url("assets/CraftworkGrotesk-Heavy.otf") format("opentype");
+       url("assets/CraftworkGrotesk-Heavy.otf") format("opentype");
   font-weight: 800;
+  font-style: normal;
   font-display: swap;
 }
 
 /* ===========================
    2) ПАЛИТРА / БАЗА
 =========================== */
-:root {
+:root{
   /* Тема */
-  --bg: #0f1730;
-  --bg-2: #0b1226;
-  --text: #f7f8ff;
-  --muted: #b8c6ff;
+  --bg:#0f1730;
+  --bg-2:#0b1226;
+  --text:#f7f8ff;
+  --muted:#b8c6ff;
 
-  --blue: #657bbb; /* звездички */
-  --blue-2: #8ea2ff;
-  --blue-3: #aebcff;
+  --blue:#657bbb; /* звездички */
+  --blue-2:#8ea2ff;
+  --blue-3:#aebcff;
 
-  --gold: #d89e58; /* бранд злато */
-  --gold-2: #f1c37a; /* по-светло за shimmer */
+  --gold:#d89e58;   /* бранд злато */
+  --gold-2:#f1c37a; /* по-светло за shimmer */
 
-  --shadow: rgba(0, 0, 0, 0.35);
+  --shadow:rgba(0,0,0,.35);
 
   /* Съвместимост със старо име */
-  --wantgold: var(--gold);
+  --wantgold:var(--gold);
 
   /* iOS safe area */
-  --safe-top: env(safe-area-inset-top);
+  --safe-top:env(safe-area-inset-top);
 
-  --headerH: 83px;
+  --headerH:83px;
 }
 
-html {
-  scroll-behavior: smooth;
-  height: 100%;
+html{scroll-behavior:smooth;height:100%}
+body{
+  margin:0;min-height:100%;
+  background:radial-gradient(90% 120% at 20% 10%,var(--bg) 0%,var(--bg-2) 70%);
+  color:var(--text);overflow-x:hidden;
+  font-family:"CraftworkGrotesk",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-
-body {
-  margin: 0;
-  min-height: 100%;
-  background: radial-gradient(
-    90% 120% at 20% 10%,
-    var(--bg) 0%,
-    var(--bg-2) 70%
-  );
-  color: var(--text);
-  overflow-x: hidden;
-  font-family: "CraftworkGrotesk", system-ui, -apple-system, Segoe UI, Roboto,
-    Ubuntu, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
 /* Заглавия с бранд шрифт */
-h1,
-h2,
-h3 {
-  font-family: "Rosarium", serif;
-  color: var(--text);
-}
+h1,h2,h3{font-family:"Rosarium",serif;color:var(--text)}
 
 /* ===========================
    3) ЗВЕЗДНО НЕБЕ (реални SVG звезди)
 =========================== */
-.starfield {
-  position: fixed;
-  inset: 0;
-  height: 100svh;
-  width: 100%;
-  pointer-events: none;
-  z-index: 0; /* над фона, под съдържанието */
-  opacity: 0.9;
+.starfield{
+  position:fixed;inset:0;height:100svh;width:100%;
+  pointer-events:none;z-index:0;opacity:.9;
 }
-.star {
-  fill: var(--blue-3);
-  opacity: 0.85;
-  animation: twinkle var(--twinkle, 6s) ease-in-out infinite,
-    drift var(--drift, 120s) linear infinite;
+.star{
+  fill:var(--blue-3);opacity:.85;
+  animation:twinkle var(--twinkle,6s) ease-in-out infinite,
+           drift var(--drift,120s) linear infinite;
 }
-.star:nth-child(3n) {
-  fill: var(--blue-2);
-  opacity: 0.8;
-}
-.star:nth-child(5n) {
-  fill: var(--blue);
-  opacity: 0.75;
-}
+.star:nth-child(3n){fill:var(--blue-2);opacity:.8}
+.star:nth-child(5n){fill:var(--blue);opacity:.75}
 
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(var(--pulse, 1));
-  }
-  50% {
-    opacity: 1;
-    transform: scale(calc(var(--pulse, 1) * 1.12));
-  }
+@keyframes twinkle{
+  0%,100%{opacity:.3;transform:scale(var(--pulse,1))}
+  50%{opacity:1;transform:scale(calc(var(--pulse,1)*1.12))}
 }
-@keyframes drift {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(-2%, -2%);
-  }
+@keyframes drift{
+  0%{transform:translate(0,0)}
+  100%{transform:translate(-2%,-2%)}
 }
 
 /* Ако има стар „fake stars“ фон през ::before/::after – скрий го, когато ползваме истински звезди */
 body.use-real-stars::before,
-body.use-real-stars::after {
-  display: none !important;
-}
+body.use-real-stars::after{display:none!important}
 
 /* ===========================
    4) HEADER / ЛОГО
 =========================== */
-.magic-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding-top: calc(8px + var(--safe-top, 0px));
-  background: rgba(7, 12, 27, 0.55);
-  backdrop-filter: saturate(120%) blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 8px 30px -12px var(--shadow);
-  z-index: 1030;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-20px);
-  transition: opacity 0.35s ease, transform 0.35s ease, background 0.35s ease,
-    border-color 0.35s ease, box-shadow 0.35s ease;
+.magic-header{
+  position:fixed;top:0;left:0;right:0;
+  padding-top:calc(8px + var(--safe-top,0px));
+  background:rgba(7,12,27,.55);
+  backdrop-filter:saturate(120%) blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  box-shadow:0 8px 30px -12px var(--shadow);
+  z-index:1030;opacity:0;pointer-events:none;transform:translateY(-20px);
+  transition:opacity .35s ease,transform .35s ease,background .35s ease,border-color .35s ease,box-shadow .35s ease;
 }
-.magic-header.show-logo {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-  background: rgba(7, 12, 27, 0.82);
+.magic-header.show-logo{
+  opacity:1;pointer-events:auto;transform:translateY(0);
+  background:rgba(7,12,27,.82);
 }
 
 /* Текстово лого (fallback) */
-.logo-text {
-  font-family: "Rosarium", serif;
-  font-size: 1.8rem;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 5s linear infinite;
-  opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+.logo-text{
+  font-family:"Rosarium",serif;font-size:1.8rem;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  opacity:0;transform:scale(.92);
+  transition:opacity .35s ease,transform .35s ease;
 }
-.magic-header.show-logo .logo-text {
-  opacity: 1;
-  transform: scale(1);
-}
+.magic-header.show-logo .logo-text{opacity:1;transform:scale(1)}
 
 /* SVG лого в Header (маска) — ако го използваш */
-.header-logo-svg {
-  height: 52px;
-  margin-top: 14px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  background-size: 200%;
-  -webkit-mask: url("assets/img/Gold-6-trimmed.svg") no-repeat center / contain;
-  mask: url("assets/img/Gold-6-trimmed.svg") no-repeat center / contain;
-  animation: shimmer 5s linear infinite;
-  opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+.header-logo-svg{
+  height:52px;margin-top:14px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
+  background-size:200%;
+  -webkit-mask:url("assets/img/Gold-6-trimmed.svg") no-repeat center/contain;
+          mask:url("assets/img/Gold-6-trimmed.svg") no-repeat center/contain;
+  opacity:0;transform:scale(.92);
+  transition:opacity .35s ease,transform .35s ease;
 }
-.magic-header.show-logo .header-logo-svg {
-  opacity: 1;
-  transform: scale(1);
-}
+.magic-header.show-logo .header-logo-svg{opacity:1;transform:scale(1)}
 
 /* ===========================
    5) HERO
 =========================== */
-.hero {
-  position: relative;
-  text-align: center;
-  padding: 0 20px 80px;
-}
-.hero .lead {
-  color: var(--muted);
-}
-
+.hero{position:relative;text-align:center;padding:0 20px 80px}
+.hero .lead{color:var(--muted)}
 
 /* Текстова версия (ако се ползва) */
-.hero .hero-logo-text {
-  font-family: "Rosarium", serif;
-  font-size: 3.5rem;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 5s linear infinite;
-  transition: opacity 0.4s ease, transform 0.5s ease;
+.hero .hero-logo-text{
+  font-family:"Rosarium",serif;font-size:3.5rem;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  transition:opacity .4s ease,transform .5s ease;
 }
-.hero .hero-logo-text.fade-out {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.94);
-}
+.hero .hero-logo-text.fade-out{opacity:0;transform:translateY(-10px) scale(.94)}
 
 /* SVG лого (маска) — responsive височина */
-.logo-svg {
-  width: 100%;
-  height: 320px; /* мобилно */
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  background-size: 200%;
-  -webkit-mask: url("assets/img/Gold-5.svg") no-repeat center / contain;
-  mask: url("assets/img/Gold-5.svg") no-repeat center / contain;
-  animation: shimmer 5s linear infinite;
+.logo-svg{
+  width:100%;height:320px; /* мобилно */
+  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
+  background-size:200%;
+  -webkit-mask:url("assets/img/Gold-5.svg") no-repeat center/contain;
+          mask:url("assets/img/Gold-5.svg") no-repeat center/contain;
 }
-@media (min-width: 768px) {
-  .logo-svg {
-    height: 420px;
-  }
-} /* таблет */
-@media (min-width: 1200px) {
-  .logo-svg {
-    height: 540px;
-  }
-} /* десктоп */
+@media (min-width:768px){.logo-svg{height:420px}} /* таблет */
+@media (min-width:1200px){.logo-svg{height:540px}} /* десктоп */
 
 /* ===========================
    6) СЕКЦИИ / КОМПОНЕНТИ
 =========================== */
 /* Карти / панели */
-.card {
-  background: rgba(12, 18, 38, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 10px 30px -12px var(--shadow);
-  color: var(--text);
+.card{
+  background:rgba(12,18,38,.6);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 10px 30px -12px var(--shadow);
+  color:var(--text);
 }
 
 /* Бутони */
-.btn-primary {
-  color: #1d1205;
-  background: linear-gradient(180deg, var(--gold-2), var(--gold));
-  border: 0;
-  box-shadow: 0 8px 20px -8px rgba(216, 158, 88, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+.btn-primary{
+  color:#1d1205;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  border:0;
+  box-shadow:0 8px 20px -8px rgba(216,158,88,.6),inset 0 1px 0 rgba(255,255,255,.35);
 }
-.btn-primary:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 10px 24px -8px rgba(216, 158, 88, 0.75);
+.btn-primary:hover{filter:brightness(1.05);box-shadow:0 10px 24px -8px rgba(216,158,88,.75)}
+.btn-secondary{
+  color:var(--text);
+  background:linear-gradient(180deg,var(--blue-2),var(--blue));
+  border:0;box-shadow:0 8px 20px -8px rgba(101,123,187,.5);
 }
-.btn-secondary {
-  color: var(--text);
-  background: linear-gradient(180deg, var(--blue-2), var(--blue));
-  border: 0;
-  box-shadow: 0 8px 20px -8px rgba(101, 123, 187, 0.5);
-}
-.btn-secondary:hover {
-  filter: brightness(1.05);
-}
+.btn-secondary:hover{filter:brightness(1.05)}
 
 /* Описание */
-.description {
-  max-width: 800px;
-  margin: 50px auto;
-  padding: 0 20px;
-  text-align: center;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text);
+.description{
+  max-width:800px;margin:50px auto;padding:0 20px;
+  text-align:center;font-size:1.1rem;line-height:1.6;color:var(--text);
 }
 
 /* ===========================
    7) ГАЛЕРИЯ (Bootstrap Carousel + Drive)
 =========================== */
-.carousel {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.carousel-item img {
-  display: block;
-  width: 100%;
-}
-.carousel-indicators [data-bs-target] {
-  background-color: var(--gold);
-}
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-}
+.carousel{box-shadow:0 0 20px rgba(0,0,0,.4);border-radius:16px;overflow:hidden}
+.carousel-item img{display:block;width:100%}
+.carousel-indicators [data-bs-target]{background-color:var(--gold)}
+.carousel-control-prev-icon,.carousel-control-next-icon{filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 
-/* Mobile‑first височина + коректно кадриране за динамичната галерия */
+/* Mobile-first височина + коректно кадриране за динамичната галерия */
 .drive-gallery .carousel-inner,
-.drive-gallery .carousel-item {
-  height: 72vh;
-  min-height: 320px;
-}
-@media (min-width: 768px) {
+.drive-gallery .carousel-item{height:72vh;min-height:320px}
+@media (min-width:768px){
   .drive-gallery .carousel-inner,
-  .drive-gallery .carousel-item {
-    height: 70vh;
-  }
+  .drive-gallery .carousel-item{height:70vh}
 }
-@media (min-width: 1200px) {
+@media (min-width:1200px){
   .drive-gallery .carousel-inner,
-  .drive-gallery .carousel-item {
-    height: 68vh;
-  }
+  .drive-gallery .carousel-item{height:68vh}
 }
-.drive-gallery img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
+.drive-gallery img{
+  width:100%;height:100%;object-fit:cover;object-position:center;display:block;
 }
 
 /* ===========================
    8) ФОРМА ЗА ЗАПИТВАНЕ
 =========================== */
-.contact {
-  background: transparent;
+.contact{background:transparent}
+h2{color:var(--gold);font-size:42px;text-align:center}
+.contact .form-control{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
 }
- h2 {
-  color: var(--gold);
-  font-size: 42px;
-  text-align: center;
+.contact .form-control::placeholder{color:rgba(255,255,255,.45)}
+.contact .btn{
+  background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  color:#1d1205;border:0;transition:box-shadow .3s ease,transform .1s ease-in-out;
 }
-.contact .form-control {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text);
-}
-.contact .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.45);
-}
-.contact .btn {
-  background: linear-gradient(180deg, var(--gold-2), var(--gold));
-  color: #1d1205;
-  border: 0;
-  transition: box-shadow 0.3s ease, transform 0.1s ease-in-out;
-}
-.contact .btn:hover {
-  box-shadow: 0 0 15px rgba(216, 158, 88, 0.6);
-}
-.contact .btn:active {
-  transform: translateY(1px);
-}
+.contact .btn:hover{box-shadow:0 0 15px rgba(216,158,88,.6)}
+.contact .btn:active{transform:translateY(1px)}
 
 /* ===========================
    9) FOOTER
 =========================== */
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
+footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#ccc}
 
 /* ===========================
    10) ЗАВЕСА (Intro Curtain)
 =========================== */
-#intro-curtain {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  overflow: hidden;
+#intro-curtain{
+  position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;
 }
 /* Ляво/дясно перде */
-#intro-curtain .curtain-panel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: rgba(7, 12, 27, 0.92);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.45) inset;
-  will-change: transform;
+#intro-curtain .curtain-panel{
+  position:absolute;top:0;bottom:0;width:50%;
+  background:rgba(7,12,27,.92);
+  box-shadow:0 0 40px rgba(0,0,0,.45) inset;will-change:transform;
 }
-#intro-curtain .curtain-panel.left {
-  left: 0;
-  transform: translateX(0);
-}
-#intro-curtain .curtain-panel.right {
-  right: 0;
-  transform: translateX(0);
-}
+#intro-curtain .curtain-panel.left{left:0;transform:translateX(0)}
+#intro-curtain .curtain-panel.right{right:0;transform:translateX(0)}
 
 /* Център (линии + лого) е „захванат“ за разреза на дясното перде */
-#intro-curtain .curtain-center {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  gap: 14px;
-  pointer-events: none;
-  z-index: 2;
+#intro-curtain .curtain-center{
+  position:absolute;left:0;top:50%;
+  transform:translate(-50%,-50%);
+  display:grid;place-items:center;gap:14px;pointer-events:none;z-index:2;
 }
-#intro-curtain .curtain-line {
-  width: 2px;
-  height: 16vh;
-  background: linear-gradient(var(--wantgold), transparent);
-  opacity: 0.9;
-}
-#intro-curtain .curtain-line.top {
-  background: linear-gradient(transparent, var(--wantgold));
-}
+#intro-curtain .curtain-line{width:2px;height:16vh;background:linear-gradient(var(--wantgold),transparent);opacity:.9}
+#intro-curtain .curtain-line.top{background:linear-gradient(transparent,var(--wantgold))}
 
 /* Лого (маска) + златен пръстен, който се движи с дясната завеса */
-#intro-curtain .curtain-logo {
-  width: min(36vw, 250px);
-  height: min(28vw, 150px);
-  background: linear-gradient(
-    90deg,
-    var(--wantgold),
-    var(--gold-2),
-    var(--wantgold)
-  );
-  background-size: 200%;
-  -webkit-mask: url("assets/img/Gold-4.svg") no-repeat center / 60%;
-  mask: url("assets/img/Gold-4.svg") no-repeat center / 60%;
-  border-radius: 50%;
-  position: relative;
-  animation: shimmer 5s linear infinite, logo-pop 0.55s ease-out 0.2s both;
+#intro-curtain .curtain-logo{
+  width:min(36vw,250px);height:min(28vw,150px);
+  background:linear-gradient(90deg,var(--wantgold),var(--gold-2),var(--wantgold));
+  background-size:200%;
+  -webkit-mask:url("assets/img/Gold-4.svg") no-repeat center/60%;
+          mask:url("assets/img/Gold-4.svg") no-repeat center/60%;
+  border-radius:50%;position:relative;
 }
-#intro-curtain .curtain-panel.right::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(32vw, 180px);
-  height: min(32vw, 180px);
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 3px var(--wantgold),
-    0 8px 28px rgba(216, 158, 88, 0.35);
-  z-index: 3;
+#intro-curtain .curtain-panel.right::before{
+  content:"";position:absolute;left:0;top:50%;transform:translate(-50%,-50%);
+  width:min(32vw,180px);height:min(32vw,180px);border-radius:50%;
+  box-shadow:inset 0 0 0 3px var(--wantgold),0 8px 28px rgba(216,158,88,.35);z-index:3;
 }
 
 /* Анимации за завесата */
-@keyframes logo-pop {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-@keyframes curtain-open-left {
-  to {
-    transform: translateX(-100%);
-  }
-}
-@keyframes curtain-open-right {
-  to {
-    transform: translateX(100%);
-  }
-}
-@keyframes curtain-fade-out {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-#intro-curtain.open .curtain-panel.left {
-  animation: curtain-open-left 0.9s ease-in forwards;
-}
-#intro-curtain.open .curtain-panel.right {
-  animation: curtain-open-right 0.9s ease-in forwards;
-}
-#intro-curtain.open {
-  animation: curtain-fade-out 0.5s ease 0.9s forwards;
-}
+@keyframes logo-pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes curtain-open-left{to{transform:translateX(-100%)}}
+@keyframes curtain-open-right{to{transform:translateX(100%)}}
+@keyframes curtain-fade-out{to{opacity:0;visibility:hidden}}
+
+#intro-curtain.open .curtain-panel.left{animation:curtain-open-left .9s ease-in forwards}
+#intro-curtain.open .curtain-panel.right{animation:curtain-open-right .9s ease-in forwards}
+#intro-curtain.open{animation:curtain-fade-out .5s ease .9s forwards}
 
 /* ===========================
    11) SNAP НА СЕКЦИИ (поток: Как работи → Пакети → Галерия → Форма)
 =========================== */
-main.page-snap {
-  scroll-snap-type: y mandatory;
-  overflow-x: hidden;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-section.snap {
-  min-height: 100svh; /* safe viewport за мобилни */
-  display: grid;
-  place-items: center;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  scroll-margin-top: 0;
+main.page-snap{scroll-snap-type:y mandatory;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0)}
+section.snap{
+  min-height:100svh;display:grid;place-items:center;
+  scroll-snap-align:start;scroll-snap-stop:always;scroll-margin-top:0;
 }
 
 /* Карти за Пакети */
-.pack-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(212, 175, 55, 0.18);
-  border-radius: 16px;
-  backdrop-filter: blur(6px);
-  height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+.pack-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(212,175,55,.18);
+  border-radius:16px;backdrop-filter:blur(6px);
+  height:100%;display:flex;flex-direction:column;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
 }
-.pack-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  border-color: rgba(212, 175, 55, 0.35);
+.pack-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+  border-color:rgba(212,175,55,.35);
 }
-.price {
-  font-family: "Rosarium", serif;
-  font-size: 2rem;
-  color: var(--wantgold);
-}
-
-/* ===========================
-   12) ЕФЕКТИ / SHIMMER
-=========================== */
-@keyframes shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
-}
+.price{font-family:"Rosarium",serif;font-size:2rem;color:var(--wantgold)}
+.view-more{margin-top:auto}
 
 /* ===========================
    13) ДОСТЪПНОСТ
 =========================== */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
 }
 
 /* Стъпки (златни кръгове с числа) */
-.step-box {
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(212,175,55,.18);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.step-box{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.18);
+  display:flex;align-items:center;gap:12px;
 }
-
-.step-circle {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: linear-gradient(180deg, var(--wantgold), #f1c37a, var(--wantgold));
-  display: flex;
-  align-items: center;   /* вертикално центриране */
-  justify-content: center; /* хоризонтално */
-  font-family: 'Rosarium', serif;
-  font-size: 1.6rem;
-  line-height: 0;        /* занулява излишното пространство */
-  color: #111;
-  box-shadow: 0 0 10px rgba(212,175,55,.5);
+.step-circle{
+  flex-shrink:0;width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(180deg,var(--wantgold),#f1c37a,var(--wantgold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rosarium',serif;font-size:1.6rem;line-height:0;color:#111;
+  box-shadow:0 0 10px rgba(212,175,55,.5);
 }
-
-.step-text {
-  flex: 1;
-  font-size: 1rem;
-  line-height: 1.4;
-}
-
-.inline-logo {
-  display:inline-block;
-  vertical-align:middle;
-  width: 130px;          /* може да го намалиш/увеличиш според текста */
-  height: 32px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold));
-  background-size: 200%;
-  -webkit-mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
-  mask: url('assets/img/Gold-6-trimmed.svg') no-repeat center / contain;
-  animation: shimmer 5s linear infinite;
+.step-text{flex:1;font-size:1rem;line-height:1.4}
+.inline-logo{
+  display:inline-block;vertical-align:middle;width:130px;height:32px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
+  background-size:200%;
+  -webkit-mask:url('assets/img/Gold-6-trimmed.svg') no-repeat center/contain;
+          mask:url('assets/img/Gold-6-trimmed.svg') no-repeat center/contain;
 }
 
 /* ===== Scroll Indicator (fixed + safe-area, голям тап-таргет) ===== */
 .scroll-indicator{
-  position: fixed;
-  left: 50%;
-  bottom: calc(14px + env(safe-area-inset-bottom, 0px)); /* над браузър футърите */
-  transform: translateX(-50%);
-  z-index: 9998;                         /* над съдържанието и карусели */
-  width: 56px; height: 56px;             /* достатъчен тап-таргет */
-  border-radius: 999px;
-  border: 1px solid rgba(212,175,55,.35);
-  background: rgba(12,18,38,.6);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
-  display: grid; place-items: center;
-  cursor: pointer;
-  transition: transform .2s ease, opacity .2s ease, border-color .2s ease;
+  position:fixed;left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);z-index:9998;
+  width:56px;height:56px;border-radius:999px;
+  border:1px solid rgba(212,175,55,.35);
+  background:rgba(12,18,38,.6);backdrop-filter:blur(6px);
+  box-shadow:0 8px 28px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.06);
+  display:grid;place-items:center;cursor:pointer;
+  transition:transform .2s ease,opacity .2s ease,border-color .2s ease;
 }
-.scroll-indicator:active { transform: translateX(-50%) scale(.98); }
-.scroll-indicator:hover  { border-color: rgba(212,175,55,.55); }
-
+.scroll-indicator:active{transform:translateX(-50%) scale(.98)}
+.scroll-indicator:hover{border-color:rgba(212,175,55,.55)}
 /* стрелка (chevron) */
 .scroll-indicator .chev{
-  width: 18px; height: 18px;
-  border-left: 3px solid var(--wantgold);
-  border-bottom: 3px solid var(--wantgold);
-  transform: rotate(-45deg);
-  animation: indBounce 1.5s infinite;
-  opacity: .9;
+  width:18px;height:18px;border-left:3px solid var(--wantgold);border-bottom:3px solid var(--wantgold);
+  transform:rotate(-45deg);animation:indBounce 1.5s infinite;opacity:.9;
 }
 @keyframes indBounce{
-  0%,20%,50%,80%,100% { transform: translateY(0) rotate(-45deg); }
-  40%                 { transform: translateY(6px) rotate(-45deg); }
-  60%                 { transform: translateY(3px) rotate(-45deg); }
+  0%,20%,50%,80%,100%{transform:translateY(0) rotate(-45deg)}
+  40%{transform:translateY(6px) rotate(-45deg)}
+  60%{transform:translateY(3px) rotate(-45deg)}
 }
-
 /* скриване когато не е нужно */
-.scroll-indicator.hidden { opacity: 0; pointer-events: none; }
-
+.scroll-indicator.hidden{opacity:0;pointer-events:none}
 
 /* Избран пакет – пилюлка над формата */
 .selected-package{
-  display:flex; gap:.5rem; align-items:center; justify-content:center;
-  margin:-6px auto 18px; padding:.5rem .75rem;
-  width:fit-content; border-radius:999px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(212,175,55,.35);
-  box-shadow:0 8px 20px -10px rgba(0,0,0,.35);
-  animation: pkg-pop .28s ease-out;
+  display:flex;gap:.5rem;align-items:center;justify-content:center;
+  margin:-6px auto 18px;padding:.5rem .75rem;width:fit-content;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.35);
+  box-shadow:0 8px 20px -10px rgba(0,0,0,.35);animation:pkg-pop .28s ease-out;
 }
-.selected-package .label{ color:#cfcfcf; font-size:.9rem; }
-.selected-package .value{
-  color: var(--wantgold); font-weight:700;
-  font-family:'Rosarium',serif; letter-spacing:.2px;
-}
+.selected-package .label{color:#cfcfcf;font-size:.9rem}
+.selected-package .value{color:var(--wantgold);font-weight:700;font-family:'Rosarium',serif;letter-spacing:.2px}
 .selected-package .clear{
-  border:0; background:transparent; color:#fff; opacity:.6;
-  font-size:1.1rem; line-height:1; padding:.1rem .25rem; cursor:pointer;
+  border:0;background:transparent;color:#fff;opacity:.6;
+  font-size:1.1rem;line-height:1;padding:.1rem .25rem;cursor:pointer;
 }
-.selected-package .clear:hover{ opacity:.9; }
-.d-none{ display:none !important; }
-@keyframes pkg-pop{ from{ transform:scale(.96); opacity:0 } to{ transform:scale(1); opacity:1 } }
+.selected-package .clear:hover{opacity:.9}
+.d-none{display:none!important}
+@keyframes pkg-pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ===== Package Overlay ===== */
+#package-overlay{
+  position:fixed;inset:0;z-index:11000;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+  transition:opacity .25s ease;
+}
+#package-overlay.d-none{display:none!important}
+#package-overlay .pkg-sheet{
+  width:min(920px,94vw);max-height:90vh;overflow:auto;
+  background:rgba(12,18,38,.9);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  border-radius:16px;
+}
+#package-overlay .pkg-curtain{
+  position:absolute;top:0;bottom:0;width:50%;
+  background:rgba(7,12,27,.96);
+  box-shadow:0 0 40px rgba(0,0,0,.45) inset;
+  transition:transform .45s ease;z-index:0;
+}
+#package-overlay .pkg-curtain.left{left:0;transform:translateX(0)}
+#package-overlay .pkg-curtain.right{right:0;transform:translateX(0)}
+#package-overlay.curtains-open .pkg-curtain.left{transform:translateX(-100%)}
+#package-overlay.curtains-open .pkg-curtain.right{transform:translateX(100%)}
+
+/* ===== Curtain за детайлите на пакетите ===== */
+.detail-curtain{position:fixed;inset:0;z-index:11000;pointer-events:none}
+.detail-curtain.d-none{display:none}
+.detail-curtain .panel{
+  position:absolute;top:0;bottom:0;width:50%;
+  background:rgba(7,12,27,.95);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.45);
+  will-change:transform,opacity;
+}
+.detail-curtain .panel.left{left:0;transform:translateX(-100%)}
+detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:translateX(100%)}
+
+/* state: closing → затваряме към центъра */
+.detail-curtain.is-closing .panel.left{animation:dc-close-left .5s ease forwards}
+.detail-curtain.is-closing .panel.right{animation:dc-close-right .5s ease forwards}
+/* state: opening → отваряме от центъра */
+.detail-curtain.is-opening .panel.left{animation:dc-open-left .5s ease forwards}
+.detail-curtain.is-opening .panel.right{animation:dc-open-right .5s ease forwards}
+
+@keyframes dc-close-left{to{transform:translateX(0)}}
+@keyframes dc-close-right{to{transform:translateX(0)}}
+@keyframes dc-open-left{to{transform:translateX(-100%)}}
+@keyframes dc-open-right{to{transform:translateX(100%)}}
+
+/* ===== Overlay лист (модал) ===== */
+.package-overlay{
+  position:fixed;inset:0;z-index:12000;
+  display:grid;place-items:end center;
+  background:rgba(0,0,0,.35);
+  padding:max(16px,env(safe-area-inset-bottom));
+  backdrop-filter:blur(2px);
+}
+.package-overlay.d-none{display:none}
+
+.pkg-sheet{
+  width:min(920px,100%);max-height:90svh;
+  background:rgba(12,18,38,.9);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+  border-radius:18px 18px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(16px);opacity:0;
+  transition:opacity .28s ease,transform .28s ease;
+}
+#package-overlay.show .pkg-sheet{transform:translateY(0);opacity:1}
+
+/* header/body/footer */
+.pkg-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.pkg-title{font-family:'Rosarium',serif;font-size:1.8rem}
+.pkg-close{
+  border:0;background:transparent;color:#fff;opacity:.75;
+  font-size:1.8rem;line-height:1;cursor:pointer;
+}
+.pkg-close:hover{opacity:1}
+
+.pkg-body{overflow:auto;padding:16px;display:grid;gap:16px}
+.pkg-grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:768px){.pkg-grid{grid-template-columns:1.2fr .8fr}}
+.pkg-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:14px;
+}
+.pkg-label{color:#cfd6ff;font-size:.95rem}
+.pkg-price{font-family:'Rosarium',serif;color:var(--wantgold);font-size:1.6rem}
+
+/* thumbs */
+.pkg-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pkg-thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;background:#0b1226}
+
+/* footer */
+.pkg-footer{
+  display:flex;justify-content:space-between;gap:12px;
+  padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(180deg,rgba(12,18,38,.85),rgba(12,18,38,.95));
+}
+
+/* селект – тъмен фон и видим текст и в отвореното меню */
+.pkg-select,
+.pkg-select.form-select{
+  background-color:#0f1730!important;
+  color:var(--text)!important;
+  border:1px solid rgba(255,255,255,.25);
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  padding-right:2rem;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d89e58' viewBox='0 0 16 16'><path d='M1.5 5.5l6.5 6.5 6.5-6.5'/></svg>");
+  background-repeat:no-repeat;background-position:right .75rem center;background-size:1rem auto;
+}
+.pkg-select option{background-color:#0b1226;color:var(--text)}
+.pkg-select.form-select:focus{
+  border-color:var(--wantgold);
+  box-shadow:0 0 0 .2rem rgba(216,158,88,.25);
+}
+
+/* (ако липсваше) селектът в картите на пакетите на светъл фон */
+.pack-card select.form-select{background:#0f1730;color:#fff;border-color:rgba(255,255,255,.12)}
+
+/* --- Допълнение за реюз на интро-завесите като анимирани --- */
+#intro-curtain.gone{display:none!important}
+
+/* затваряне към центъра (за показване на модела) */
+@keyframes curtain-close-left{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes curtain-close-right{from{transform:translateX(100%)}to{transform:translateX(0)}}
+#intro-curtain.closing .curtain-panel.left{animation:curtain-close-left .6s ease forwards}
+#intro-curtain.closing .curtain-panel.right{animation:curtain-close-right .6s ease forwards}
+
+/* отваряне от центъра (след като модела се затвори) */
+#intro-curtain.opening .curtain-panel.left{animation:curtain-open-left .6s ease forwards}
+#intro-curtain.opening .curtain-panel.right{animation:curtain-open-right .6s ease forwards}
+
+/* === Re-use на интро завесите за пакети === */
+/* ЗАТВАРЯНЕ към центъра (при отваряне на модала) */
+#intro-curtain.closing .curtain-panel.left{animation:curtain-close-left .9s ease forwards}
+#intro-curtain.closing .curtain-panel.right{animation:curtain-close-right .9s ease forwards}
+
+/* ОТВАРЯНЕ от центъра (при затваряне на модала) – без fade на целия overlay */
+#intro-curtain.opening .curtain-panel.left{animation:curtain-open-left .9s ease forwards}
+#intro-curtain.opening .curtain-panel.right{animation:curtain-open-right .9s ease forwards}
 
 
+.pkg-card .carousel {
+  max-width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
 
+.pkg-card .carousel-inner img {
+  height: 200px;       /* малък, „апетитен“ размер */
+  object-fit: cover;   /* изрязва красиво */
+}
+@media (min-width: 768px) {
+  .pkg-card .carousel-inner img { height: 240px; }
+}
+
+/* блокира скрола на бекграунда, без да „подскача“ layout-а */
+.no-scroll {
+  position: fixed;
+  overflow-y: scroll; /* пази височината/ширината */
+  width: 100%;
+}
