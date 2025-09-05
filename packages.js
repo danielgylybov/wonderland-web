@@ -11,15 +11,14 @@ const _copy = Object.assign({
   subtitle: "Избери ниво според мечтата и мащаба. Винаги може да персонализираме.",
   pricePrefix: "от",
   viewMore: "Виж още",
+  chooseText: "Избери пакет",
   galleryCta: "Виж Галерия",
   card: {
     titleTag: "h3",
     titleClass: "mb-2",
     descClass: "opacity-75 mb-3",
     priceClass: "price mb-3",
-    featuresClass: "mb-4 opacity-90",
-    buttonClass: "btn btn-primary w-100 view-more",
-    buttonText: "Детайли"
+    featuresClass: "mb-4 opacity-90"
   }
 }, window.PACKAGES_COPY || {});
 
@@ -163,9 +162,14 @@ function _cardHTML(pkg, currency) {
           ? `<ul class="${_esc(c.featuresClass || "")}">${feats.map(li => `<li>${_esc(li)}</li>`).join("")}</ul>`
           : ""
       }
-      <button class="${_esc(c.buttonClass || "")}" type="button" data-view-package="${_esc(btnId)}">
-        ${_esc(c.buttonText || _copy.viewMore)}
-      </button>
+      <div class="d-flex gap-2 mt-auto">
+        <button class="btn btn-outline-light w-50 view-more" type="button" data-view-package="${_esc(btnId)}">
+          ${_esc(_copy.viewMore)}
+        </button>
+        <button class="btn btn-primary w-50 choose-package" type="button" data-choose-package="${_esc(btnId)}">
+          ${_esc(_copy.chooseText)}
+        </button>
+      </div>
     </div>
   </div>`;
 }
@@ -254,7 +258,7 @@ function renderPackageOverlay(model) {
 
       <div class="pkg-footer">
         <button class="btn btn-outline-light" id="pkgBack">Назад</button>
-        <button class="btn btn-primary" id="pkgEnquire">Запитване</button>
+        <button class="btn btn-primary" id="pkgChoose">${_esc(_copy.chooseText)}</button>
       </div>
     </div>
   `;
@@ -363,19 +367,13 @@ function renderPackageOverlay(model) {
     }
   })();
 
-const closeOverlay = async () => {
-  overlay.classList.remove('show');
-  await new Promise(r => setTimeout(r, 280));
-  overlay.classList.add('d-none');
-
-  // първо възстанови скрола мигновено (без smooth)
-  unlockScroll();
-
-  // после отваряй завесите (няма да повлияят на скрола)
-  await curtainsOpen();
-};
-
-
+  const closeOverlay = async () => {
+    overlay.classList.remove('show');
+    await new Promise(r => setTimeout(r, 280));
+    overlay.classList.add('d-none');
+    unlockScroll();
+    await curtainsOpen();
+  };
 
   $_('.pkg-close', overlay)?.addEventListener('click', closeOverlay);
   $_('#pkgBack', overlay)?.addEventListener('click', closeOverlay);
@@ -384,39 +382,109 @@ const closeOverlay = async () => {
     if (e.target === overlay) closeOverlay();
   });
 
-  /* === „Запитване“ → попълни формата и скролни === */
-  $_('#pkgEnquire', overlay)?.addEventListener('click', async () => {
-    const idx = Number($_('#pkgTier', overlay)?.value || 0);
+  /* === „Избери пакет“ от оувърлея === */
+  $_('#pkgChoose', overlay)?.addEventListener('click', async () => {
+    const idx    = Number($_('#pkgTier', overlay)?.value || 0);
     const choice = model.tiers?.[idx];
-    const price = $_('#pkgPrice', overlay)?.textContent || '';
+    const priceT = $_('#pkgPrice', overlay)?.textContent || '';
 
-    const badge = document.getElementById('selectedPackageBadge');
-    const val = badge?.querySelector('.value');
-    const field = document.getElementById('packageField');
-
-    if (badge && val && field) {
-      val.textContent = `${model.name}${choice ? ' · ' + choice.label : ''}${price ? ' · ' + price : ''}`;
-      field.value = model.name;
-      badge.classList.remove('d-none');
-    }
+    applySelection(model, choice, priceT);
 
     await closeOverlay();
-    scrollToWithOffset('#contact');
+    if (typeof window.scrollToWithOffset === 'function') {
+      window.scrollToWithOffset('#contact');
+    } else {
+      document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 }
 
-/* === Слушател на бутоните „Виж още“ ===
-   Търси по id (предпочитано), fallback: по name (lower-case) */
+/* === Слушател на бутоните „Детайли“ и „Избери пакет“ на картите === */
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-view-package]');
-  if (!btn) return;
+  const btnDetails = e.target.closest('[data-view-package]');
+  const btnChoose  = e.target.closest('[data-choose-package]');
+  if (!btnDetails && !btnChoose) return;
 
   e.preventDefault();
-  const key = (btn.getAttribute('data-view-package') || '').trim().toLowerCase();
+  const key = (btnDetails?.getAttribute('data-view-package') || btnChoose?.getAttribute('data-choose-package') || '').trim().toLowerCase();
 
   const list = (window.PACKAGES_DATA?.packages || []);
   let model = list.find(p => (p.id || '').toLowerCase() === key);
   if (!model) model = list.find(p => (p.name || '').toLowerCase() === key);
+  if (!model) return;
 
-  if (model) renderPackageOverlay(model);
+  if (btnDetails) {
+    renderPackageOverlay(model);
+    return;
+  }
+
+  // Избиране директно от карта → вземаме първия tier (или multiplier=1) за ориентир
+  const choice = Array.isArray(model.tiers) && model.tiers.length ? model.tiers[0] : null;
+  const mult = choice?.multiplier ?? 1;
+  const currency = _data.currency || 'лв';
+  const priceT = `${_fmtPrice(Math.round((model.basePrice || 0) * mult))} ${currency}`;
+
+  applySelection(model, choice, priceT);
+
+  // Скрол към формата
+  if (typeof window.scrollToWithOffset === 'function') {
+    window.scrollToWithOffset('#contact');
+  } else {
+    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 });
+
+/* === Помощници: попълване на бейдж, скрито поле + префилване на kids/budget === */
+function applySelection(model, choice, priceText) {
+  const badge = document.getElementById('selectedPackageBadge');
+  const val   = badge?.querySelector('.value');
+  const field = document.getElementById('packageField');
+
+  if (badge && val && field) {
+    val.textContent = `${model.name}${choice ? ' · ' + (choice.label || '') : ''}${priceText ? ' · ' + priceText : ''}`;
+    field.value = val.textContent;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    badge.classList.remove('d-none');
+  }
+
+  // Префилване на формата (ако има полета)
+  const kidsInput   = document.querySelector('input[name="kids"]');
+  const budgetInput = document.querySelector('input[name="budget"]');
+
+  let kidsVal = null;
+  if (choice && typeof choice.kids !== 'undefined') {
+    kidsVal = Number(choice.kids);
+  } else if (choice && typeof choice.label === 'string') {
+    kidsVal = parseKidsFromLabel(choice.label);
+  }
+  if (kidsInput && Number.isFinite(kidsVal) && kidsVal > 0) {
+    kidsInput.value = String(kidsVal);
+    kidsInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  const budgetNum = parsePriceNumber(priceText);
+  if (budgetInput && Number.isFinite(budgetNum)) {
+    // визуален bg формат
+    budgetInput.value = budgetNum.toFixed(2).replace('.', ',');
+    budgetInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+function parseKidsFromLabel(label = '') {
+  const nums = (label.match(/\d+/g) || []).map(n => Number(n)).filter(n => Number.isFinite(n));
+  if (!nums.length) return null;
+  return Math.max(...nums);
+}
+
+function parsePriceNumber(text = '') {
+  const m = text.match(/[\d\s.,]+/);
+  if (!m) return null;
+  const raw = m[0].replace(/\s/g, '');
+  if (raw.includes('.') && raw.includes(',')) {
+    return Number(raw.replace(/\./g, '').replace(',', '.'));
+  }
+  if (!raw.includes('.') && raw.includes(',')) {
+    return Number(raw.replace(',', '.'));
+  }
+  return Number(raw);
+}
