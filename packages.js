@@ -35,7 +35,7 @@ const _priceText = (pkg, currency) =>
   `${_esc(_copy.pricePrefix)} ${_fmtPrice(pkg.basePrice)} ${_esc(currency)}`;
 
 /* === Google Drive helpers === */
-const PACKAGES_PARENT_FOLDER = '1zhzcw5SqSspmVmrn1igQLMqAPI0qbIVY';
+const PACKAGES_PARENT_FOLDER = '144a10jYonm6dXeMWZV7GLSRCkszUggcP';
 
 const _driveCache = new Map(); // проста кешираща карта за заявки по ключ
 

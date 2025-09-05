@@ -285,19 +285,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('wheel', onWheel, { passive: false });
 
-  window.addEventListener('keydown', (e) => {
-    if (isOverlayOpen()) return;
-    if (animating) return;
-    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
-      e.preventDefault(); goTo(index + 1);
-    } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
-      e.preventDefault(); goTo(index - 1);
-    } else if (e.key === 'Home') {
-      e.preventDefault(); goTo(0);
-    } else if (e.key === 'End') {
-      e.preventDefault(); goTo(sections.length - 1);
-    }
-  });
+window.addEventListener('keydown', (e) => {
+  const t = e.target;
+  const isTyping = t && (
+    t.isContentEditable ||
+    /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)
+  );
+  if (isTyping) return;           // не хващай Space/стрелки в полета за писане
+  if (animating) return;
+
+  if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+    e.preventDefault(); goTo(index + 1);
+  } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+    e.preventDefault(); goTo(index - 1);
+  } else if (e.key === 'Home') {
+    e.preventDefault(); goTo(0);
+  } else if (e.key === 'End') {
+    e.preventDefault(); goTo(sections.length - 1);
+  }
+});
+
 
   const onScrollPassive = () => { if (!animating && !isOverlayOpen()) recalcIndex(); };
   window.addEventListener('scroll', onScrollPassive, { passive: true });

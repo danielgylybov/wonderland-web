@@ -581,3 +581,93 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
   overflow-y: scroll; /* пази височината/ширината */
   width: 100%;
 }
+
+/* === Invite (A4 PDF only) — без preview, без watermark === */
+.invite .card{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+/* тъмни формови контроли в секцията */
+.invite .form-control,.invite .form-select{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); }
+.invite .form-control::placeholder{ color:rgba(255,255,255,.55); }
+.invite .form-control:focus,.invite .form-select:focus{ border-color:var(--wantgold); box-shadow:0 0 0 .2rem rgba(216,158,88,.25); }
+.invite .form-check-input{ background-color:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3); }
+.invite .form-check-input:checked{ background-color:var(--wantgold); border-color:var(--wantgold); }
+
+/* ---------- FIXED A4 PDF STAGE (off-screen, device-independent) ---------- */
+.invite-pdf-stage{
+  position:fixed; left:-100000px; top:0;
+  width:1240px; height:1754px;              /* 210×297мм @ ~150dpi */
+  background:#fff; color:#111; overflow:hidden;
+
+  /* контролни променливи */
+  --pad:72px;              /* равен бял пас от всички страни + долния до линията */
+  --gap:28px;
+  --card-pad:48px;
+  --border-inset:32px;
+
+  --logo-w:520px; --logo-h:140px;
+  --sub-size:30px; --title-size:76px; --text-size:30px; --note-size:28px;
+}
+.invite-pdf-stage.theme-dark{ background:#fff; color:#111; }
+
+/* вътрешен layout на страницата */
+.invite-pdf-stage .page{
+  position:relative;
+  width:1240px; height:1754px;
+  padding:var(--pad); box-sizing:border-box;
+  display:grid;
+  grid-template-rows: 1fr; /* само един ред -> без „въздушна“ ивица отдолу */
+  gap: 0;                  /* няма празно пространство между редове */
+}
+
+/* карта/платно */
+.invite-pdf-stage .card{
+  position:relative; border-radius:20px; padding:var(--card-pad);
+  background:#fff; color:#111; overflow:hidden; border:1px solid #ececf2;
+}
+.invite-pdf-stage.theme-dark .card{
+  background:#0f1730; color:#f7f8ff; border-color:rgba(255,255,255,.18);
+}
+
+/* SVG звезди — пълно платно, зад съдържанието */
+.invite-pdf-stage .stars--full{
+  position:absolute; inset:var(--border-inset);
+  z-index:0; pointer-events:none; border-radius:14px;
+}
+
+/* brand контейнер — инлайн SVG се оцветява през currentColor */
+.invite-pdf-stage .brand{ width:var(--logo-w); margin:6px auto 12px; line-height:0; color:#d89e58; }
+.invite-pdf-stage.theme-dark .brand{ color:#f1c37a; }
+.invite-pdf-stage .brand svg{ display:block; width:100%; height:auto; }
+
+/* типография */
+.invite-pdf-stage .sub{ text-align:center; margin-top:12px; font-family:"CraftworkGrotesk",system-ui; font-size:var(--sub-size); opacity:.88; }
+.invite-pdf-stage .rule{ height:1px; background:currentColor; opacity:.16; margin:12px 0 24px; }
+.invite-pdf-stage .title{ font-family:"Rosarium",serif; font-size:var(--title-size); color:#d89e58; margin:0 0 12px; }
+.invite-pdf-stage.theme-dark .title{ color:#f1c37a; }
+.invite-pdf-stage .text{ font-size:var(--text-size); line-height:1.55; margin:0 0 12px; }
+.invite-pdf-stage .text b{ font-weight:700; }
+.invite-pdf-stage .note{ margin-top:10px; font-size:var(--note-size); line-height:1.5; opacity:.98; }
+
+/* EXTRA (магичен блок) */
+.invite-pdf-stage .extra.magic{
+  position:relative; margin-top:22px; padding:28px 30px 24px;
+  border-radius:16px; background:transparent; border:1.5px dashed rgba(216,158,88,.55);
+}
+.invite-pdf-stage.theme-dark .extra.magic{ border-color:rgba(241,195,122,.65); }
+.invite-pdf-stage .extra.magic::after{
+  content:""; position:absolute; inset:6px; pointer-events:none; opacity:.35; border-radius:12px;
+  background:
+    radial-gradient(circle 2px, rgba(216,158,88,.75) 98%, transparent) 6px 10px/90px 90px repeat,
+    radial-gradient(circle 1.6px, rgba(174,188,255,.55) 98%, transparent) 42px 28px/120px 120px repeat;
+}
+.invite-pdf-stage.theme-dark .extra.magic::after{ opacity:.55; }
+.invite-pdf-stage .extra-title{
+  text-align:center; margin:-4px 0 12px; font-size:50px; letter-spacing:.01em; color:#d89e58;
+}
+.invite-pdf-stage.theme-dark .extra-title{ color:#f1c37a; }
+.invite-pdf-stage .extra-title em{ font-style:normal; font-family:"Rosarium",serif; }
+.invite-pdf-stage .extra-title span{ margin:0 10px; }
+.invite-pdf-stage .extra-lead{ margin:0 0 10px 0; font-size:24px; line-height:1.55; }
+.invite-pdf-stage .extra-list{ list-style:none; margin:0; padding:0; display:grid; gap:10px; font-size:24px; line-height:1.5; }
+.invite-pdf-stage .extra-list li{ position:relative; padding-left:28px; }
+.invite-pdf-stage .extra-list li::before{ content:"✶"; position:absolute; left:4px; top:.15em; font-size:18px; line-height:1; color:#d89e58; }
+.invite-pdf-stage.theme-dark .extra-list li::before{ color:#f1c37a; }
