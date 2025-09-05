@@ -1,6 +1,6 @@
 /* ========= Google Drive Gallery (thumbnail-only) ========= */
-const DRIVE_API_KEY   = "AIzaSyCsRaSAqTpHtz-KZf35qDpBro9jn-VQ5zM";
-const DRIVE_FOLDER_ID = "1xi2O2R4C3xDUPwJ64qUvUXXIlVCofKhI";
+const DRIVE_API_KEY   = "AIzaSyC00jviMaVBd4iQT7TOEhLRll4UaFvpp3Y";
+const DRIVE_FOLDER_ID = "1LFxFtxN33LmA17VSl5gSMVwkZQ_yY_6L";
 
 const PAGE_SIZE   = 200;
 const FILE_FIELDS = "files(id,name,mimeType),nextPageToken";
