@@ -83,7 +83,16 @@
 html{scroll-behavior:smooth;height:100%}
 body{
   margin:0;min-height:100%;
-  background:radial-gradient(90% 120% at 20% 10%,var(--bg) 0%,var(--bg-2) 70%);
+ background:
+    radial-gradient(120% 160% at 20% 10%,
+      #121a36 0%,
+      #0f1730 40%,
+      #0d142b 68%,
+      #0b1226 100%);
+        background-image:
+          radial-gradient(120% 160% at 20% 10%, var(--bg) 0%, var(--bg-2) 100%),
+          repeating-linear-gradient(0deg, rgba(255,255,255,.01) 0 2px, transparent 2px 4px);
+        background-blend-mode: normal, overlay;
   color:var(--text);overflow-x:hidden;
   font-family:"CraftworkGrotesk",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
@@ -756,4 +765,46 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 
 /* фокус капан (скрит anchor) */
 .wl-visually-hidden{ position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; }
+
+/* Optional invite step */
+.step-box--optional{
+  position: relative;
+  border: 1px dashed rgba(212,175,55,.6);          /* gold dashed */
+  background: linear-gradient(180deg, rgba(212,175,55,.08), rgba(255,255,255,0));
+  transition: transform .2s ease, box-shadow .2s ease;
+    .step-text {
+      color: var(--wantgold);
+    }
+}
+.step-box--optional:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.35);
+}
+.step-circle--optional{
+  border-color: var(--wantgold);
+  color: var(#7b654a);
+}
+.badge-optional{
+  position: absolute;
+  top: .5rem; right: .75rem;
+  background: var(--wantgold);
+  color: #0D1B1E;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+/* Gold CTA button (ако нямаш вече) */
+.btn-gold{
+  background: var(--wantgold);
+  color: #0D1B1E;
+  border: none;
+}
+.btn-gold:hover{
+  box-shadow: 0 0 14px var(--wantgold);
+  color: #0D1B1E;
+}
+
 
