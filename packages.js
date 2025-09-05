@@ -12,7 +12,6 @@ const _copy = Object.assign({
   pricePrefix: "от",
   viewMore: "Виж още",
   chooseText: "Избери пакет",
-  galleryCta: "Виж Галерия",
   card: {
     titleTag: "h3",
     titleClass: "mb-2",
@@ -188,10 +187,6 @@ function renderPackagesSection() {
 
     <div class="row g-4">
       ${cards || `<div class="col-12"><div class="text-center opacity-75">В момента няма активни пакети.</div></div>`}
-    </div>
-
-    <div class="text-center mt-4">
-      <button class="btn btn-lg btn-primary" data-scroll="#gallery">${_esc(_copy.galleryCta)}</button>
     </div>
   `;
 }
