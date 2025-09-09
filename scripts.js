@@ -7,7 +7,6 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 // най-горе в scripts.js
 const isOverlayOpen = () => document.body.classList.contains('no-scroll');
 
-
 /* височината на fixed хедъра (ако е видим) */
 function getHeaderH() {
   const header = $('.magic-header');
@@ -141,28 +140,42 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ---------------------------------------------------------
    4) Intro Curtain – auto open, remove on end
 --------------------------------------------------------- */
-/* Intro Curtain – auto open, then hide (не remove) */
 /* ===== Reusable Intro Curtain helpers ===== */
 function getCurtain(){ return document.getElementById('intro-curtain'); }
 
 /* Първоначално поведение при зареждане: отваря се и се “скрива”, без remove() */
-window.addEventListener('load', () => {
+/* Първоначално поведение при зареждане: отвори завесите възможно най-рано */
+(function initCurtainAuto() {
   const c = getCurtain();
   if (!c) return;
 
-  // първо отваряне
-  setTimeout(() => c.classList.add('open'), 250);
+  const openCurtain = () => {
+    c.offsetWidth;
+    requestAnimationFrame(() => c.classList.add('open'));
 
-  // след fade-out → скрий и махни .open (готови за повторна употреба)
-  c.addEventListener('animationend', (ev) => {
-    if (ev.animationName === 'curtain-fade-out') {
+    const SAFETY = 1800;
+    const safetyTimer = setTimeout(() => {
       c.classList.add('gone');
-      c.classList.remove('open');
-      c.classList.remove('closing');
-      c.classList.remove('prep-close');
-    }
-  });
-});
+      c.classList.remove('open', 'closing', 'prep-close');
+    }, SAFETY);
+
+    c.addEventListener('animationend', (ev) => {
+      if (ev.animationName === 'curtain-fade-out') {
+        clearTimeout(safetyTimer);
+        c.classList.add('gone');
+        c.classList.remove('open', 'closing', 'prep-close');
+      }
+    });
+  };
+
+  // стартирай НАЙ-РАНО – без да чакаш images/fonts
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', openCurtain, { once: true });
+  } else {
+    requestAnimationFrame(openCurtain);
+  }
+})();
+
 
 /* Затвори завесите към центъра (за показване на модал) → Promise */
 function curtainsClose(){
@@ -174,8 +187,6 @@ function curtainsClose(){
     c.classList.remove('gone','open','closing');
     c.classList.add('prep-close');
 
-    // force reflow, за да сработят анимациите надеждно
-    // eslint-disable-next-line no-unused-expressions
     c.offsetHeight;
 
     c.classList.add('closing');
@@ -219,8 +230,6 @@ function curtainsOpen(){
   });
 }
 
-
-
 /* ---------------------------------------------------------
    5) Desktop full-page snap (wheel = 1 секция) – ползва scrollToWithOffset
 --------------------------------------------------------- */
@@ -231,18 +240,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const sections = $$('.snap');
   if (!sections.length) return;
 
-  const headerH = () => getHeaderH();
+  /* --- Snap helpers --- */
+  const SNAP_FUDGE = 40;          // съгласувано със scrollToWithOffset (−headerH + 40)
+  const BOTTOM_BUFFER = 120;      // доп. буфер НАДОЛУ само за високи секции
 
+  function sectionEdgeState(section, tol = 24) {
+    const h = getHeaderH();
+    const top = section.offsetTop;
+    const bottom = top + section.offsetHeight;
+
+    const vTop = window.scrollY + h;                // видим връх (с header)
+    const vBottom = vTop + window.innerHeight;
+
+    // Секцията е „висока“, ако е по-висока от видимото (без header и fudge)
+    const isTall = section.offsetHeight > (window.innerHeight - SNAP_FUDGE);
+
+    // "Върхът" е при top + SNAP_FUDGE (как подравняваме секцията)
+    const atTop    = vTop <= top + SNAP_FUDGE + tol;
+
+    // Долен ръб: изискваме да „влезеш“ още BOTTOM_BUFFER, но само ако е висока
+    const bottomThreshold = bottom + (isTall ? BOTTOM_BUFFER : 0) - tol;
+    const atBottom = vBottom >= bottomThreshold;
+
+    return { atTop, atBottom, top, bottom, vTop, vBottom, isTall };
+  }
+
+  /* Индекс на текущата секция – стабилно и предвидимо */
   let index = 0;
   function recalcIndex() {
-    const y = window.scrollY + headerH() + 1;
-    let best = 0, bestDist = Infinity;
-    sections.forEach((s, i) => {
+    const y = window.scrollY + getHeaderH() + SNAP_FUDGE; // линията на „подравняване“
+    let current = -1;
+    for (let i = 0; i < sections.length; i++) {
+      const s = sections[i];
       const top = s.offsetTop;
-      const d = Math.abs(top - y);
-      if (d < bestDist) { bestDist = d; best = i; }
-    });
-    index = best;
+      const bottom = top + s.offsetHeight;
+      if (y >= top && y < bottom) { current = i; break; }
+    }
+    if (current === -1) {
+      // fallback: най-близкия top
+      let best = 0, bestDist = Infinity;
+      sections.forEach((s, i) => {
+        const d = Math.abs(s.offsetTop - y);
+        if (d < bestDist) { bestDist = d; best = i; }
+      });
+      current = best;
+    }
+    index = current;
   }
   recalcIndex();
 
@@ -250,61 +293,54 @@ document.addEventListener('DOMContentLoaded', () => {
   function goTo(i) {
     if (i < 0 || i >= sections.length) return;
     animating = true;
-
-    // За първата секция не вадим header (както искаше логиката)
     const sel = `#${sections[i].id}`;
-    if (i === 0) {
-      // леко „повдигане“, за да изглежда идентично с клик-скрола
-      scrollToWithOffset(sel, 0);
-    } else {
-      scrollToWithOffset(sel, 0);
-    }
-
+    scrollToWithOffset(sel, 0);
     index = i;
     clearTimeout(unlockTimer);
     unlockTimer = setTimeout(() => (animating = false), 700);
   }
 
-  let accum = 0;
-  const THRESHOLD = 60;
-
+  // preventDefault САМО когато наистина правим SNAP
   const onWheel = (e) => {
-    if (isOverlayOpen()) return;
-    e.preventDefault();
-    if (animating) return;
+    if (isOverlayOpen() || animating) return;
 
-    const dy = Math.max(-120, Math.min(120, e.deltaY));
-    accum += dy;
+    const s = sections[index];
+    const { atTop, atBottom } = sectionEdgeState(s);
 
-    if (accum > THRESHOLD) {
-      accum = 0; goTo(index + 1);
-    } else if (accum < -THRESHOLD) {
-      accum = 0; goTo(index - 1);
+    const dy = e.deltaY;
+    if (dy > 0 && atBottom) {
+      e.preventDefault();
+      goTo(index + 1);
+    } else if (dy < 0 && atTop) {
+      e.preventDefault();
+      goTo(index - 1);
     }
+    // иначе – естествен скрол вътре в секцията
   };
 
   window.addEventListener('wheel', onWheel, { passive: false });
 
-window.addEventListener('keydown', (e) => {
-  const t = e.target;
-  const isTyping = t && (
-    t.isContentEditable ||
-    /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)
-  );
-  if (isTyping) return;           // не хващай Space/стрелки в полета за писане
-  if (animating) return;
+  window.addEventListener('keydown', (e) => {
+    const t = e.target;
+    const isTyping = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+    if (isTyping || animating) return;
 
-  if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
-    e.preventDefault(); goTo(index + 1);
-  } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
-    e.preventDefault(); goTo(index - 1);
-  } else if (e.key === 'Home') {
-    e.preventDefault(); goTo(0);
-  } else if (e.key === 'End') {
-    e.preventDefault(); goTo(sections.length - 1);
-  }
-});
+    const s = sections[index];
+    const { atTop, atBottom } = sectionEdgeState(s);
 
+    const downKeys = ['ArrowDown', 'PageDown', ' '];
+    const upKeys   = ['ArrowUp', 'PageUp'];
+
+    if (downKeys.includes(e.key)) {
+      if (atBottom) { e.preventDefault(); goTo(index + 1); }
+    } else if (upKeys.includes(e.key)) {
+      if (atTop) { e.preventDefault(); goTo(index - 1); }
+    } else if (e.key === 'Home') {
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); goTo(sections.length - 1);
+    }
+  });
 
   const onScrollPassive = () => { if (!animating && !isOverlayOpen()) recalcIndex(); };
   window.addEventListener('scroll', onScrollPassive, { passive: true });
@@ -374,5 +410,3 @@ document.addEventListener('DOMContentLoaded', () => {
   const dd = String(now.getDate()).padStart(2, '0');
   date.min = `${yyyy}-${mm}-${dd}`;
 });
-
-
