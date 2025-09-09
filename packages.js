@@ -35,11 +35,11 @@ const PACKAGES_PARENT_FOLDER = '144a10jYonm6dXeMWZV7GLSRCkszUggcP'; // глав�
 const driveThumb = (id, w = 1600) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
 const _driveCache = new Map();
 async function driveList(q, pageSize = 12) {
-  if (!window.DRIVE_API_KEY) return { files: [] };
+  if (!DRIVE_API_KEY) return { files: [] };
   const key = `q:${q}|p:${pageSize}`;
   if (_driveCache.has(key)) return _driveCache.get(key);
   const params = new URLSearchParams({
-    q, key: window.DRIVE_API_KEY, pageSize: String(pageSize),
+    q, key: DRIVE_API_KEY, pageSize: String(pageSize),
     fields: 'files(id,name,mimeType),nextPageToken', orderBy: 'name'
   });
   const url = `https://www.googleapis.com/drive/v3/files?${params}`;

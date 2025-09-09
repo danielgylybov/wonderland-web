@@ -201,7 +201,7 @@
       await generatePdf(collectValues());
     } catch (e) {
       console.error(e);
-      alert('Проблем при генерирането. Провери темплейта и шрифта Rosarium.ttf.');
+      alert('Проблем при генерирането.');
     }
   });
 })();
