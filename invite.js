@@ -1,201 +1,207 @@
-/* invite.js — A4 PDF download (без preview), тъмна/светла тема, дълъг магически текст */
-(function () {
+// invite.js – покана "като на картинката" с bold върху час, име, възраст и "Wonderland".
+// ТЕМПЛЕЙТ/ШРИФТОВЕ:
+//   /assets/invite/invite.pdf
+//   /assets/Rosarium.ttf  (използва се за regular и bold)
+
+(() => {
   const form        = document.getElementById('inviteForm');
-  const themeSwitch = document.getElementById('inviteThemeSwitch');
-  const downloadBtn = document.getElementById('inviteDownloadBtn');
-  const resetBtn    = document.getElementById('inviteResetBtn');
-  if (!form || !downloadBtn) return;
+  const btnDownload = document.getElementById('inviteDownloadBtn');
 
-  // --- Дата (BG) ---
-  const months = ['януари','февруари','март','април','май','юни','юли','август','септември','октомври','ноември','декември'];
-  const fmtDate = (ds, ts) => {
-    if (!ds) return '';
-    const dt = new Date(ds + 'T' + (ts || '00:00'));
-    if (Number.isNaN(dt.getTime())) return '';
-    const t = ts ? `, ${ts.slice(0,5)}` : '';
-    return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()} г${t}`;
-  };
+  const TEMPLATE_URL     = '/assets/invite/invite.pdf';
+  const REGULAR_FONT_URL = '/assets/Rosarium.ttf';
+  const BOLD_FONT_URL    = '/assets/Rosarium.ttf'; // ако имаш Rosarium-Bold.ttf, посочи него тук
 
-  // Дефолтни дата/час
-  (function initDefaults(){
-    const fd = form.querySelector('input[name="date"]');
-    const ft = form.querySelector('input[name="time"]');
-    const now = new Date();
-    if (fd && !fd.value) {
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth()+1).padStart(2,'0');
-      const dd = String(now.getDate()).padStart(2,'0');
-      fd.value = `${yyyy}-${mm}-${dd}`;
+  async function ensurePdfLibAndFontkit() {
+    async function load(src) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
     }
-    if (ft && !ft.value) {
-      const mins = Math.ceil(now.getMinutes()/30)*30;
-      if (mins === 60){ now.setHours(now.getHours()+1); now.setMinutes(0); }
-      else { now.setMinutes(mins); }
-      const hh = String(now.getHours()).padStart(2,'0');
-      const mi = String(now.getMinutes()).padStart(2,'0');
-      ft.value = `${hh}:${mi}`;
+    if (!window.PDFLib)  await load('https://unpkg.com/pdf-lib/dist/pdf-lib.min.js');
+    if (!window.fontkit) await load('https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js');
+  }
+
+  // BG формат
+  function fmtDate(dateStr) {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('bg-BG', { day: '2-digit', month: 'long', year: 'numeric' });
+    } catch { return dateStr || ''; }
+  }
+  function fmtTime(timeStr) {
+    try {
+      const [hh, mm] = (timeStr || '').split(':').map(Number);
+      const d = new Date();
+      d.setHours(hh || 0, mm || 0, 0, 0);
+      return d.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' });
+    } catch { return timeStr || ''; }
+  }
+
+  // Помощни за рисуване с inline bold
+  function lineWidth(parts, fontSize) {
+    return parts.reduce((sum, p) => sum + p.font.widthOfTextAtSize(p.text, fontSize), 0);
+  }
+  function drawInlineCentered(page, parts, y, centerX, fontSize) {
+    const total = lineWidth(parts, fontSize);
+    let x = centerX - total / 2;
+    for (const p of parts) {
+      page.drawText(p.text, { x, y, size: fontSize, font: p.font });
+      x += p.font.widthOfTextAtSize(p.text, fontSize);
     }
-  })();
-
-  // --- Helpers за звездите и логото ---
-  function seededRndFactory(seedStr){
-    let s = 0; for (let i=0;i<seedStr.length;i++) s = (s*31 + seedStr.charCodeAt(i)) >>> 0;
-    return () => (s = (1664525*s + 1013904223) >>> 0) / 2**32;
   }
-  function starsSVG({w,h,n,color,minR=1.2,maxR=3.2,seed="*"}){
-    const rnd = seededRndFactory(seed);
-    let dots = "";
-    for (let i=0;i<n;i++){
-      const x = Math.round(rnd()*w);
-      const y = Math.round(rnd()*h);
-      const r = (minR + rnd()*(maxR-minR)).toFixed(2);
-      dots += `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" fill-opacity="0.95"/>`;
+
+  // Обикновени центрирани редове (без inline bold)
+  function drawPlainCentered(page, text, y, centerX, maxWidth, lineHeight, font, size) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let cur = '';
+
+    for (const w of words) {
+      const candidate = cur ? cur + ' ' + w : w;
+      const wpx = font.widthOfTextAtSize(candidate, size);
+      if (wpx <= maxWidth || !cur) cur = candidate;
+      else { lines.push(cur); cur = w; }
     }
-    return `<svg class="stars stars--full" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${dots}</svg>`;
-  }
-  async function inlineBrandSVG(target, url, color){
-    if (!target) return;
-    const res = await fetch(url);
-    let svg = await res.text();
-    svg = svg.replace(/fill="[^"]*"/g,'fill="currentColor"')
-             .replace(/stroke="[^"]*"/g,'stroke="currentColor"');
-    target.style.color = color;
-    target.innerHTML = svg;
-  }
+    if (cur) lines.push(cur);
 
-  // --- Построяване на off-screen A4 сцената ---
-function buildStage(data, dark){
-  const who      = (data.to || 'Нашия празник').trim();
-  const host     = (data.from || 'Сем. Иванови').trim();
-  const dateText = fmtDate(data.date, data.time) || 'дата, час';
-  const rsvp     = (data.rsvp || '').trim();
-  const creative = (data.creative || 'Очаква те приключение с игри, балони и смях! Донеси си усмивка, а ние ще донесем магията ✨').trim();
-
-  const starColor = dark ? '#f1c37a' : '#d89e58';
-  const seedStr   = [who, data.date || '', data.time || ''].join('|');
-
-  const wrap = document.createElement('div');
-  wrap.className = 'invite-pdf-stage' + (dark ? ' theme-dark' : '');
-  wrap.innerHTML = `
-    <style>
-      .invite-pdf-stage{
-        font-family:"CraftworkGrotesk",system-ui;
-        --pad:72px;        /* външен бял пас от всички страни */
-      }
-      .invite-pdf-stage .page{
-        position:relative; width:1240px; height:1754px;
-        padding:var(--pad); box-sizing:border-box;
-        background:#fff; color:#111;
-        display:grid; grid-template-rows:auto 1fr; gap:28px;
-      }
-      .invite-pdf-stage.theme-dark .page{ background:#fff; color:#111 }
-
-      .invite-pdf-stage .card{
-        position:relative; width:100%; height:100%;
-        border-radius:16px; border:1px solid rgba(0,0,0,.08);
-        padding:46px 44px; box-sizing:border-box; background:transparent;
-      }
-
-      /* звездният слой (под съдържанието) */
-      .invite-pdf-stage .stars--full{ position:absolute; inset:0; z-index:0; pointer-events:none }
-
-      .brand{ position:relative; z-index:2; margin:6px auto 10px; display:block; text-align:center }
-      .sub{ position:relative; z-index:2; text-align:center; font-size:28px; opacity:.85; margin-bottom:18px }
-      .rule{ position:relative; z-index:2; height:1px; width:100%; background:currentColor; opacity:.18; margin:10px 0 26px }
-
-      .title{ position:relative; z-index:2; font-family:"Rosarium",serif; font-size:64px; color:#d89e58; margin:0 0 12px }
-      .text{ position:relative; z-index:2; font-size:26px; line-height:1.55; margin:0 0 10px }
-      .note{ position:relative; z-index:2; font-size:24px; line-height:1.5; margin:6px 0 10px }
-      b{ font-weight:700 }
-
-      /* EXTRA (магичен блок) */
-      .extra.magic{
-        position:relative; margin-top:26px; padding:28px 30px 24px;
-        border-radius:16px; background:transparent; border:1.5px dashed rgba(216,158,88,.55);
-      }
-      .extra.magic::after{
-        content:""; position:absolute; inset:6px; pointer-events:none; opacity:.35; border-radius:12px;
-        background:
-          radial-gradient(circle 2px, rgba(216,158,88,.75) 98%, transparent) 6px 10px/90px 90px repeat,
-          radial-gradient(circle 1.6px, rgba(174,188,255,.55) 98%, transparent) 42px 28px/120px 120px repeat;
-      }
-      .extra-title{ text-align:center; margin:-4px 0 12px; font-size:50px; color:#d89e58 }
-      .extra-title em{ font-style:normal; font-family:"Rosarium",serif }
-      .extra-title span{ margin:0 10px }
-      .extra-lead{ margin:0 0 10px 0; font-size:24px; line-height:1.55 }
-      .extra-list{ list-style:none; margin:0; padding:0; display:grid; gap:10px; font-size:24px; line-height:1.5 }
-      .extra-list li{ position:relative; padding-left:28px }
-      .extra-list li::before{ content:"✶"; position:absolute; left:4px; top:.15em; font-size:18px; color:#d89e58 }
-    </style>
-
-    <div class="page">
-      <div class="card">
-        ${starsSVG({ w:1240, h:1754, n:180, color:starColor, minR:1.4, maxR:3.2, seed:seedStr })}
-        <div class="brand" id="brandSlot"></div>
-        <div class="sub">Вълшебно място за празници</div>
-        <div class="rule"></div>
-
-        <div class="title">${who}</div>
-        <p class="text">Каним те на <b>${who}</b>! Точно на <b>${dateText}</b> в
-          <b>Парти център Wonderland, гр. Смолян</b> ще отворим вратата към Wonderland —
-          място, където игрите оживяват, балоните шепнат желания, а смехът звучи като музика.</p>
-        <p class="text">${creative}</p>
-        <p class="note">Домакини: <b>${host}</b>. ${rsvp ? `Моля, потвърди присъствие на ${rsvp}.` : ''}</p>
-
-        <div class="extra magic">
-          <div class="extra-title"><span>✦</span> <em>Пътеводител към чудесата</em> <span>✦</span></div>
-          <p class="extra-lead">Пристигни 10 минути по-рано — порталът се отваря навреме, а първите усмивки са най-магични.</p>
-          <ul class="extra-list">
-            <li><b>Дрескод:</b> цветни мечти и искри в очите</li>
-            <li><b>VIP гост:</b> любимата играчка 🧸</li>
-            <li><b>Фотокът</b> те чака за снимки и малки изненади ✨</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  `;
-
-  wrap.__afterAttach = async () => {
-    await inlineBrandSVG(
-      wrap.querySelector('#brandSlot'),
-      'assets/img/Gold-6-trimmed.svg',
-      dark ? '#f1c37a' : '#d89e58'
-    );
-  };
-  return wrap;
-}
-
-
-
-  // --- Сваляне като PDF ---
-  async function downloadPDF(){
-    const data = Object.fromEntries(new FormData(form).entries());
-    const dark = !!themeSwitch?.checked;
-
-    const stage = buildStage(data, dark);
-    document.body.appendChild(stage);
-    if (stage.__afterAttach) { try { await stage.__afterAttach(); } catch(_){} }
-    if (document.fonts?.ready) { try { await document.fonts.ready; } catch(_){} }
-
-    const canvas = await html2canvas(stage, {
-      useCORS: true,
-      scale: 2,
-      backgroundColor: getComputedStyle(stage).backgroundColor
-    });
-
-    document.body.removeChild(stage);
-
-    const img = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const w = pdf.internal.pageSize.getWidth();
-    const h = pdf.internal.pageSize.getHeight();
-    pdf.addImage(img, 'JPEG', 0, 0, w, h);
-
-    const safe = (data.to || 'Pokana').replace(/[^\p{L}\p{N}\s_-]+/gu,'').trim().replace(/\s+/g,'-');
-    const dateSafe = (data.date || '').replaceAll('-', '');
-    pdf.save(`Pokana-${safe || 'Wonderland'}-${dateSafe || 'A4'}.pdf`);
+    let yy = y;
+    for (const ln of lines) {
+      const wpx = font.widthOfTextAtSize(ln, size);
+      const x = centerX - wpx / 2;
+      page.drawText(ln, { x, y: yy, size, font });
+      yy -= lineHeight;
+    }
+    return yy; // последна y позиция (за продължаване)
   }
 
-  downloadBtn.addEventListener('click', downloadPDF);
-  resetBtn?.addEventListener('click', () => {});
+  // Сглобяване на всички редове (вкл. bold редовете)
+  function buildLines({ name, age }, fonts) {
+    // Час/дата не са отделни редове в образеца освен в bold линията с името и възрастта
+    // Часът ще бъде подаден отделно при рисуването на bold линията по-долу.
+    return [
+      { type: 'plain', text: 'Време е да се впуснем в' },
+      { type: 'plain', text: 'чудна веселба' },
+
+      // Bold редът (ще се попълни динамично в generatePdf, защото ползва и време)
+      { type: 'inline-dynamic', key: 'whenNameAge' },
+
+      { type: 'plain', text: 'Заедно ще отворим тайната' },
+      { type: 'plain', text: 'врата място, където игрите оживяват,' },
+      { type: 'plain', text: 'балоните шепнат желания, а смехът' },
+      { type: 'plain', text: 'звучи, като музика!' },
+
+      { type: 'plain', text: 'Очаква те незабравимо приключение.' },
+      { type: 'plain', text: 'Донеси си усмивка, а магията е от нас.' },
+
+      // Очаквам те в Wonderland
+      { type: 'inline', parts: [
+        { text: 'Очаквам те в ', font: fonts.reg },
+        { text: 'Wonderland',    font: fonts.bold },
+      ]},
+    ];
+  }
+
+  async function generatePdf(values) {
+    await ensurePdfLibAndFontkit();
+    const { PDFDocument } = window.PDFLib;
+
+    const [tplResp, regResp, boldResp] = await Promise.all([
+      fetch(TEMPLATE_URL),
+      fetch(REGULAR_FONT_URL),
+      fetch(BOLD_FONT_URL)
+    ]);
+    if (!tplResp.ok)  throw new Error('Missing template PDF');
+    if (!regResp.ok)  throw new Error('Missing regular font');
+    if (!boldResp.ok) throw new Error('Missing bold font');
+
+    const [tplBytes, regBytes, boldBytes] = await Promise.all([
+      tplResp.arrayBuffer(),
+      regResp.arrayBuffer(),
+      boldResp.arrayBuffer()
+    ]);
+
+    const pdfDoc = await PDFDocument.load(tplBytes);
+    pdfDoc.registerFontkit(window.fontkit);
+    const regularFont = await pdfDoc.embedFont(regBytes,  { subset: true });
+    const boldFont    = await pdfDoc.embedFont(boldBytes, { subset: true });
+
+    const page = pdfDoc.getPage(0);
+    const { width, height } = page.getSize();
+
+    // Размери: по-едър текст и по-събрани редове (както си ги настроил)
+    const centerX   = width / 2;
+    const startY    = height * 0.78;
+    const maxWidth  = width * 0.52;
+    const fontSize  = 24;
+    const leading   = Math.round(fontSize * 1.18);
+
+    const fonts = { reg: regularFont, bold: boldFont };
+    const lines = buildLines(values, fonts);
+
+    let y = startY;
+    for (const line of lines) {
+      if (line.type === 'plain') {
+        y = drawPlainCentered(page, line.text, y, centerX, maxWidth, leading, regularFont, fontSize);
+      } else if (line.type === 'inline') {
+        drawInlineCentered(page, line.parts, y, centerX, fontSize);
+        y -= leading;
+      } else if (line.type === 'inline-dynamic' && line.key === 'whenNameAge') {
+        // "Точно в 13:00 Деян ще навърши 8г."
+        const t = fmtTime(values.time);
+        const parts = [
+          { text: 'Точно в ',   font: regularFont },
+          { text: `${t} `,      font: boldFont },
+          { text: `${values.name} `, font: boldFont },
+          { text: 'ще навърши ', font: regularFont },
+          { text: `${values.age}г.`, font: boldFont },
+        ];
+        drawInlineCentered(page, parts, y, centerX, fontSize);
+        y -= leading;
+      }
+    }
+
+    // НЯМА подпис/организатор долу — премахнато по изискване
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const safe = (values.name || 'рожденик').replace(/[^\p{L}\p{N}\-_]+/gu, '_');
+    a.download = `Wonderland_Invite_${safe}_${values.age || ''}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  function collectValues() {
+    const fd = new FormData(form);
+    // Използваме "От" като ИМЕ НА РОЖДЕНИКА
+    let name = (fd.get('from') || '').toString().trim();
+
+    let age = (fd.get('age') || '').toString().trim();
+    if (age) {
+      const n = parseInt(age, 10);
+      age = Number.isFinite(n) && n > 0 ? String(n) : '';
+    }
+    return {
+      name, // от "От"
+      age,
+      date: (fd.get('date') || '').toString(),
+      time: (fd.get('time') || '').toString(),
+    };
+  }
+
+  btnDownload?.addEventListener('click', async () => {
+    if (!form.reportValidity()) return;
+    try {
+      await generatePdf(collectValues());
+    } catch (e) {
+      console.error(e);
+      alert('Проблем при генерирането. Провери темплейта и шрифта Rosarium.ttf.');
+    }
+  });
 })();

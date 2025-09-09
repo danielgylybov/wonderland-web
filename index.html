@@ -75,7 +75,7 @@
     </div>
   </section>
 
-  <!-- КАК РАБОТИ (обновена секция) -->
+  <!-- КАК РАБОТИ -->
   <section id="how" class="how snap py-5">
     <div class="container">
       <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Как работи</h2>
@@ -117,16 +117,14 @@
     </div>
   </section>
 
-
-
-
+  <!-- Пакети (динамични от Google Drive) -->
   <section id="packages" class="snap py-5">
-    <div class="container" id="packages-root"></div>
+    <div class="container">
+      <div id="packages-root"></div>
+    </div>
   </section>
 
-
-
-  <!-- ГАЛЕРИЯ (динамична от Google Drive) – трета секция -->
+  <!-- ГАЛЕРИЯ (динамична от Google Drive) -->
   <section id="gallery" style="padding-top: -3rem;" class="snap">
     <div class="container">
       <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">Галерия</h2>
@@ -151,7 +149,7 @@
     </div>
   </section>
 
-  <!-- ФОРМА ЗА ЗАПИТВАНЕ – четвърта секция -->
+  <!-- ФОРМА ЗА ЗАПИТВАНЕ -->
   <section id="contact" class="contact snap py-5">
     <div class="container" style="max-width: 860px;">
       <h2 class="text-center mb-3" style="font-family:'Rosarium',serif;">Изпрати запитване</h2>
@@ -224,7 +222,7 @@
     </div>
   </section>
 
-  <!-- ЗА НАС – нова секция -->
+  <!-- ЗА НАС -->
   <section id="about" class="about snap py-5">
     <div class="container" style="max-width: 980px;">
       <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">За нас</h2>
@@ -288,48 +286,31 @@
       <form id="inviteForm" class="card p-3 p-md-4 bg-transparent">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">От (организатор)</label>
-            <input class="form-control" name="from" placeholder="Сем. Иванови" required>
+            <label class="form-label">От (рожденник)</label>
+            <input class="form-control" name="from" placeholder="Стефи" required>
           </div>
+
           <div class="col-md-6">
-            <label class="form-label">Повод / за кого</label>
-            <input class="form-control" name="to" placeholder="Рожден ден на Мия" required>
+            <label class="form-label">Възраст на рожденика</label>
+            <input type="number" min="1" max="120" class="form-control" name="age" placeholder="8" required>
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Дата</label>
             <input type="date" class="form-control" name="date" required>
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Час</label>
             <input type="time" class="form-control" name="time" required>
           </div>
 
-          <div class="col-12">
-            <label class="form-label">Бележка / RSVP</label>
-            <input class="form-control" name="rsvp" placeholder="Моля, потвърдете на 088...">
-          </div>
-
-          <div class="col-12">
-            <label class="form-label">Креативно послание (по желание)</label>
-            <textarea class="form-control" name="creative" rows="3"
-                      placeholder="Очаква те приключение с игри, балони и смях! Донеси си усмивка, а ние ще донесем магията ✨"></textarea>
-          </div>
-
-          <div class="col-12 d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="inviteThemeSwitch">
-              <label class="form-check-label" for="inviteThemeSwitch">Тъмен фон / Светъл фон (икономичен)</label>
-            </div>
-
-            <div class="d-grid d-sm-block">
-              <button class="btn btn-primary mb-2 mb-sm-0" type="button" id="inviteDownloadBtn">Свали PDF</button>
-              <button class="btn btn-outline-light ms-sm-2" type="reset" id="inviteResetBtn">Изчисти</button>
-            </div>
+          <div class="col-12 d-grid d-sm-block">
+            <button class="btn btn-primary mb-2 mb-sm-0" type="button" id="inviteDownloadBtn">Свали PDF</button>
+            <button class="btn btn-outline-light ms-sm-2" type="reset" id="inviteResetBtn">Изчисти</button>
           </div>
         </div>
       </form>
-
       <p class="text-center opacity-75 small mt-3">* Файлът е една страница A4, готова за изпращане или печат.</p>
     </div>
     <!-- FOOTER -->
@@ -374,6 +355,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
 
 <script src="packages-data.js" defer></script>
+<script src="lazy-loader-pkg.js" defer></script>
 <script src="packages.js" defer></script>
 <script src="scripts.js" defer></script>
 <script src="drive-gallery.js" defer></script>

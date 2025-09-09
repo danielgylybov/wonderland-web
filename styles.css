@@ -808,4 +808,44 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
   color: #0D1B1E;
 }
 
+/* ===== Packages skeleton ===== */
+.packages-skeleton { --sk-bg:#24262b; --sk-shine:rgba(255,255,255,.08); }
+.packages-skeleton .sk-card {
+  border: 1px solid rgba(255,255,255,.08);
+  background: var(--sk-bg);
+  border-radius: 16px;
+  padding: 1.25rem;
+  height: 100%;
+  overflow: hidden;
+}
+.sk-line, .sk-avatar {
+  position: relative;
+  background: linear-gradient(90deg, var(--sk-bg) 0%, var(--sk-shine) 50%, var(--sk-bg) 100%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.2s infinite;
+  border-radius: 8px;
+}
+.sk-line { height: 14px; margin: .5rem 0; }
+.sk-line.lg { height: 20px; }
+.sk-line.xs { height: 10px; opacity:.7; }
+.sk-hr { height: 1px; background: rgba(255,255,255,.08); margin: .75rem 0 1rem; }
+@keyframes sk-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.fade-in { animation: fadeIn .28s ease-out; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none} }
+
+/* Стейт грешка / retry */
+.pkg-error {
+  border: 1px dashed rgba(255,255,255,.25);
+  border-radius: 14px;
+  padding: 1.25rem;
+  text-align: center;
+  background: rgba(255,255,255,.03);
+}
+.pkg-error .btn { margin-top: .5rem; }
+
+/* леко скриване докато подменяме */
+#packages-root.loading { opacity:.85; filter:saturate(.9); }
+
+
 
