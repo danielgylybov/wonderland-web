@@ -1,15 +1,10 @@
-// invite.js – покана "като на картинката" с bold върху час, име, възраст и "Wonderland".
-// ТЕМПЛЕЙТ/ШРИФТОВЕ:
-//   /assets/invite/invite.pdf
-//   /assets/Rosarium.ttf  (използва се за regular и bold)
-
 (() => {
   const form        = document.getElementById('inviteForm');
   const btnDownload = document.getElementById('inviteDownloadBtn');
 
-  const TEMPLATE_URL     = '/assets/invite/invite.pdf';
-  const REGULAR_FONT_URL = '/assets/Rosarium.ttf';
-  const BOLD_FONT_URL    = '/assets/Rosarium.ttf'; // ако имаш Rosarium-Bold.ttf, посочи него тук
+  const TEMPLATE_URL     = 'assets/invite/invite.pdf';
+  const REGULAR_FONT_URL = 'assets/Rosarium.ttf';
+  const BOLD_FONT_URL    = 'assets/Rosarium.ttf'; // ако имаш Rosarium-Bold.ttf ???
 
   async function ensurePdfLibAndFontkit() {
     async function load(src) {
