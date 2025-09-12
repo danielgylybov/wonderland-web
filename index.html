@@ -165,8 +165,12 @@
       </div>
 
       <form id="contactForm">
-        <!-- скрито поле за пакета -->
-        <input type="hidden" name="package" id="packageField" value="">
+        <input type="hidden" id="packageField"        name="package">
+        <input type="hidden" id="pkgTierLabel"        name="pkgTierLabel">
+        <input type="hidden" id="pkgAddons"           name="pkgAddons">
+        <input type="hidden" id="pkgTotal"            name="pkgTotal">
+        <input type="hidden" id="pkgCurrency"         name="pkgCurrency">
+        <input type="hidden" id="pkgDataJson"         name="pkgDataJson">
 
         <div class="row g-3">
           <div class="col-md-6">
@@ -247,7 +251,7 @@
               Запазете своето уютно парти място още днес!
             </p>
 
-            <div class="mt-3">
+            <div class="mt-auto">
               <a class="btn btn-primary" data-scroll="#packages">Избери пакет</a>
             </div>
           </div>

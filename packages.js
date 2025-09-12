@@ -481,31 +481,26 @@ document.addEventListener('click', (e) => {
 });
 
 /* ───────── Попълване на бейджа и формата ───────── */
+/* ───────── Попълване на бейджа и формата ───────── */
 function applySelection(model, choice, priceTextStr) {
   const badge = document.getElementById('selectedPackageBadge');
   const val   = badge?.querySelector('.value');
-  const field = document.getElementById('packageField');
 
-  if (badge && val && field) {
-    val.textContent = `${model.name}${choice ? ' · ' + (choice.label || '') : ''}${priceTextStr ? ' · ' + priceTextStr : ''}`;
-    field.value = val.textContent;
-    field.dispatchEvent(new Event('change', { bubbles: true }));
-    badge.classList.remove('d-none');
-  }
+  const hfPkg        = document.getElementById('packageField');
+  const hfTier       = document.getElementById('pkgTierLabel');
+  const hfAddons     = document.getElementById('pkgAddons');
+  const hfTotal      = document.getElementById('pkgTotal');
+  const hfCurrency   = document.getElementById('pkgCurrency');
+  const hfJson       = document.getElementById('pkgDataJson');
 
-  const kidsInput   = document.querySelector('input[name="kids"]');
-  const budgetInput = document.querySelector('input[name="budget"]');
-  let kidsVal = null;
-  if (choice?.label) {
-    const nums = (choice.label.match(/\d+/g) || []).map(n => Number(n)).filter(Number.isFinite);
-    if (nums.length) kidsVal = Math.max(...nums);
-  }
-  if (kidsInput && Number.isFinite(kidsVal) && kidsVal > 0) {
-    kidsInput.value = String(kidsVal);
-    kidsInput.dispatchEvent(new Event('input', { bubbles: true }));
-  }
+  // четими стойности
+  const currency  = getCurrency();
+  const tierLabel = choice?.label || '';
+  const addonsArr = Array.isArray(model._chosenAddons) ? model._chosenAddons : [];
+  const addonsCSV = addonsArr.map(a => `${a.label}${a.price?` (+${fmtPrice(a.price)} ${currency})`:''}`).join(', ');
 
-  const num = (() => {
+  // извади тотала от текста (пример: "1 200 лв")
+  const totalNum = (() => {
     const m = (priceTextStr || '').match(/[\d\s.,]+/);
     if (!m) return null;
     const raw = m[0].replace(/\s/g, '');
@@ -514,11 +509,59 @@ function applySelection(model, choice, priceTextStr) {
     return Number(raw);
   })();
 
-  if (budgetInput && Number.isFinite(num)) {
-    budgetInput.value = num.toFixed(2).replace('.', ',');
+  // Видим бейдж
+  const summaryText = `${model.name}${tierLabel ? ' · ' + tierLabel : ''}${priceTextStr ? ' · ' + priceTextStr : ''}`;
+  if (badge && val) {
+    val.textContent = summaryText;
+    badge.classList.remove('d-none');
+  }
+
+  // Скритите полета (ако съществуват)
+  if (hfPkg)      { hfPkg.value = summaryText; hfPkg.dispatchEvent(new Event('change', { bubbles: true })); }
+  if (hfTier)     hfTier.value = tierLabel;
+  if (hfAddons)   hfAddons.value = addonsCSV;
+  if (hfTotal)    hfTotal.value = Number.isFinite(totalNum) ? String(totalNum) : '';
+  if (hfCurrency) hfCurrency.value = currency;
+
+  if (hfJson) {
+    const payload = {
+      name: model.name,
+      tier: tierLabel || null,
+      basePrice: Number(model.basePrice||0),
+      total: Number.isFinite(totalNum) ? totalNum : null,
+      currency,
+      addons: addonsArr.map(a => ({ label: a.label, price: Number(a.price||0) }))
+    };
+    hfJson.value = JSON.stringify(payload);
+  }
+
+  // Авто-попълване на kids/budget
+  const kidsInput   = document.querySelector('input[name="kids"]');
+  if (kidsInput && tierLabel) {
+    const nums = (tierLabel.match(/\d+/g) || []).map(Number).filter(Number.isFinite);
+    if (nums.length) {
+      kidsInput.value = String(Math.max(...nums));
+      kidsInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+  const budgetInput = document.querySelector('input[name="budget"]');
+  if (budgetInput && Number.isFinite(totalNum)) {
+    budgetInput.value = totalNum.toFixed(2).replace('.', ',');
     budgetInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
+
+  // 🔔 Ново: глобално събитие към contact.js (EmailJS ще вземе JSON-а)
+  const eventDetail = {
+    model: { name: model.name, basePrice: Number(model.basePrice||0) },
+    choice: choice ? { label: choice.label, multiplier: choice.multiplier } : null,
+    summaryText,
+    total: Number.isFinite(totalNum) ? totalNum : null,
+    currency,
+    addonsPicked: addonsArr.map(a => ({ label: a.label, price: Number(a.price||0) }))
+  };
+  document.dispatchEvent(new CustomEvent('wl:package-selected', { detail: eventDetail }));
 }
+
 
 /* ───────── Експорт на рендера (вика се от loader-а) ───────── */
 window.renderPackagesSection = renderPackagesSection;
