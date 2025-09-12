@@ -305,6 +305,18 @@
             <input type="time" class="form-control" name="time" required>
           </div>
 
+          <div class="col-12">
+            <label class="form-label d-block">Вид покана</label>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tpl" id="tplClassic" value="v1" checked>
+              <label class="form-check-label" for="tplClassic">Класическа</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="tpl" id="tplRabbit" value="v2">
+              <label class="form-check-label" for="tplRabbit">Със зайче</label>
+            </div>
+          </div>
+
           <div class="col-12 d-grid d-sm-block">
             <button class="btn btn-primary mb-2 mb-sm-0" type="button" id="inviteDownloadBtn">Свали PDF</button>
             <button class="btn btn-outline-light ms-sm-2" type="reset" id="inviteResetBtn">Изчисти</button>
