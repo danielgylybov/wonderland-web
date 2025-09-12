@@ -1,31 +1,6 @@
 /**
  * packages.js — ЛЕНИВО рендериране на секцията „Пакети“ + детайлен оувърлей
- *
- * ОВЕРВЮ:
- * - Не прави мрежови заявки. Очаква window.PACKAGES да е вече зареден (напр. от JSONP).
- * - Рендерира карти на пакетите и оувърлей с пълни детайли, галерия и добавки.
- * - Цената се преизчислява динамично при смяна на tier и/или отметки по добавките.
- * - „Индикацията за добавки“ под цената има фиксирана височина и НЕ разширява лейаута.
- *
- * ДАННИ (window.PACKAGES):
- * {
- *   title, subtitle, currency ("лв"/"€"), pricePrefix ("от"),
- *   packages: [{
- *     name, desc, basePrice, featured?,
- *     tiers?: [{ label, multiplier }],
- *     features?: [string],
- *     extraInfo?: [string],                 // лява колона в оувърлея
- *     addOns?:                              // дясна колона (сумата им се добавя към цената)
- *       - масив от обекти: [{ label, price, checked? }]
- *       - ИЛИ масив от низове: ["Фото кът – 150 лв", " ... "]
- *       - ИЛИ JSON низ (от Sheets клетка): '[{"label":"Фото кът","price":150},{"label":"..."}]'
- *     gallery?: [URL], galleryIds?: [DriveId]
- *   }]
- * }
- *
- * БЕЛЕЖКИ:
- * - Ако „extraInfo“ или „addOns“ липсват, другата секция заема цялата ширина.
- * - При промяна на цената в оувърлея се обновява и цената върху съответната карта.
+ * Десктоп: винаги 3 видими карти. Ако са >3 → хоризонтален скрол със стрелки.
  */
 
 /* ───────── Мини селектор ───────── */
@@ -114,14 +89,13 @@ function unlockScroll() {
 }
 
 /* ───────── Карта на пакет ───────── */
-function cardHTML(pkg) {
+function cardInnerHTML(pkg) {
   const { viewMore, chooseText } = getCopy();
   const id = (pkg.name || "").toLowerCase().trim().replace(/\s+/g, "-");
   const feats = Array.isArray(pkg.features) ? pkg.features.slice(0, 3) : [];
   const firstMult = pkg.tiers?.[0]?.multiplier ?? 1;
   const highlight = pkg.featured ? ' style="border: 2px solid rgba(212,175,55,.35)"' : '';
   return `
-  <div class="col-12 col-md-4 d-flex">
     <div class="pack-card p-4 w-100"${highlight} data-card-id="${esc(id)}">
       <h3 class="mb-2" style="font-family:'Rosarium',serif;">${esc(pkg.name)}</h3>
       <p class="opacity-75 mb-3">${esc(pkg.desc || "")}</p>
@@ -132,23 +106,131 @@ function cardHTML(pkg) {
         <button class="btn btn-primary w-50" type="button" data-choose="${esc(id)}">${esc(chooseText)}</button>
       </div>
     </div>
-  </div>`;
+  `;
 }
+function cardGridHTML(pkg){
+  return `<div class="col-12 col-md-4 d-flex">${cardInnerHTML(pkg)}</div>`;
+}
+function cardSlideHTML(pkg){
+  return `<div class="pkg-slide">${cardInnerHTML(pkg)}</div>`;
+}
+
+/* ───────── Инжектиране на стилове за хоризонталния скрол (еднократно) ───────── */
+(function injectScrollerCSS(){
+  if (document.getElementById('pkg-scroller-css')) return;
+  const css = `
+  @media (min-width: 992px){
+    .pkg-hscroller{position:relative}
+    .pkg-hscroller .pkg-track{
+      display:flex; overflow:hidden; /* scrollTo работи и при hidden */
+      gap:16px; --gap:16;
+      padding-top: 4px; padding-bottom: 4px;
+    }
+    .pkg-hscroller .pkg-slide{flex:0 0 calc((100% - 2*16px)/3);}
+    .pkg-hscroller .pkg-nav{
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:42px; height:42px; border-radius:999px; border:1px solid rgba(212,175,55,.35);
+      background:rgba(12,18,38,.65); backdrop-filter:blur(6px);
+      display:grid; place-items:center; cursor:pointer; z-index:2;
+      color:#fff; font-size:20px; line-height:1;
+    }
+    .pkg-hscroller .pkg-nav[disabled]{opacity:.35; pointer-events:none}
+    .pkg-hscroller .pkg-nav.prev{left:-10px}
+    .pkg-hscroller .pkg-nav.next{right:-10px}
+  }
+  @media (max-width: 991.98px){
+    .pkg-hscroller .pkg-track{display:block; overflow:visible}
+    .pkg-hscroller .pkg-slide{margin-bottom:1rem}
+    .pkg-hscroller .pkg-nav{display:none!important}
+  }`;
+  const el = document.createElement('style');
+  el.id = 'pkg-scroller-css';
+  el.textContent = css;
+  document.head.appendChild(el);
+})();
 
 /* ───────── Рендер на секцията ───────── */
 function renderPackagesSection() {
   const m = window.PACKAGES || {};
   const root = document.getElementById("packages-root");
   if (!root) return;
+
   const list = Array.isArray(m.packages) ? m.packages : [];
-  const cards = list.map(cardHTML).join("");
+  const desktop = window.matchMedia('(min-width: 992px)').matches;
+  const useScroller = desktop && list.length > 3;
+
+  let contentHTML = '';
+
+  if (useScroller) {
+    const slides = list.map(cardSlideHTML).join('');
+    contentHTML = `
+      <div class="pkg-hscroller" data-scroller>
+        <button class="pkg-nav prev" type="button" aria-label="Назад">‹</button>
+        <div class="pkg-track">${slides}</div>
+        <button class="pkg-nav next" type="button" aria-label="Напред">›</button>
+      </div>
+    `;
+  } else {
+    const cards = list.map(cardGridHTML).join("");
+    contentHTML = `
+      <div class="row g-4">
+        ${cards || `<div class="col-12"><div class="text-center opacity-75">В момента няма активни пакети.</div></div>`}
+      </div>
+    `;
+  }
+
   root.innerHTML = `
     <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">${esc(m.title || "Пакети")}</h2>
-    <p class="text-center mb-5">${esc(m.subtitle || "")}</p>
-    <div class="row g-4">
-      ${cards || `<div class="col-12"><div class="text-center opacity-75">В момента няма активни пакети.</div></div>`}
-    </div>
+    ${m.subtitle ? `<p class="text-center mb-5">${esc(m.subtitle)}</p>` : ''}
+    ${contentHTML}
   `;
+
+  if (useScroller) setupDesktopScroller(root);
+}
+
+/* ───────── Логика за десктоп хоризонталния скрол (3 видими) ───────── */
+function setupDesktopScroller(scope){
+  const wrap = scope.querySelector('[data-scroller]');
+  if (!wrap) return;
+  const track = wrap.querySelector('.pkg-track');
+  const prev = wrap.querySelector('.pkg-nav.prev');
+  const next = wrap.querySelector('.pkg-nav.next');
+  const slides = Array.from(track.querySelectorAll('.pkg-slide'));
+
+  // индексът е „лява видима“ карта
+  let index = 0;
+
+  function visibleCount(){ return 3; } // винаги 3 на десктоп по условие
+  function maxIndex(){ return Math.max(0, slides.length - visibleCount()); }
+
+  function slideStep(){
+    // ширина на една карта + gap (16px)
+    if (!slides[0]) return 0;
+    const w = slides[0].getBoundingClientRect().width;
+    return w + 16; // синхронизирано с CSS gap:16px
+  }
+
+  function updateNav(){
+    prev.disabled = index <= 0;
+    next.disabled = index >= maxIndex();
+  }
+
+  function scrollToIndex(i, smooth = true){
+    index = Math.max(0, Math.min(i, maxIndex()));
+    const x = Math.round(index * slideStep());
+    track.scrollTo({ left: x, behavior: smooth ? 'smooth' : 'auto' });
+    updateNav();
+  }
+
+  prev.addEventListener('click', () => scrollToIndex(index - 1));
+  next.addEventListener('click', () => scrollToIndex(index + 1));
+
+  // ресайз → прецизно прецентриране
+  window.addEventListener('resize', () => scrollToIndex(index, false), { passive:true });
+
+  // Инициализация
+  updateNav();
+  scrollToIndex(0, false);
 }
 
 /* ───────── Нормализация на добавки (поддържа 3 формата) ───────── */
@@ -375,6 +457,7 @@ function renderPackageOverlay(model) {
       loading?.remove();
       if (!files.length) { wrap.innerHTML = `<div class="opacity-75">Няма изображения за този пакет.</div>`; return; }
 
+      const carouselId = `pkgCarousel-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
       const slides = files.slice(0, 8).map((f, i) => `
         <div class="carousel-item ${i===0?'active':''}">
           <img class="d-block w-100"
@@ -481,7 +564,6 @@ document.addEventListener('click', (e) => {
 });
 
 /* ───────── Попълване на бейджа и формата ───────── */
-/* ───────── Попълване на бейджа и формата ───────── */
 function applySelection(model, choice, priceTextStr) {
   const badge = document.getElementById('selectedPackageBadge');
   const val   = badge?.querySelector('.value');
@@ -493,13 +575,11 @@ function applySelection(model, choice, priceTextStr) {
   const hfCurrency   = document.getElementById('pkgCurrency');
   const hfJson       = document.getElementById('pkgDataJson');
 
-  // четими стойности
   const currency  = getCurrency();
   const tierLabel = choice?.label || '';
   const addonsArr = Array.isArray(model._chosenAddons) ? model._chosenAddons : [];
   const addonsCSV = addonsArr.map(a => `${a.label}${a.price?` (+${fmtPrice(a.price)} ${currency})`:''}`).join(', ');
 
-  // извади тотала от текста (пример: "1 200 лв")
   const totalNum = (() => {
     const m = (priceTextStr || '').match(/[\d\s.,]+/);
     if (!m) return null;
@@ -509,14 +589,12 @@ function applySelection(model, choice, priceTextStr) {
     return Number(raw);
   })();
 
-  // Видим бейдж
   const summaryText = `${model.name}${tierLabel ? ' · ' + tierLabel : ''}${priceTextStr ? ' · ' + priceTextStr : ''}`;
   if (badge && val) {
     val.textContent = summaryText;
     badge.classList.remove('d-none');
   }
 
-  // Скритите полета (ако съществуват)
   if (hfPkg)      { hfPkg.value = summaryText; hfPkg.dispatchEvent(new Event('change', { bubbles: true })); }
   if (hfTier)     hfTier.value = tierLabel;
   if (hfAddons)   hfAddons.value = addonsCSV;
@@ -535,7 +613,6 @@ function applySelection(model, choice, priceTextStr) {
     hfJson.value = JSON.stringify(payload);
   }
 
-  // Авто-попълване на kids/budget
   const kidsInput   = document.querySelector('input[name="kids"]');
   if (kidsInput && tierLabel) {
     const nums = (tierLabel.match(/\d+/g) || []).map(Number).filter(Number.isFinite);
@@ -550,7 +627,6 @@ function applySelection(model, choice, priceTextStr) {
     budgetInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  // 🔔 Ново: глобално събитие към contact.js (EmailJS ще вземе JSON-а)
   const eventDetail = {
     model: { name: model.name, basePrice: Number(model.basePrice||0) },
     choice: choice ? { label: choice.label, multiplier: choice.multiplier } : null,
@@ -561,7 +637,6 @@ function applySelection(model, choice, priceTextStr) {
   };
   document.dispatchEvent(new CustomEvent('wl:package-selected', { detail: eventDetail }));
 }
-
 
 /* ───────── Експорт на рендера (вика се от loader-а) ───────── */
 window.renderPackagesSection = renderPackagesSection;

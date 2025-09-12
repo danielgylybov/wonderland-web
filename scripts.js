@@ -1,87 +1,73 @@
 /* ---------------------------------------------------------
    0) Малки помощници
 --------------------------------------------------------- */
-const $ = (s, r = document) => r.querySelector(s);
+const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-// най-горе в scripts.js
 const isOverlayOpen = () => document.body.classList.contains('no-scroll');
 
-/* височината на fixed хедъра (ако е видим) */
+/* височина на fixed header */
 function getHeaderH() {
   const header = $('.magic-header');
   return header ? Math.round(header.getBoundingClientRect().height) : 0;
 }
 
-/* Гладко превъртане с корекция за header (твоята „ключова“ функция) */
+/* Гладък скрол с корекция за header (fallback и за клик навигация) */
 function scrollToWithOffset(target, extraOffset = 0) {
   const el = typeof target === 'string' ? document.querySelector(target) : target;
   if (!el) return;
 
-  const header = document.querySelector('.magic-header');
-  const headerH = header ? header.getBoundingClientRect().height : 0;
-
   const rect = el.getBoundingClientRect();
   const absoluteTop = window.scrollY + rect.top;
-
-  // по твоя формула – малко „повдигане“ (−headerH + 40px)
-  const top = absoluteTop - (headerH - 40) + extraOffset;
+  const top = absoluteTop - getHeaderH() + extraOffset;
 
   window.scrollTo({ top, behavior: isOverlayOpen() ? 'auto' : 'smooth' });
 }
 
 /* debounce helper */
-function debounce(fn, t) {
-  let h;
-  return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), t); };
-}
+function debounce(fn, t) { let h; return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), t); }; }
 
 /* ---------------------------------------------------------
-   1) Header: показване след като hero излезе
+   1) Header: показване след като HERO излезе
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const header = $('#stickyHeader');
-  const heroTarget =
-    $('.hero-logo-text') ||
-    $('.hero .logo-svg') ||
-    $('.hero img, .hero svg') ||
-    $('.hero');
+  const hero   = $('#hero');
 
-  if (!header || !heroTarget) {
-    header?.classList.add('show-logo');
-    return;
-  }
+  if (!header || !hero) { header?.classList.add('show-logo'); return; }
 
+  // Показваме header САМО когато hero вече не е видим
   const io = new IntersectionObserver(
     ([entry]) => header.classList.toggle('show-logo', !entry.isIntersecting),
-    { threshold: 0, rootMargin: '-56px 0px 0px 0px' }
+    { threshold: 0.15 } // докато поне 15% от hero е видим -> няма header
   );
-  io.observe(heroTarget);
+  io.observe(hero);
 });
 
 /* ---------------------------------------------------------
-   2) Click навигация (бутони + линкове) – ползва scrollToWithOffset
+   2) Click навигация (data-scroll и anchor линкове)
 --------------------------------------------------------- */
 document.addEventListener('click', (e) => {
   if (isOverlayOpen()) return;
+
+  // data-scroll
   const btn = e.target.closest('[data-scroll]');
   if (btn) {
     e.preventDefault();
     const sel = btn.getAttribute('data-scroll');
-    scrollToWithOffset(sel);
+    if (sel) scrollToWithOffset(sel);
     return;
   }
 
+  // anchors
   const a = e.target.closest('a[href^="#"]');
   if (a && a.getAttribute('href') !== '#') {
     e.preventDefault();
-    const id = a.getAttribute('href');
-    scrollToWithOffset(id);
+    scrollToWithOffset(a.getAttribute('href'));
   }
 });
 
 /* ---------------------------------------------------------
-   3) Starfield (както си беше)
+   3) Starfield (реални SVG звезди)
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const svg = $('#starfield');
@@ -91,16 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const BASE_H = 100;
   const STAR_COUNT_BASE = 120;
 
-  function clearStars() {
-    [...svg.querySelectorAll(':scope > g, :scope > use')].forEach(n => n.remove());
-  }
+  function clearStars(){ [...svg.querySelectorAll(':scope > g, :scope > use')].forEach(n => n.remove()); }
 
-  function buildStars() {
+  function buildStars(){
     clearStars();
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const vbH = BASE_H;
-    const vbW = BASE_H * (w / h);
+    const w = window.innerWidth, h = window.innerHeight;
+    const vbH = BASE_H, vbW = BASE_H * (w / h);
     svg.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
 
     const areaFactor = vbW * vbH / (100 * 100);
@@ -113,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', ref);
       use.setAttribute('class', 'star');
 
-      const x = Math.random() * vbW;
-      const y = Math.random() * vbH;
+      const x = Math.random() * vbW, y = Math.random() * vbH;
       const size = (Math.random() * 1.4 + 0.8).toFixed(2);
       use.setAttribute('x', x.toFixed(2));
       use.setAttribute('y', y.toFixed(2));
@@ -138,13 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ---------------------------------------------------------
-   4) Intro Curtain – auto open, remove on end
+   4) Intro Curtain – auto open, hide on end
 --------------------------------------------------------- */
-/* ===== Reusable Intro Curtain helpers ===== */
 function getCurtain(){ return document.getElementById('intro-curtain'); }
 
-/* Първоначално поведение при зареждане: отваря се и се “скрива”, без remove() */
-/* Първоначално поведение при зареждане: отвори завесите възможно най-рано */
 (function initCurtainAuto() {
   const c = getCurtain();
   if (!c) return;
@@ -168,7 +146,6 @@ function getCurtain(){ return document.getElementById('intro-curtain'); }
     });
   };
 
-  // стартирай НАЙ-РАНО – без да чакаш images/fonts
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', openCurtain, { once: true });
   } else {
@@ -176,202 +153,160 @@ function getCurtain(){ return document.getElementById('intro-curtain'); }
   }
 })();
 
-
-/* Затвори завесите към центъра (за показване на модал) → Promise */
 function curtainsClose(){
   return new Promise((resolve) => {
     const c = getCurtain();
     if (!c) return resolve();
 
-    // покажи, подготви паната “отворени”, после анимирай към центъра
     c.classList.remove('gone','open','closing');
     c.classList.add('prep-close');
-
     c.offsetHeight;
-
     c.classList.add('closing');
 
     let ended = 0;
-    const onEnd = () => {
-      ended++;
-      if (ended >= 2) {                 // чакаме ляво + дясно пано
-        c.classList.remove('closing','prep-close');
-        resolve();
-      }
-    };
+    const onEnd = () => { if (++ended >= 2) { c.classList.remove('closing','prep-close'); resolve(); } };
     const left  = c.querySelector('.curtain-panel.left');
     const right = c.querySelector('.curtain-panel.right');
     if (!left || !right){ resolve(); return; }
-
     left.addEventListener('animationend', onEnd, { once:true });
     right.addEventListener('animationend', onEnd, { once:true });
   });
 }
 
-/* Отвори завесите (както интрото) и после ги скрий → Promise */
 function curtainsOpen(){
   return new Promise((resolve) => {
     const c = getCurtain();
     if (!c) return resolve();
-
     c.classList.remove('gone','closing','prep-close');
-
     const onFade = (ev) => {
       if (ev.animationName === 'curtain-fade-out') {
-        c.classList.add('gone');   // скрий
-        c.classList.remove('open');
-        c.removeEventListener('animationend', onFade);
-        resolve();
+        c.classList.add('gone'); c.classList.remove('open'); c.removeEventListener('animationend', onFade); resolve();
       }
     };
     c.addEventListener('animationend', onFade);
-    // тригерни отварянето (паната се разтварят + fade-out)
     c.classList.add('open');
   });
 }
 
 /* ---------------------------------------------------------
-   5) Desktop full-page snap (wheel = 1 секция) – ползва scrollToWithOffset
+   5) Desktop „one-notch“ Snap (без прескачане на секции)
+      - Работи само на pointer:fine и ширина ≥ 992px
+      - 1 действие на колело → 1 секция (lock по време на анимация)
+      - Momentum/trackpad не водят до прескачане
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const isDesktop = window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 992;
   if (!isDesktop) return;
 
-  const sections = $$('.snap');
+  const sections = $$('.snap').filter(s => s.id);
   if (!sections.length) return;
 
-  /* --- Snap helpers --- */
-  const SNAP_FUDGE = 40;          // съгласувано със scrollToWithOffset (−headerH + 40)
-  const BOTTOM_BUFFER = 120;      // доп. буфер НАДОЛУ само за високи секции
+  const FUDGE = 40; // линия за подравняване: top + header + FUDGE
+  const SCROLL_LOCK_MS = 650;
+  const DELTA_THRESHOLD = 90; // колко wheel delta да съберем преди да преместим
 
-  function sectionEdgeState(section, tol = 24) {
-    const h = getHeaderH();
-    const top = section.offsetTop;
-    const bottom = top + section.offsetHeight;
-
-    const vTop = window.scrollY + h;                // видим връх (с header)
-    const vBottom = vTop + window.innerHeight;
-
-    // Секцията е „висока“, ако е по-висока от видимото (без header и fudge)
-    const isTall = section.offsetHeight > (window.innerHeight - SNAP_FUDGE);
-
-    // "Върхът" е при top + SNAP_FUDGE (как подравняваме секцията)
-    const atTop    = vTop <= top + SNAP_FUDGE + tol;
-
-    // Долен ръб: изискваме да „влезеш“ още BOTTOM_BUFFER, но само ако е висока
-    const bottomThreshold = bottom + (isTall ? BOTTOM_BUFFER : 0) - tol;
-    const atBottom = vBottom >= bottomThreshold;
-
-    return { atTop, atBottom, top, bottom, vTop, vBottom, isTall };
+  // Текущ индекс според близост до линията за подравняване
+  function currentIndex() {
+    const y = window.scrollY + getHeaderH() + FUDGE;
+    let best = 0, bestDist = Infinity;
+    sections.forEach((s, i) => {
+      const d = Math.abs(s.offsetTop - y);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
   }
 
-  /* Индекс на текущата секция – стабилно и предвидимо */
-  let index = 0;
-  function recalcIndex() {
-    const y = window.scrollY + getHeaderH() + SNAP_FUDGE; // линията на „подравняване“
-    let current = -1;
-    for (let i = 0; i < sections.length; i++) {
-      const s = sections[i];
-      const top = s.offsetTop;
-      const bottom = top + s.offsetHeight;
-      if (y >= top && y < bottom) { current = i; break; }
-    }
-    if (current === -1) {
-      // fallback: най-близкия top
-      let best = 0, bestDist = Infinity;
-      sections.forEach((s, i) => {
-        const d = Math.abs(s.offsetTop - y);
-        if (d < bestDist) { bestDist = d; best = i; }
-      });
-      current = best;
-    }
-    index = current;
-  }
-  recalcIndex();
+  let idx = currentIndex();
+  let animating = false;
+  let wheelAcc = 0;
+  let unlockTimer = 0;
 
-  let animating = false, unlockTimer = 0;
-  function goTo(i) {
+  function moveTo(i) {
     if (i < 0 || i >= sections.length) return;
     animating = true;
-    const sel = `#${sections[i].id}`;
-    scrollToWithOffset(sel, 0);
-    index = i;
+    idx = i;
+    scrollToWithOffset('#' + sections[i].id, 0);
     clearTimeout(unlockTimer);
-    unlockTimer = setTimeout(() => (animating = false), 700);
+    unlockTimer = setTimeout(() => { animating = false; }, SCROLL_LOCK_MS);
   }
 
-  // preventDefault САМО когато наистина правим SNAP
+  // Wheel handler — 1 стъпка на действие, без прескачане
   const onWheel = (e) => {
-    if (isOverlayOpen() || animating) return;
+    if (isOverlayOpen()) return;
+    if (animating) { e.preventDefault(); return; } // игнорирай momentum
 
-    const s = sections[index];
-    const { atTop, atBottom } = sectionEdgeState(s);
+    wheelAcc += e.deltaY;
 
-    const dy = e.deltaY;
-    if (dy > 0 && atBottom) {
+    // ако сме много близо до средата на секция, счита го за „готово за ход“
+    const nearIdx = currentIndex();
+    if (nearIdx !== idx) idx = nearIdx;
+
+    if (wheelAcc > DELTA_THRESHOLD) {
       e.preventDefault();
-      goTo(index + 1);
-    } else if (dy < 0 && atTop) {
+      wheelAcc = 0;
+      moveTo(Math.min(idx + 1, sections.length - 1));
+    } else if (wheelAcc < -DELTA_THRESHOLD) {
       e.preventDefault();
-      goTo(index - 1);
+      wheelAcc = 0;
+      moveTo(Math.max(idx - 1, 0));
     }
-    // иначе – естествен скрол вътре в секцията
   };
-
   window.addEventListener('wheel', onWheel, { passive: false });
 
+  // При нормален скрол (лентата/инерция) – поддържай актуален индекс
+  window.addEventListener('scroll', () => {
+    if (!animating && !isOverlayOpen()) idx = currentIndex();
+  }, { passive: true });
+
+  // Клавиатура: секция по секция
   window.addEventListener('keydown', (e) => {
     const t = e.target;
     const isTyping = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
     if (isTyping || animating) return;
 
-    const s = sections[index];
-    const { atTop, atBottom } = sectionEdgeState(s);
+    const down = ['ArrowDown', 'PageDown', ' '];
+    const up   = ['ArrowUp', 'PageUp'];
 
-    const downKeys = ['ArrowDown', 'PageDown', ' '];
-    const upKeys   = ['ArrowUp', 'PageUp'];
-
-    if (downKeys.includes(e.key)) {
-      if (atBottom) { e.preventDefault(); goTo(index + 1); }
-    } else if (upKeys.includes(e.key)) {
-      if (atTop) { e.preventDefault(); goTo(index - 1); }
+    if (down.includes(e.key)) {
+      e.preventDefault();
+      moveTo(Math.min(idx + 1, sections.length - 1));
+    } else if (up.includes(e.key)) {
+      e.preventDefault();
+      moveTo(Math.max(idx - 1, 0));
     } else if (e.key === 'Home') {
-      e.preventDefault(); goTo(0);
+      e.preventDefault(); moveTo(0);
     } else if (e.key === 'End') {
-      e.preventDefault(); goTo(sections.length - 1);
+      e.preventDefault(); moveTo(sections.length - 1);
     }
   });
 
-  const onScrollPassive = () => { if (!animating && !isOverlayOpen()) recalcIndex(); };
-  window.addEventListener('scroll', onScrollPassive, { passive: true });
-
-  window.addEventListener('resize', () => {
-    if (isOverlayOpen()) return;
-    recalcIndex();
-    goTo(index);
-  });
+  // При resize – дребна синхронизация на индекса
+  window.addEventListener('resize', debounce(() => { if (!isOverlayOpen()) idx = currentIndex(); }, 150));
 });
 
-// Scroll Indicator visibility: показвай само на Hero
+/* ---------------------------------------------------------
+   6) Scroll Indicator visibility: показвай само на Hero
+--------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const indicator = document.getElementById('scroll-indicator');
   const hero = document.getElementById('hero') || document.querySelector('.hero.snap');
   if (!indicator || !hero) return;
 
   const io = new IntersectionObserver(([entry]) => {
-    // показвай, ако hero е видим поне частично
     indicator.classList.toggle('hidden', !entry.isIntersecting);
   }, { threshold: 0, rootMargin: '-20% 0px -20% 0px' });
 
   io.observe(hero);
 });
 
-/* ==== Enquire → избери пакет + скрол към формата ==== */
+/* ---------------------------------------------------------
+   7) Enquire → избери пакет + скрол към формата
+--------------------------------------------------------- */
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-enquire-package]');
   if (!btn) return;
 
-  const name = btn.getAttribute('data-enquire-package')?.trim() || 'Пакет';
+  const name  = btn.getAttribute('data-enquire-package')?.trim() || 'Пакет';
   const badge = document.getElementById('selectedPackageBadge');
   const valueEl = badge?.querySelector('.value');
   const field = document.getElementById('packageField');
@@ -380,14 +315,9 @@ document.addEventListener('click', (e) => {
     valueEl.textContent = name;
     field.value = name;
     badge.classList.remove('d-none');
-    // лека „пулсация“ при нов избор
-    badge.style.animation = 'none';
-    // force reflow
-    void badge.offsetWidth;
-    badge.style.animation = '';
+    // лека пулсация
+    badge.style.animation = 'none'; void badge.offsetWidth; badge.style.animation = '';
   }
-
-  // скрол към формата (ползваме твоя общ скрол)
   scrollToWithOffset('#contact');
 });
 
@@ -409,4 +339,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
   date.min = `${yyyy}-${mm}-${dd}`;
+});
+
+/* ---------------------------------------------------------
+   8) iOS Safari scroll restore guard
+--------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  window.history.scrollRestoration = 'manual';
+  window.addEventListener('pageshow', (e)=>{ if (e.persisted) window.scrollTo(0,0); }, { passive:true });
 });
