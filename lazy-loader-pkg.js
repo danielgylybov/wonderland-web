@@ -1,5 +1,5 @@
 (() => {
-  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz1xh4WrcfUNbdvNaRFrMfD9D3iyfiuDeDmtKzwrve0PbYp36F0ogCmDI19hlGml7s/exec';
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxIv5U5cRRBeqEnRMVftoWOdoETluNRnTDo4uizj0vHB3_W1QJjoZuZUAAxUEsfXtBw/exec';
   const CACHE_KEY = 'packages_json_v1';
 
   // 1) Skeleton UI
