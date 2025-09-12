@@ -82,6 +82,8 @@
       .wl-btn--gold{color:#1d1205;background:linear-gradient(180deg,var(--gold-2),var(--gold));border:0;box-shadow:0 8px 20px -8px rgba(216,158,88,.6),inset 0 1px 0 rgba(255,255,255,.35)}
       .wl-modal__close{border:0;background:transparent;color:#fff;opacity:.8;font-size:1.4rem;line-height:1;cursor:pointer}
       .wl-visually-hidden{position:absolute !important;width:1px;height:1px;margin:-1px;border:0;padding:0;overflow:hidden;clip:rect(0 0 0 0)}
+      /* курсор за редакция на избрания пакет */
+      #selectedPackageBadge .value{cursor:pointer;text-decoration:underline dotted;}
     `;
     const style = document.createElement('style');
     style.id = 'wl-validate-style';
@@ -219,6 +221,82 @@
     first.addEventListener('focus', () => overlay.querySelector('#wl-close-btn').focus());
     last.addEventListener('focus',  () => overlay.querySelector('#wl-close-btn').focus());
     overlay.querySelector('#wl-close-btn').focus();
+  }
+
+  /** ===== Редакция на избрания пакет (клик върху бейджа) ===== */
+  function findPackageModelByName(name){
+    const list = (window.PACKAGES && Array.isArray(window.PACKAGES.packages)) ? window.PACKAGES.packages : [];
+    return list.find(p => String(p.name||'').trim().toLowerCase() === String(name||'').trim().toLowerCase()) || null;
+  }
+  function scrollToPackages(){
+    if (typeof window.scrollToWithOffset === 'function') window.scrollToWithOffset('#packages');
+    else document.querySelector('#packages')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  async function openPackageEditorFromBadge(){
+    if (!selectedPackageMeta || !selectedPackageMeta.model?.name){
+      toast('Няма избран пакет за редакция.', 'warning');
+      return scrollToPackages();
+    }
+    const model = findPackageModelByName(selectedPackageMeta.model.name);
+    if (!model){
+      toast('Не откривам модела на пакета. Моля, избери отново.', 'warning');
+      return scrollToPackages();
+    }
+
+    // отвори оувърлея от packages.js
+    if (typeof window.renderPackageOverlay === 'function'){
+      window.renderPackageOverlay(model);
+    } else {
+      return scrollToPackages();
+    }
+
+    // изчакай DOM-а на оувърлея да е наличен и маркирай състоянието
+    requestAnimationFrame(() => {
+      const overlay = document.getElementById('package-overlay') || document;
+      // изберем правилния tier (по етикет)
+      const tierLabel = selectedPackageMeta.choice?.label || '';
+      const sel = overlay.querySelector('#pkgTier');
+      if (sel && Array.isArray(model.tiers)){
+        const idx = model.tiers.findIndex(t => String(t.label||'').trim() === tierLabel.trim());
+        if (idx >= 0){
+          sel.value = String(idx);
+          sel.dispatchEvent(new Event('change', { bubbles:true }));
+        }
+      }
+      // добавки
+      const picked = Array.isArray(selectedPackageMeta.addonsPicked) ? selectedPackageMeta.addonsPicked.map(a => a.label.trim()) : [];
+      if (picked.length){
+        overlay.querySelectorAll('#pkgAddonsList .pkg-addon').forEach(row => {
+          const lbl = (row.querySelector('span')?.textContent || '').trim();
+          const cb  = row.querySelector('input[type="checkbox"]');
+          if (cb && picked.includes(lbl)){
+            cb.checked = true;
+          }
+        });
+        // форсирай преизчисление
+        overlay.querySelector('#pkgAddonsList')?.dispatchEvent(new Event('change', { bubbles:true }));
+      }
+    });
+  }
+
+  // направи бейджа кликаем (освен бутона „×“)
+  if (pkgBadge){
+    const valueEl = pkgBadge.querySelector('.value');
+    if (valueEl){
+      valueEl.setAttribute('title', 'Редактирай избрания пакет');
+      valueEl.style.cursor = 'pointer';
+      valueEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        openPackageEditorFromBadge();
+      });
+    }
+    // опционално: клик по целия бейдж (без бутона за изчистване)
+    pkgBadge.addEventListener('click', (e) => {
+      if (e.target.closest('.clear')) return;
+      if (e.target.closest('.value')) return; // вече се хендълва горе
+      // по клик на празно място в бейджа – също редакция
+      openPackageEditorFromBadge();
+    });
   }
 
   /** ===== Submit: валидация и изпращане през EmailJS ===== */
