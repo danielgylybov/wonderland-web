@@ -179,7 +179,7 @@
         <input type="hidden" id="pkgCurrency"         name="pkgCurrency">
         <input type="hidden" id="pkgDataJson"         name="pkgDataJson">
 
-        <div class="row g-3">
+        <div class="row">
           <div class="col-md-6">
             <label class="form-label">Име</label>
             <input type="text" class="form-control" name="name" placeholder="Име" required>
@@ -197,6 +197,21 @@
             <label class="form-label">Телефон (по желание)</label>
             <input type="tel" class="form-control" name="phone" inputmode="tel" placeholder="+359 ...">
           </div>
+
+          <!-- Тип събитие -->
+          <div class="col-md-6">
+            <label class="form-label">Тип събитие</label>
+            <select id="eventType" name="eventType" class="form-select" required>
+              <option value="">Избери…</option>
+              <option value="birthday">Рожден ден</option>
+              <option value="christmas">Коледно парти</option>
+              <option value="graduation">Парти за завършване</option>
+              <option value="private">Частно събитие</option>
+            </select>
+          </div>
+
+          <!-- Динамични допълнителни полета спрямо типа -->
+          <div class="col-12" id="eventExtraFields"></div>
 
           <div class="col-12">
             <label class="form-label">Съобщение</label>
