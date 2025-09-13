@@ -257,12 +257,67 @@ body.use-real-stars::after{display:none!important}
 =========================== */
 .contact{background:transparent}
 h2{color:var(--gold);font-size:42px;text-align:center}
+
+/* — тъмни текстови полета */
 .contact .form-control{
   background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
   color:var(--text);
 }
 .contact .form-control::placeholder{color:rgba(255,255,255,.45)}
+.contact .form-control:focus{
+  border-color:var(--wantgold);
+  box-shadow:0 0 0 .2rem rgba(216,158,88,.25);
+}
+
+/* — тъмни селекти (новото падащо меню) */
+.contact .form-select{
+  background-color:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--text);
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  padding-right:2rem;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d89e58' viewBox='0 0 16 16'><path d='M1.5 5.5l6.5 6.5 6.5-6.5'/></svg>");
+  background-repeat:no-repeat;background-position:right .75rem center;background-size:1rem auto;
+}
+.contact .form-select:focus{
+  border-color:var(--wantgold);
+  box-shadow:0 0 0 .2rem rgba(216,158,88,.25);
+}
+.contact .form-select option{
+  background-color:#0b1226;
+  color:var(--text);
+}
+
+/* — date/time полета да не „избеляват“ */
+.contact input[type="date"].form-control,
+.contact input[type="time"].form-control{ background-color:rgba(255,255,255,.06); color:var(--text); }
+
+/* — чекбокси/радио (ако се появят динамично) */
+.contact .form-check-input{
+  background-color:rgba(255,255,255,.1);
+  border-color:rgba(255,255,255,.3);
+}
+.contact .form-check-input:checked{
+  background-color:var(--wantgold);
+  border-color:var(--wantgold);
+}
+
+/* — autofill fix (Chrome/Safari) да не става бял */
+.contact input:-webkit-autofill,
+.contact textarea:-webkit-autofill,
+.contact select:-webkit-autofill{
+  -webkit-text-fill-color:var(--text);
+  transition:background-color 600000s 0s, color 600000s 0s;
+  caret-color:var(--text);
+}
+.contact input:-webkit-autofill:focus,
+.contact textarea:-webkit-autofill:focus,
+.contact select:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--text);
+}
+
+/* бутони на формата */
 .contact .btn{
   background:linear-gradient(180deg,var(--gold-2),var(--gold));
   color:#1d1205;border:0;transition:box-shadow .3s ease,transform .1s ease-in-out;
@@ -402,7 +457,6 @@ section.snap{
   40%{transform:translateY(6px) rotate(-45deg)}
   60%{transform:translateY(3px) rotate(-45deg)}
 }
-/* скриване когато не е нужно */
 .scroll-indicator.hidden{opacity:0;pointer-events:none}
 
 /* Избран пакет – пилюлка над формата */
@@ -458,7 +512,7 @@ section.snap{
   will-change:transform,opacity;
 }
 .detail-curtain .panel.left{left:0;transform:translateX(-100%)}
-detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:translateX(100%)}
+.detail-curtain .panel.right{right:0;transform:translateX(100%)}
 
 /* state: closing → затваряме към центъра */
 .detail-curtain.is-closing .panel.left{animation:dc-close-left .5s ease forwards}
@@ -600,6 +654,7 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 .invite .form-control:focus,.invite .form-select:focus{ border-color:var(--wantgold); box-shadow:0 0 0 .2rem rgba(216,158,88,.25); }
 .invite .form-check-input{ background-color:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3); }
 .invite .form-check-input:checked{ background-color:var(--wantgold); border-color:var(--wantgold); }
+.invite .form-select option{ background:#0b1226; color:var(--text); }
 
 /* ---------- FIXED A4 PDF STAGE (off-screen, device-independent) ---------- */
 .invite-pdf-stage{
@@ -648,7 +703,7 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 .invite-pdf-stage.theme-dark .brand{ color:#f1c37a; }
 .invite-pdf-stage .brand svg{ display:block; width:100%; height:auto; }
 
-/* типография */
+* типография */
 .invite-pdf-stage .sub{ text-align:center; margin-top:12px; font-family:"CraftworkGrotesk",system-ui; font-size:var(--sub-size); opacity:.88; }
 .invite-pdf-stage .rule{ height:1px; background:currentColor; opacity:.16; margin:12px 0 24px; }
 .invite-pdf-stage .title{ font-family:"Rosarium",serif; font-size:var(--title-size); color:#d89e58; margin:0 0 12px; }
@@ -753,7 +808,6 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 }
 .wl-btn--gold:hover{ filter:brightness(1.05); box-shadow:0 10px 24px -8px rgba(216,158,88,.75); }
 
-/* малки звездички вътре */
 .wl-modal .stars{
   display:flex; gap:6px; align-items:center; opacity:.9;
   font-size:1rem; color:var(--gold-2);
@@ -773,10 +827,9 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
   border: 1px dashed rgba(212,175,55,.6);          /* gold dashed */
   background: linear-gradient(180deg, rgba(212,175,55,.08), rgba(255,255,255,0));
   transition: transform .2s ease, box-shadow .2s ease;
-    .step-text {
-      color: var(--wantgold);
-    }
 }
+.step-box--optional .step-text { color: var(--wantgold); }
+
 .step-box--optional:hover{
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(0,0,0,.35);
@@ -834,7 +887,6 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 .fade-in { animation: fadeIn .28s ease-out; }
 @keyframes fadeIn { from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none} }
 
-/* Стейт грешка / retry */
 .pkg-error {
   border: 1px dashed rgba(255,255,255,.25);
   border-radius: 14px;
@@ -846,6 +898,3 @@ detail-curtain .panel.right,.detail-curtain .panel.right{right:0;transform:trans
 
 /* леко скриване докато подменяме */
 #packages-root.loading { opacity:.85; filter:saturate(.9); }
-
-
-

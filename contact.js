@@ -1,22 +1,6 @@
 /**
- * contact.js — изпращане на форма за запитване + UX помощници.
+ * contact.js — изпращане на форма за запитване + UX помощници + динамични полета.
  *
- * Основни функции:
- *  - Валидация само при изпращане (без live).
- *  - Anti-spam throttle (локален таймер).
- *  - Минимална дата = днес.
- *  - Toast съобщения и два модала (липсващ пакет / успешно изпратено).
- *  - Задължителен избран пакет: ако няма — показва модал и скролва към секция „Пакети“.
- *  - Приема детайли за избрания пакет от packages.js чрез събитие `wl:package-selected`
- *    и ги добавя към EmailJS (плоски полета + JSON за архив).
- *
- * Зависимости:
- *  - EmailJS (глобалният обект `emailjs`).
- *  - packages.js (изпраща CustomEvent 'wl:package-selected' с payload).
- *
- * Конфиг:
- *  - SERVICE_ID / TEMPLATE_ID (EmailJS).
- *  - Имената на полетата в HTML формата съвпадат с get('...') по-долу.
  */
 
 (() => {
@@ -46,18 +30,283 @@
     packageField.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
+  /** ===== Динамични полета по „Тип събитие“ ===== */
+  const eventTypeSel = document.getElementById('eventType');
+  const extraWrap    = document.getElementById('eventExtraFields');
+
+  const templates = {
+    birthday: () => `
+      <div class="row gy-1">
+        <div class="col-md-3">
+          <label class="form-label">Възраст на рожденика</label>
+          <input type="number" name="age" class="form-control" min="1" max="120" placeholder="7">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Брой деца</label>
+          <input type="number" name="kids" class="form-control" min="1" placeholder="10">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Тема (по желание)</label>
+          <input type="text" name="theme" class="form-control" placeholder="Принцеси, Космос…">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Бюджет (по желание)</label>
+          <input type="text" name="budget" class="form-control" inputmode="decimal" placeholder="напр. 350">
+        </div>
+      </div>
+    `,
+    christmas: () => `
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Декорация</label>
+          <select name="decor" class="form-select">
+            <option value="Да, коледна украса">Да, коледна украса</option>
+            <option value="Не, ще осигурим ние">Не, ще осигурим ние</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Възрастов състав</label>
+          <select name="ageMix" class="form-select">
+            <option value="Основно деца">Основно деца</option>
+            <option value="Смесено">Смесено</option>
+            <option value="Основно възрастни">Основно възрастни</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Бюджет (по желание)</label>
+          <input type="text" name="budget" class="form-control" inputmode="decimal" placeholder="напр. 500">
+        </div>
+      </div>
+    `,
+    graduation: () => `
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Училище/Университет</label>
+          <input type="text" name="school" class="form-control" placeholder="СУ „...“">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Брой завършващи</label>
+          <input type="number" name="graduates" class="form-control" min="1" placeholder="напр. 8">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Фото/видео кът</label>
+          <select name="photoCorner" class="form-select">
+            <option value="Да">Да</option>
+            <option value="Не">Не</option>
+            <option value="По преценка">По преценка</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Бюджет (по желание)</label>
+          <input type="text" name="budget" class="form-control" inputmode="decimal" placeholder="напр. 600">
+        </div>
+      </div>
+    `,
+    private: () => `
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Характер на събитието</label>
+          <input type="text" name="privateType" class="form-control" placeholder="Юбилей, коктейл…">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Бюджет (по желание)</label>
+          <input type="text" name="budget" class="form-control" inputmode="decimal" placeholder="напр. 700">
+        </div>
+      </div>
+    `
+  };
+
+  function prefillFromPackageIfPossible() {
+    // 1) ако имаме meta от packages.js
+    if (selectedPackageMeta) {
+      const kidsInput   = form.querySelector('input[name="kids"]');
+      const budgetInput = form.querySelector('input[name="budget"]');
+
+      // kids от tier етикета (напр. "до 12 деца")
+      if (kidsInput && selectedPackageMeta.choice?.label) {
+        const nums = (selectedPackageMeta.choice.label.match(/\d+/g) || []).map(Number).filter(Number.isFinite);
+        if (nums.length && !kidsInput.value) kidsInput.value = String(Math.max(...nums));
+      }
+      // бюджет от total
+      if (budgetInput && Number.isFinite(selectedPackageMeta.total) && !budgetInput.value) {
+        budgetInput.value = String(selectedPackageMeta.total);
+      }
+      return;
+    }
+    // 2) fallback от скрити полета, ако meta още не е дошъл
+    const tierLabel = (document.getElementById('pkgTierLabel')?.value || '').trim();
+    const total     = Number(document.getElementById('pkgTotal')?.value || '');
+    const kidsInput = form.querySelector('input[name="kids"]');
+    const budgetInp = form.querySelector('input[name="budget"]');
+    if (kidsInput && tierLabel) {
+      const nums = (tierLabel.match(/\d+/g) || []).map(Number).filter(Number.isFinite);
+      if (nums.length && !kidsInput.value) kidsInput.value = String(Math.max(...nums));
+    }
+    if (budgetInp && Number.isFinite(total) && !budgetInp.value) {
+      budgetInp.value = String(total);
+    }
+  }
+
+  function renderExtraFields(type) {
+    extraWrap.innerHTML = templates[type]?.() || '';
+    // след като инжектираме DOM-а, опитай да префилнеш
+    prefillFromPackageIfPossible();
+    // вържи слушател за "Брой деца" (ако съществува)
+    bindKidsWatcher();
+  }
+
+  eventTypeSel?.addEventListener('change', () => renderExtraFields(eventTypeSel.value));
+  // не натоварваме при първо зареждане – показва полета едва след избор
+
   /**
    * ===== Приемане на детайли за избрания пакет =====
-   * packages.js диспатчва:
-   *   document.dispatchEvent(new CustomEvent('wl:package-selected', {
-   *     detail: { model, choice, summaryText, total, currency, addonsPicked }
-   *   }))
-   * Тук пазим последните детайли, за да ги изпратим с EmailJS.
+   * packages.js диспатчва: 'wl:package-selected'
    */
   let selectedPackageMeta = null;
   document.addEventListener('wl:package-selected', (e) => {
     selectedPackageMeta = e?.detail || null;
+    // ако вече има рендерирани полета — обнови префила
+    prefillFromPackageIfPossible();
   });
+
+  /** ====================== NEW: Проверка на капацитета спрямо "Брой деца" ====================== */
+
+  // намери модел по име от window.PACKAGES
+  function findPackageModelByName(name){
+    const list = (window.PACKAGES && Array.isArray(window.PACKAGES.packages)) ? window.PACKAGES.packages : [];
+    return list.find(p => String(p.name||'').trim().toLowerCase() === String(name||'').trim().toLowerCase()) || null;
+  }
+
+  // извади максимален капацитет от етикет на tier (взимаме най-голямото число)
+  function capacityFromTierLabel(label){
+    const nums = (String(label||'').match(/\d+/g) || []).map(Number).filter(Number.isFinite);
+    return nums.length ? Math.max(...nums) : null;
+  }
+
+  // първият tier, който побира дадения брой деца; ако няма числа в tier-овете → null
+  function findTierIndexForKids(model, kids){
+    if (!model || !Array.isArray(model.tiers) || !model.tiers.length) return null;
+    const caps = model.tiers.map(t => capacityFromTierLabel(t.label));
+    if (caps.every(v => v == null)) return null; // няма числа за сравнение
+    for (let i=0;i<model.tiers.length;i++){
+      const cap = caps[i];
+      if (cap == null) continue;
+      if (kids <= cap) return i;
+    }
+    // ако всички капаци са по-малки, върни последния индекс (най-големия tier)
+    let lastIdx = -1;
+    let bestCap = -Infinity;
+    caps.forEach((c, i) => { if (c != null && c > bestCap){ bestCap = c; lastIdx = i; }});
+    return lastIdx >= 0 ? lastIdx : null;
+  }
+
+  // индексът на текущия tier по етикет
+  function currentTierIndex(model, tierLabel){
+    if (!model || !Array.isArray(model.tiers)) return null;
+    const idx = model.tiers.findIndex(t => String(t.label||'').trim() === String(tierLabel||'').trim());
+    return idx >= 0 ? idx : null;
+  }
+
+  // отвори детайлите и предварително избери targetIdx
+  function openOverlayPreselectTier(model, targetIdx){
+    if (typeof window.renderPackageOverlay === 'function'){
+      window.renderPackageOverlay(model);
+      requestAnimationFrame(() => {
+        const overlay = document.getElementById('package-overlay') || document;
+        const sel = overlay.querySelector('#pkgTier');
+        if (sel){
+          sel.value = String(targetIdx);
+          sel.dispatchEvent(new Event('change', { bubbles:true }));
+        }
+      });
+    }
+  }
+
+  // модал за несъответствие
+  function showTierMismatchModal({model, targetIdx, currentIdx}){
+    injectStylesOnce();
+    if (document.getElementById('wl-tier-mismatch')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'wl-tier-mismatch';
+    overlay.className = 'wl-modal-overlay';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.innerHTML = `
+      <a href="#" class="wl-visually-hidden" id="wl-first-focus">.</a>
+      <div class="wl-modal" role="document">
+        <div class="wl-modal__header">
+          <h3 class="wl-modal__title">Повече гости от пакета</h3>
+          <button type="button" class="wl-modal__close" aria-label="Затвори" title="Затвори">×</button>
+        </div>
+        <div class="wl-modal__body">
+          <p class="lead">Въведеният брой деца надхвърля капацитета на избрания пакет.</p>
+          <p>Предлагаме да прегледаме по-голям размер (следващ tier), за да видиш актуална ориентировъчна цена.</p>
+        </div>
+        <div class="wl-modal__footer" style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid rgba(255,255,255,.08)">
+          <button type="button" class="wl-btn" id="wl-ignore">Ще коригирам ръчно</button>
+          <button type="button" class="wl-btn wl-btn--gold" id="wl-adjust">Промени пакета</button>
+        </div>
+      </div>
+      <a href="#" class="wl-visually-hidden" id="wl-last-focus">.</a>
+    `;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('.wl-modal__close').addEventListener('click', close);
+    overlay.querySelector('#wl-ignore').addEventListener('click', close);
+    overlay.querySelector('#wl-adjust').addEventListener('click', () => {
+      close();
+      openOverlayPreselectTier(model, targetIdx);
+    });
+
+    const first = overlay.querySelector('#wl-first-focus');
+    const last  = overlay.querySelector('#wl-last-focus');
+    const primaryBtn = overlay.querySelector('#wl-adjust');
+    first.addEventListener('focus', () => primaryBtn.focus());
+    last.addEventListener('focus',  () => primaryBtn.focus());
+    primaryBtn.focus();
+  }
+
+  // проверка за несъответствие (връща обект с данни или null)
+  function checkKidsTierMismatch(){
+    if (!selectedPackageMeta || !selectedPackageMeta.model?.name || !selectedPackageMeta.choice?.label) return null;
+
+    const kidsVal = Number((form.querySelector('input[name="kids"]')?.value || '').replace(',','.'));
+    if (!Number.isFinite(kidsVal) || kidsVal <= 0) return null;
+
+    const model = findPackageModelByName(selectedPackageMeta.model.name);
+    if (!model) return null;
+
+    const curIdx = currentTierIndex(model, selectedPackageMeta.choice.label);
+    if (curIdx == null) return null;
+
+    const targetIdx = findTierIndexForKids(model, kidsVal);
+    if (targetIdx == null) return null;
+
+    if (targetIdx > curIdx) {
+      return { model, currentIdx: curIdx, targetIdx };
+    }
+    return null;
+  }
+
+  // вържи watcher към полето "kids"
+  function bindKidsWatcher(){
+    const kidsInput = form.querySelector('input[name="kids"]');
+    if (!kidsInput) return;
+
+    let t = 0;
+    const onCheck = () => {
+      const mismatch = checkKidsTierMismatch();
+      if (mismatch) {
+        showTierMismatchModal(mismatch);
+      }
+    };
+    kidsInput.removeEventListener('input', kidsInput.__wlKidsHandler || (()=>{}));
+    kidsInput.__wlKidsHandler = () => { clearTimeout(t); t = setTimeout(onCheck, 350); };
+    kidsInput.addEventListener('input', kidsInput.__wlKidsHandler);
+  }
 
   /** ===== Стилове за toast / модали (инжектират се еднократно) ===== */
   function injectStylesOnce() {
@@ -71,7 +320,8 @@
       .wl-toast--warning{border-color:rgba(241,195,122,.65)}
       .wl-toast--danger{border-color:rgba(255,120,120,.45)}
       .wl-field-attn{outline:2px solid var(--wantgold);box-shadow:0 0 0 .2rem rgba(216,158,88,.25) !important;border-color:var(--wantgold) !important;animation:wl-shake .25s ease-in-out 0s 1}
-      @keyframes wl-shake{0%{transform:translateX(0)}25%{transform:translateX(-2px)}50%{transform:translateX(2px)}75%{transform:translateX(-1px)}100%{transform:translateX(0)}}
+      @keyframes wl-shake{0%{transform:translateX(0)}25%{transform:translateX(-2px)}50%{transform:translateX(2px)}75%{transform:translateX(-1px)}100%{transform:translateX(0)}
+      }
       .wl-modal-overlay{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
       .wl-modal{width:min(560px,92vw);background:rgba(12,18,38,.92);color:var(--text);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden;display:flex;flex-direction:column}
       .wl-modal__header,.wl-modal__footer{padding:14px 16px;border-color:rgba(255,255,255,.08)}
@@ -82,7 +332,6 @@
       .wl-btn--gold{color:#1d1205;background:linear-gradient(180deg,var(--gold-2),var(--gold));border:0;box-shadow:0 8px 20px -8px rgba(216,158,88,.6),inset 0 1px 0 rgba(255,255,255,.35)}
       .wl-modal__close{border:0;background:transparent;color:#fff;opacity:.8;font-size:1.4rem;line-height:1;cursor:pointer}
       .wl-visually-hidden{position:absolute !important;width:1px;height:1px;margin:-1px;border:0;padding:0;overflow:hidden;clip:rect(0 0 0 0)}
-      /* курсор за редакция на избрания пакет */
       #selectedPackageBadge .value{cursor:pointer;text-decoration:underline dotted;}
     `;
     const style = document.createElement('style');
@@ -224,10 +473,6 @@
   }
 
   /** ===== Редакция на избрания пакет (клик върху бейджа) ===== */
-  function findPackageModelByName(name){
-    const list = (window.PACKAGES && Array.isArray(window.PACKAGES.packages)) ? window.PACKAGES.packages : [];
-    return list.find(p => String(p.name||'').trim().toLowerCase() === String(name||'').trim().toLowerCase()) || null;
-  }
   function scrollToPackages(){
     if (typeof window.scrollToWithOffset === 'function') window.scrollToWithOffset('#packages');
     else document.querySelector('#packages')?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -243,17 +488,14 @@
       return scrollToPackages();
     }
 
-    // отвори оувърлея от packages.js
     if (typeof window.renderPackageOverlay === 'function'){
       window.renderPackageOverlay(model);
     } else {
       return scrollToPackages();
     }
 
-    // изчакай DOM-а на оувърлея да е наличен и маркирай състоянието
     requestAnimationFrame(() => {
       const overlay = document.getElementById('package-overlay') || document;
-      // изберем правилния tier (по етикет)
       const tierLabel = selectedPackageMeta.choice?.label || '';
       const sel = overlay.querySelector('#pkgTier');
       if (sel && Array.isArray(model.tiers)){
@@ -263,7 +505,6 @@
           sel.dispatchEvent(new Event('change', { bubbles:true }));
         }
       }
-      // добавки
       const picked = Array.isArray(selectedPackageMeta.addonsPicked) ? selectedPackageMeta.addonsPicked.map(a => a.label.trim()) : [];
       if (picked.length){
         overlay.querySelectorAll('#pkgAddonsList .pkg-addon').forEach(row => {
@@ -273,7 +514,6 @@
             cb.checked = true;
           }
         });
-        // форсирай преизчисление
         overlay.querySelector('#pkgAddonsList')?.dispatchEvent(new Event('change', { bubbles:true }));
       }
     });
@@ -290,17 +530,90 @@
         openPackageEditorFromBadge();
       });
     }
-    // опционално: клик по целия бейдж (без бутона за изчистване)
+    // клик по празно място в бейджа – също редакция
     pkgBadge.addEventListener('click', (e) => {
       if (e.target.closest('.clear')) return;
-      if (e.target.closest('.value')) return; // вече се хендълва горе
-      // по клик на празно място в бейджа – също редакция
+      if (e.target.closest('.value')) return;
       openPackageEditorFromBadge();
     });
   }
 
   /** ===== Submit: валидация и изпращане през EmailJS ===== */
   function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v).trim()); }
+
+  // позволи еднократно изпращане „въпреки несъответствието“
+  let allowProceedOnce = false;
+
+  async function doSend(params){
+    const original = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Изпращаме...';
+    try {
+      const SERVICE_ID  = 'service_xr5w4ro';
+      const TEMPLATE_ID = 'template_83xdbvh';
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, params);
+
+      markSent();
+      form.reset();
+      const badge = document.getElementById('selectedPackageBadge');
+      if (badge) badge.classList.add('d-none');
+      showSuccessModal();
+      // изчисти и динамичните полета
+      extraWrap.innerHTML = '';
+      if (eventTypeSel) eventTypeSel.value = '';
+    } catch (err) {
+      console.error(err);
+      toast('Упс! Нещо се обърка. Опитай пак или звънни по телефон.', 'danger');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = original;
+      allowProceedOnce = false; // рестарт на флага
+    }
+  }
+
+  // модал преди изпращане, ако има несъответствие
+  function showPreSubmitMismatchModal(mismatch, onProceed, onAdjust){
+    injectStylesOnce();
+    if (document.getElementById('wl-presubmit-mismatch')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'wl-presubmit-mismatch';
+    overlay.className = 'wl-modal-overlay';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.innerHTML = `
+      <a href="#" class="wl-visually-hidden" id="wl-first-focus">.</a>
+      <div class="wl-modal" role="document">
+        <div class="wl-modal__header">
+          <h3 class="wl-modal__title">Провери пакета</h3>
+          <button type="button" class="wl-modal__close" aria-label="Затвори" title="Затвори">×</button>
+        </div>
+        <div class="wl-modal__body">
+          <p class="lead">Броят деца е над капацитета на избрания размер.</p>
+          <p class="opacity-75">Можем да отворим детайлите и да предложим по-голям tier, за да видиш актуална цена.</p>
+        </div>
+        <div class="wl-modal__footer" style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid rgba(255,255,255,.08)">
+          <button type="button" class="wl-btn" id="wl-send-anyway">Изпрати въпреки това</button>
+          <button type="button" class="wl-btn wl-btn--gold" id="wl-open-overlay">Промени пакета</button>
+        </div>
+      </div>
+      <a href="#" class="wl-visually-hidden" id="wl-last-focus">.</a>
+    `;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('.wl-modal__close').addEventListener('click', close);
+    overlay.querySelector('#wl-send-anyway').addEventListener('click', () => { close(); onProceed && onProceed(); });
+    overlay.querySelector('#wl-open-overlay').addEventListener('click', () => { close(); onAdjust && onAdjust(); });
+
+    const first = overlay.querySelector('#wl-first-focus');
+    const last  = overlay.querySelector('#wl-last-focus');
+    const primaryBtn = overlay.querySelector('#wl-open-overlay');
+    first.addEventListener('focus', () => primaryBtn.focus());
+    last.addEventListener('focus',  () => primaryBtn.focus());
+    primaryBtn.focus();
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -318,8 +631,19 @@
     const dateVal = String(fd.get('date')||'').trim();
     const phone   = String(fd.get('phone')||'').trim();
     const message = String(fd.get('message')||'').trim();
-    const kids    = String(fd.get('kids')||'').trim();
-    const budget  = String(fd.get('budget')||'').trim();
+
+    // динамични стойности (може и да липсват)
+    const eventType   = String(fd.get('eventType')||'').trim();
+    const age         = String(fd.get('age')||'').trim();
+    const kids        = String(fd.get('kids')||'').trim();
+    const theme       = String(fd.get('theme')||'').trim();
+    const budget      = String(fd.get('budget')||'').trim();
+    const decor       = String(fd.get('decor')||'').trim();
+    const ageMix      = String(fd.get('ageMix')||'').trim();
+    const school      = String(fd.get('school')||'').trim();
+    const graduates   = String(fd.get('graduates')||'').trim();
+    const photoCorner = String(fd.get('photoCorner')||'').trim();
+    const privateType = String(fd.get('privateType')||'').trim();
 
     // проверки
     if (!name || name.length < 2) { toast('Моля, въведи име (мин. 2 символа).', 'warning'); return focusAndFlash(form.elements['name']); }
@@ -328,7 +652,21 @@
     const minDate = new Date(dateField.min);
     const d       = new Date(dateVal);
     if (isFinite(d) && d < minDate) { toast('Моля, избери валидна бъдеща дата.', 'warning'); return focusAndFlash(form.elements['date']); }
+    if (!eventType) { toast('Избери тип събитие.', 'warning'); return focusAndFlash(form.elements['eventType']); }
     if (!message || message.length < 8) { toast('Моля, опиши събитието накратко (мин. 8 символа).', 'warning'); return focusAndFlash(form.elements['message']); }
+
+    // преди изпращане: ако kids > капацитет → предложи промяна
+    const mismatch = checkKidsTierMismatch();
+    if (mismatch && !allowProceedOnce){
+      showPreSubmitMismatchModal(
+        mismatch,
+        // proceed anyway
+        () => { allowProceedOnce = true; form.requestSubmit(); },
+        // adjust: отвори оувърлей и избери предложения tier
+        () => openOverlayPreselectTier(mismatch.model, mismatch.targetIdx)
+      );
+      return;
+    }
 
     // параметри за EmailJS
     const pkg = selectedPackageMeta; // идва от събитието wl:package-selected
@@ -354,6 +692,67 @@
       selected_package_summary: packageField?.value || '—'
     };
 
+    // --- Хелпър: показваме само попълнените стойности в имейла ---
+    const EVENT_TYPE_LABEL = {
+      birthday:   'Рожден ден',
+      christmas:  'Коледно парти',
+      graduation: 'Парти за завършване',
+      private:    'Частно събитие'
+    };
+
+    function fmtMoneyLike(v) {
+      const n = Number(String(v).replace(',', '.'));
+      if (!Number.isFinite(n)) return String(v);
+      return new Intl.NumberFormat('bg-BG').format(n);
+    }
+
+    // събери „само попълненото“ според типа събитие
+    const eventRows = [];
+
+    if (eventType) {
+      eventRows.push(['Тип събитие', EVENT_TYPE_LABEL[eventType] || eventType]);
+    }
+
+    if (eventType === 'birthday') {
+      if (age)    eventRows.push(['Възраст на рожденика', age]);
+      if (kids)   eventRows.push(['Брой деца', kids]);
+      if (theme)  eventRows.push(['Тема', theme]);
+      if (budget) eventRows.push(['Бюджет (ориентир)', fmtMoneyLike(budget) + ' лв']);
+    }
+
+    if (eventType === 'christmas') {
+      if (decor)  eventRows.push(['Декорация', decor]);
+      if (ageMix) eventRows.push(['Възрастов състав', ageMix]);
+      if (budget) eventRows.push(['Бюджет (ориентир)', fmtMoneyLike(budget) + ' лв']);
+    }
+
+    if (eventType === 'graduation') {
+      if (school)     eventRows.push(['Училище/Университет', school]);
+      if (graduates)  eventRows.push(['Брой завършващи', graduates]);
+      if (photoCorner)eventRows.push(['Фото/видео кът', photoCorner]);
+      if (budget)     eventRows.push(['Бюджет (ориентир)', fmtMoneyLike(budget) + ' лв']);
+    }
+
+    if (eventType === 'private') {
+      if (privateType) eventRows.push(['Характер на събитието', privateType]);
+      if (budget)      eventRows.push(['Бюджет (ориентир)', fmtMoneyLike(budget) + ' лв']);
+    }
+
+    // финален HTML за вмъкване в темплейта
+    const event_details_html = eventRows.length
+      ? `<table role="presentation" cellpadding="6" cellspacing="0" border="0" style="font-size:14px; width:100%; max-width:640px;">
+          <tbody>
+            ${eventRows.map(([k,v]) => `
+              <tr>
+                <td style="font-weight:bold; width:220px;">${k}:</td>
+                <td>${String(v).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`
+      : '<div style="color:#6b7280;">(няма допълнителни детайли)</div>';
+
+
     const params = {
       from_name:   name,
       from_email:  email,
@@ -361,8 +760,21 @@
       phone:       phone || '-',
       message,
       package:     packageField?.value || '-',
-      kids,
-      budget,
+
+      // нови полета за типа събитие
+      event_details_html,
+      event_type:  eventType || '-',
+      age:         age || '-',
+      kids:        kids || '-',
+      theme:       theme || '-',
+      budget:      budget || '-',
+      decor:       decor || '-',
+      age_mix:     ageMix || '-',
+      school:      school || '-',
+      graduates:   graduates || '-',
+      photo_corner:photoCorner || '-',
+      private_type:privateType || '-',
+
       // подробни детайли (JSON) — по избор за дебъг/архив
       selected_package_details: pkg ? JSON.stringify({
         name: pkg.model?.name || '',
@@ -371,34 +783,13 @@
         currency: pkg.currency || 'лв',
         addons: (pkg.addonsPicked||[]).map(a => ({ label: a.label, price: Number(a.price||0) }))
       }) : '-',
+
       // плоските полета, които темплейтът рендва
       ...flatPkg
     };
 
-    // (по желание) виж какво пращаме:
-    console.log('[EmailJS params]', params);
+//    console.log('[EmailJS params]', params);
 
-    // disable + лоудър
-    const original = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Изпращаме...';
-
-    try {
-      const SERVICE_ID  = 'service_xr5w4ro';
-      const TEMPLATE_ID = 'template_83xdbvh';
-      await emailjs.send(SERVICE_ID, TEMPLATE_ID, params);
-
-      markSent();
-      form.reset();
-      const badge = document.getElementById('selectedPackageBadge');
-      if (badge) badge.classList.add('d-none');
-      showSuccessModal();
-    } catch (err) {
-      console.error(err);
-      toast('Упс! Нещо се обърка. Опитай пак или звънни по телефон.', 'danger');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = original;
-    }
+    await doSend(params);
   });
 })();
