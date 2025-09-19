@@ -2,7 +2,7 @@
 <html lang="bg">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- iOS/Safari UI цвет над адрес бара -->
   <meta name="theme-color" content="#0B1226" media="(prefers-color-scheme: light)">
@@ -25,6 +25,14 @@
   <!-- Основни стилове -->
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Локален стил за скалиране на формата -->
+  <style>
+    /* скалираме само формата, без да „мажем“ околния текст */
+    #contactForm.scale-fit {
+      transform-origin: top center;
+      will-change: transform, height;
+    }
+  </style>
 </head>
 <body>
 <div id="intro-curtain" aria-hidden="true">
@@ -69,6 +77,21 @@
   <section id="hero" class="hero snap d-flex align-items-center justify-content-center">
     <div class="container text-center">
       <div class="logo-svg mb-3"></div>
+      <div class="social-bar mt-3 mb-3" aria-label="Контакти в социални мрежи">
+        <a class="btn-social" href="https://facebook.com/yourpage" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12.06C22 6.55 17.52 2 12 2S2 6.55 2 12.06c0 5.01 3.66 9.16 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.78 8.44-4.93 8.44-9.94Z"/></svg>
+        </a>
+        <a class="btn-social" href="https://instagram.com/yourpage" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm6-3a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"/>
+          </svg>
+        </a>
+        <a class="btn-social" href="tel:+359XXXXXXXXX" aria-label="Телефон">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.56.57 1 1 0 0 1 1 1v3.66a1 1 0 0 1-1 1A17.67 17.67 0 0 1 2 6a1 1 0 0 1 1-1h3.67a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.56 1 1 0 0 1-.24 1.02l-2.38 2.21Z"/>
+          </svg>
+        </a>
+      </div>
       <p class="lead mx-auto" style="max-width:760px">
         Потопи се в свят, изпълнен с мистерия, усмивки и незабравими моменти.
       </p>
@@ -163,7 +186,6 @@
       <p class="text-center opacity-75 mb-4">
         Опиши накратко събитието и желаната дата – ще върнем идея и ориентир.
       </p>
-
       <!-- Индикация за избран пакет -->
       <div id="selectedPackageBadge" class="selected-package d-none" aria-live="polite">
         <span class="label">Избран пакет:</span>
@@ -172,35 +194,47 @@
       </div>
 
       <form id="contactForm">
-        <input type="hidden" id="packageField"        name="package">
-        <input type="hidden" id="pkgTierLabel"        name="pkgTierLabel">
-        <input type="hidden" id="pkgAddons"           name="pkgAddons">
-        <input type="hidden" id="pkgTotal"            name="pkgTotal">
-        <input type="hidden" id="pkgCurrency"         name="pkgCurrency">
-        <input type="hidden" id="pkgDataJson"         name="pkgDataJson">
+        <input type="hidden" id="packageField"  name="package">
+        <input type="hidden" id="pkgTierLabel"  name="pkgTierLabel">
+        <input type="hidden" id="pkgAddons"     name="pkgAddons">
+        <input type="hidden" id="pkgTotal"      name="pkgTotal">
+        <input type="hidden" id="pkgCurrency"   name="pkgCurrency">
+        <input type="hidden" id="pkgDataJson"   name="pkgDataJson">
 
         <div class="row">
+          <!-- Име -->
           <div class="col-md-6">
             <label class="form-label">Име</label>
             <input type="text" class="form-control" name="name" placeholder="Име" required>
           </div>
+
+          <!-- Телефон (задължителен) -->
           <div class="col-md-6">
-            <label class="form-label">Имейл</label>
-            <input type="email" class="form-control" name="email" placeholder="Имейл" required>
+            <label class="form-label">Телефон</label>
+            <input type="tel" class="form-control" name="phone" inputmode="tel" placeholder="+359 ..." required>
           </div>
 
+          <!-- Имейл (по желание) -->
+          <div class="col-md-6">
+            <label class="form-label">Имейл (по желание)</label>
+            <input type="email" class="form-control" name="email" placeholder="имейл@пример.bg">
+          </div>
+
+          <!-- Дата -->
           <div class="col-md-6">
             <label class="form-label">Дата</label>
             <input type="date" class="form-control" name="date" id="dateField" required>
           </div>
+
+          <!-- Час (single) -->
           <div class="col-md-6">
-            <label class="form-label">Телефон (по желание)</label>
-            <input type="tel" class="form-control" name="phone" inputmode="tel" placeholder="+359 ...">
+            <label class="form-label">Час</label>
+            <input type="time" class="form-control" name="time" id="timeField" required>
           </div>
 
           <!-- Тип събитие -->
           <div class="col-md-6">
-            <label class="form-label">Тип събитие</label>
+            <label class="form-label">Повод (тип събитие)</label>
             <select id="eventType" name="eventType" class="form-select" required>
               <option value="">Избери…</option>
               <option value="birthday">Рожден ден</option>
@@ -213,17 +247,21 @@
           <!-- Динамични допълнителни полета спрямо типа -->
           <div class="col-12" id="eventExtraFields"></div>
 
+          <!-- Свободен текст (остава за всички типове) -->
           <div class="col-12">
             <label class="form-label">Съобщение</label>
-            <textarea class="form-control" name="message" rows="5" placeholder="Дата, място, идея…" required></textarea>
+            <textarea class="form-control" name="message" rows="5" placeholder="Допълнителни детайли/въпроси..."></textarea>
           </div>
 
           <div class="col-12 text-center">
             <button type="submit" class="btn btn-lg mt-2">Изпрати</button>
           </div>
         </div>
+
+        <!-- honeypot -->
         <input type="text" name="_hp" id="hp" autocomplete="off" tabindex="-1" style="position:absolute; left:-9999px;" aria-hidden="true">
       </form>
+
       <!-- УСПЕШНО ИЗПРАТЕНО -->
       <div class="modal fade" id="contactSuccessModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -253,6 +291,23 @@
     <div class="container" style="max-width: 980px;">
       <h2 class="text-center mb-4" style="font-family:'Rosarium',serif;">За нас</h2>
 
+      <div class="social-bar mt-3 mb-3" aria-label="Контакти в социални мрежи">
+        <a class="btn-social" href="https://facebook.com/yourpage" target="_blank" rel="noopener" aria-label="Facebook">
+          <!-- FB SVG -->
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12.06C22 6.55 17.52 2 12 2S2 6.55 2 12.06c0 5.01 3.66 9.16 8.44 9.94v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.78 8.44-4.93 8.44-9.94Z"/></svg>
+        </a>
+        <a class="btn-social" href="https://instagram.com/yourpage" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5Zm6-3a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"/>
+          </svg>
+        </a>
+        <a class="btn-social" href="tel:+359XXXXXXXXX" aria-label="Телефон">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.56.57 1 1 0 0 1 1 1v3.66a1 1 0 0 1-1 1A17.67 17.67 0 0 1 2 6a1 1 0 0 1 1-1h3.67a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.56 1 1 0 0 1-.24 1.02l-2.38 2.21Z"/>
+          </svg>
+        </a>
+      </div>
+
       <div class="row g-4 align-items-stretch">
         <!-- Ляво: текст/история -->
         <div class="col-12 col-lg-7 d-flex">
@@ -273,7 +328,7 @@
               Запазете своето уютно парти място още днес!
             </p>
 
-            <div class="mt-auto">
+            <div class="mt-4 mt-lg-auto mx-auto">
               <a class="btn btn-primary" data-scroll="#packages">Избери пакет</a>
             </div>
           </div>
@@ -368,7 +423,7 @@
 <!-- Скрол до секция по data-scroll -->
 <script>
   (function(){
-    const OFFSET = 0; // ако имаш фиксиран header с височина – можеш да компенсираш тук
+    const OFFSET = 0;
     function smoothTo(target){
       const el = document.querySelector(target);
       if(!el) return;

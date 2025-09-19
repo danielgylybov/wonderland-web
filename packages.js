@@ -14,22 +14,55 @@ function getCopy() {
 function getCurrency() {
   return (window.PACKAGES && window.PACKAGES.currency) || "лв";
 }
+function getSecondaryConfig() {
+  const p = window.PACKAGES || {};
+  const s = p.secondary || {};
+  return {
+    enabled: !!s.enabled,
+    rate: Number.isFinite(+s.rate) ? +s.rate : 1,
+    label: s.label || ''
+  };
+}
 
 /* ───────── Форматиране ───────── */
 const esc = (s = "") => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
   .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-const fmtPrice = (num) => Number(num || 0).toLocaleString("bg-BG");
+const fmtPrice  = (num) => Number(num || 0).toLocaleString("bg-BG");
+const fmtMoney2 = (num) => Number(num || 0).toLocaleString("bg-BG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** Символни валути → отпред; всички други → отзад */
+const PREFIX_SYMBOLS = new Set(['€', '$', '£', '¥', '₩', '₽', '₹', '₪', '₱', '₴', '₺', '฿', '₦', '₫', '₡', '₲', '₭', '₨', '₸', '₮', '₼', '₾']);
+function placeMoney(amount, label, useTwoDecimals = false) {
+  const n = Number(amount || 0);
+  const numStr = useTwoDecimals ? fmtMoney2(n) : fmtPrice(n);
+  const L = String(label || '');
+  const isPrefix = PREFIX_SYMBOLS.has(L) || /^\p{Sc}$/u.test(L); // валутен символ
+  return isPrefix ? `${esc(L)}${numStr}` : `${numStr} ${esc(L)}`;
+}
+
+/** „<primary> (<secondary>)“, ако secondary е активна */
+function formatWithSecondaryHint(amountPrimary) {
+  const primaryLabel = getCurrency();
+  const { enabled, rate, label: secondaryLabel } = getSecondaryConfig();
+  const n = Math.round(Number(amountPrimary || 0));
+  const primaryText = placeMoney(n, primaryLabel, false);
+  if (!enabled || !rate || !secondaryLabel) return primaryText;
+  const secText = placeMoney(n * rate, secondaryLabel, true);
+  return `${primaryText} (${secText})`;
+}
+
+/** „от <primary> (<secondary>)“ */
 function priceText(base, mult = 1) {
-  const { pricePrefix } = getCopy(); const CURRENCY = getCurrency();
-  const val = Math.round((Number(base)||0) * (Number(mult)||1));
-  return `${esc(pricePrefix)} ${fmtPrice(val)} ${esc(CURRENCY)}`;
+  const { pricePrefix } = getCopy();
+  const total = Math.round((Number(base)||0) * (Number(mult)||1));
+  return `${esc(pricePrefix)} ${formatWithSecondaryHint(total)}`;
 }
 
 /* ───────── Обновяване на цената върху карта ───────── */
 function setCardPriceById(cardId, absTotal) {
-  const currency = getCurrency(); const { pricePrefix } = getCopy();
+  const { pricePrefix } = getCopy();
   const el = document.querySelector(`.pack-card[data-card-id="${cardId}"] .price`);
-  if (el) el.textContent = `${esc(pricePrefix)} ${fmtPrice(Math.round(absTotal))} ${esc(currency)}`;
+  if (el) el.textContent = `${esc(pricePrefix)} ${formatWithSecondaryHint(absTotal)}`;
 }
 
 /* ───────── (Опция) Google Drive за галерия ───────── */
@@ -197,38 +230,27 @@ function setupDesktopScroller(scope){
   const next = wrap.querySelector('.pkg-nav.next');
   const slides = Array.from(track.querySelectorAll('.pkg-slide'));
 
-  // индексът е „лява видима“ карта
   let index = 0;
-
-  function visibleCount(){ return 3; } // винаги 3 на десктоп по условие
+  function visibleCount(){ return 3; }
   function maxIndex(){ return Math.max(0, slides.length - visibleCount()); }
-
   function slideStep(){
-    // ширина на една карта + gap (16px)
     if (!slides[0]) return 0;
     const w = slides[0].getBoundingClientRect().width;
-    return w + 16; // синхронизирано с CSS gap:16px
+    return w + 16; // синхр. с CSS gap:16px
   }
-
   function updateNav(){
     prev.disabled = index <= 0;
     next.disabled = index >= maxIndex();
   }
-
   function scrollToIndex(i, smooth = true){
     index = Math.max(0, Math.min(i, maxIndex()));
     const x = Math.round(index * slideStep());
     track.scrollTo({ left: x, behavior: smooth ? 'smooth' : 'auto' });
     updateNav();
   }
-
   prev.addEventListener('click', () => scrollToIndex(index - 1));
   next.addEventListener('click', () => scrollToIndex(index + 1));
-
-  // ресайз → прецизно прецентриране
   window.addEventListener('resize', () => scrollToIndex(index, false), { passive:true });
-
-  // Инициализация
   updateNav();
   scrollToIndex(0, false);
 }
@@ -298,7 +320,6 @@ function renderPackageOverlay(model) {
   const hasExtra = Array.isArray(model.extraInfo) && model.extraInfo.length > 0;
   const hasAdds  = addons.length > 0;
   const bothCols = hasExtra && hasAdds;
-  const carouselId = `pkgCarousel-${Date.now()}`;
 
   overlay.innerHTML = `
     <div class="pkg-sheet">
@@ -361,7 +382,13 @@ function renderPackageOverlay(model) {
                       <label class="pkg-addon d-flex align-items-center gap-2 mb-2">
                         <input type="checkbox" ${a.checked ? 'checked' : ''} data-price="${a.price || 0}">
                         <span class="flex-grow-1">${esc(a.label)}</span>
-                        ${a.price ? `<span class="opacity-75">${fmtPrice(a.price)} ${esc(getCurrency())}</span>` : ''}
+                        ${a.price ? `<span class="opacity-75">
+                          ${placeMoney(a.price, getCurrency(), false)}
+                          ${(() => { const s = getSecondaryConfig();
+                            if (!s.enabled || !s.rate || !s.label) return '';
+                            return ` (${placeMoney((a.price || 0) * s.rate, s.label, true)})`;
+                          })()}
+                        </span>` : ''}
                       </label>
                     `).join('')}
                   </div>
@@ -383,7 +410,13 @@ function renderPackageOverlay(model) {
                         <label class="pkg-addon d-flex align-items-center gap-2 mb-2">
                           <input type="checkbox" ${a.checked ? 'checked' : ''} data-price="${a.price || 0}">
                           <span class="flex-grow-1">${esc(a.label)}</span>
-                          ${a.price ? `<span class="opacity-75">${fmtPrice(a.price)} ${esc(getCurrency())}</span>` : ''}
+                          ${a.price ? `<span class="opacity-75">
+                            ${placeMoney(a.price, getCurrency(), false)}
+                            ${(() => { const s = getSecondaryConfig();
+                              if (!s.enabled || !s.rate || !s.label) return '';
+                              return ` (${placeMoney((a.price || 0) * s.rate, s.label, true)})`;
+                            })()}
+                          </span>` : ''}
                         </label>
                       `).join('')}
                     </div>
@@ -415,10 +448,10 @@ function renderPackageOverlay(model) {
     const base = Number(model.basePrice || 0) * getTierMult();
     const extra = sumSelectedAddons();
     const total = base + extra;
-    const currency = getCurrency();
-    priceEl.textContent = `${fmtPrice(Math.round(total))} ${currency}`;
+
+    priceEl.textContent = formatWithSecondaryHint(total);
     if (addonsInfo) {
-      addonsInfo.textContent = extra ? `вкл. добавки: + ${fmtPrice(extra)} ${currency}` : '\u00A0';
+      addonsInfo.textContent = extra ? `вкл. добавки: + ${formatWithSecondaryHint(extra)}` : '\u00A0';
     }
     setCardPriceById(cardId, total);
   }
@@ -526,7 +559,8 @@ function renderPackageOverlay(model) {
 
     const base = Number(model.basePrice || 0) * (choice?.multiplier ?? 1);
     const extra = chosenAddons.reduce((s,a)=>s+(a.price||0),0);
-    const priceT = `${fmtPrice(Math.round(base + extra))} ${getCurrency()}`;
+    const total = base + extra;
+    const priceT = formatWithSecondaryHint(total);
 
     applySelection({ ...model, _chosenAddons: chosenAddons }, choice, priceT);
 
@@ -553,7 +587,8 @@ document.addEventListener('click', (e) => {
   if (viewBtn) { renderPackageOverlay(model); return; }
 
   const choice = Array.isArray(model.tiers) && model.tiers.length ? model.tiers[0] : null;
-  const priceT = priceText(model.basePrice, choice?.multiplier ?? 1);
+  const total = Math.round((Number(model.basePrice)||0) * (choice?.multiplier ?? 1));
+  const priceT = formatWithSecondaryHint(total);
   applySelection(model, choice, priceT);
 
   if (typeof window.scrollToWithOffset === 'function') {
@@ -578,10 +613,12 @@ function applySelection(model, choice, priceTextStr) {
   const currency  = getCurrency();
   const tierLabel = choice?.label || '';
   const addonsArr = Array.isArray(model._chosenAddons) ? model._chosenAddons : [];
-  const addonsCSV = addonsArr.map(a => `${a.label}${a.price?` (+${fmtPrice(a.price)} ${currency})`:''}`).join(', ');
+  const addonsCSV = addonsArr
+    .map(a => `${a.label}${a.price ? ` (+${placeMoney(a.price, currency, false)})` : ''}`)
+    .join(', ');
 
   const totalNum = (() => {
-    const m = (priceTextStr || '').match(/[\d\s.,]+/);
+    const m = (priceTextStr || '').match(/[\d\s.,]+/); // първата сума е в основната валута
     if (!m) return null;
     const raw = m[0].replace(/\s/g, '');
     if (raw.includes('.') && raw.includes(',')) return Number(raw.replace(/\./g, '').replace(',', '.'));
@@ -606,7 +643,7 @@ function applySelection(model, choice, priceTextStr) {
       name: model.name,
       tier: tierLabel || null,
       basePrice: Number(model.basePrice||0),
-      total: Number.isFinite(totalNum) ? totalNum : null,
+      total: Number.isFinite(totalNum) ? totalNum : null, // в основната валута
       currency,
       addons: addonsArr.map(a => ({ label: a.label, price: Number(a.price||0) }))
     };

@@ -195,7 +195,7 @@ body.use-real-stars::after{display:none!important}
           mask:url("assets/img/Gold-5.svg") no-repeat center/contain;
 }
 @media (min-width:768px){.logo-svg{height:420px}} /* таблет */
-@media (min-width:1200px){.logo-svg{height:540px}} /* десктоп */
+@media (min-width:1200px){.logo-svg{height:520px}} /* десктоп */
 
 /* ===========================
    6) СЕКЦИИ / КОМПОНЕНТИ
@@ -898,3 +898,42 @@ section.snap{
 
 /* леко скриване докато подменяме */
 #packages-root.loading { opacity:.85; filter:saturate(.9); }
+
+/* ===== Social buttons (Wonderland style) ===== */
+.social-bar { display:flex; gap:12px; justify-content:center; align-items:center; }
+
+.btn-social{
+  display:inline-grid; place-items:center;
+  width:54px; height:54px; border-radius:999px;
+  border:1px solid rgba(212,175,55,.35);
+  background:rgba(12,18,38,.6); backdrop-filter:blur(6px);
+  box-shadow:0 8px 28px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
+  transition:transform .15s ease, box-shadow .25s ease, border-color .25s ease, filter .2s ease;
+  text-decoration:none; outline:none;
+}
+.btn-social svg{ width:22px; height:22px; fill:currentColor; color:var(--gold-2); opacity:.92; }
+.btn-social:hover{
+  border-color:rgba(212,175,55,.6);
+  box-shadow:0 10px 32px rgba(0,0,0,.45), 0 0 14px rgba(216,158,88,.35) inset;
+  filter:brightness(1.06);
+  transform:translateY(-1px);
+}
+.btn-social:active{ transform:translateY(0); }
+
+.btn-social--sm{ width:44px; height:44px; }
+.btn-social--sm svg{ width:20px; height:20px; }
+
+.contact-social__label{ color:#cfd6ff; opacity:.9; }
+
+/* ===== Contact form autoscale (desktop) ===== */
+@media (min-width: 992px) {
+  #contact .container {
+    --form-scale: 1;
+  }
+  #contact form {
+    transform-origin: top center;
+    transform: scale(var(--form-scale));
+    transition: transform .18s ease;
+  }
+}
+
