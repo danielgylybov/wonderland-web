@@ -195,7 +195,7 @@ body.use-real-stars::after{display:none!important}
           mask:url("assets/img/Gold-5.svg") no-repeat center/contain;
 }
 @media (min-width:768px){.logo-svg{height:420px}} /* таблет */
-@media (min-width:1200px){.logo-svg{height:540px}} /* десктоп */
+@media (min-width:1200px){.logo-svg{height:520px}} /* десктоп */
 
 /* ===========================
    6) СЕКЦИИ / КОМПОНЕНТИ
@@ -924,4 +924,16 @@ section.snap{
 .btn-social--sm svg{ width:20px; height:20px; }
 
 .contact-social__label{ color:#cfd6ff; opacity:.9; }
+
+/* ===== Contact form autoscale (desktop) ===== */
+@media (min-width: 992px) {
+  #contact .container {
+    --form-scale: 1;
+  }
+  #contact form {
+    transform-origin: top center;
+    transform: scale(var(--form-scale));
+    transition: transform .18s ease;
+  }
+}
 
