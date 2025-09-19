@@ -182,6 +182,38 @@ function cardSlideHTML(pkg){
   document.head.appendChild(el);
 })();
 
+/* ───────── Анти-overflow за модала на пакетите ───────── */
+(function injectPackageModalCSS(){
+  if (document.getElementById('pkg-modal-css')) return;
+  const css = `
+  #package-overlay{overflow-x:hidden;}
+  #package-overlay .pkg-sheet{
+    width:100%;
+    max-width:min(960px, 100vw - 24px);
+    box-sizing:border-box;
+    overflow-x:hidden;
+  }
+  #package-overlay .pkg-body{overflow-x:hidden;}
+  #package-overlay .pkg-grid{display:grid; grid-template-columns:1fr; gap:16px;}
+  @media (min-width:768px){
+    #package-overlay .pkg-grid{grid-template-columns:1fr 1fr;}
+  }
+  /* Безопасно пренасяне на дълги думи/URL-и/етикети */
+  #package-overlay .pkg-title,
+  #package-overlay .pkg-label,
+  #package-overlay .pkg-price,
+  #package-overlay .pkg-card ul,
+  #package-overlay .pkg-addon span{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  `;
+  const el = document.createElement('style');
+  el.id = 'pkg-modal-css';
+  el.textContent = css;
+  document.head.appendChild(el);
+})();
+
 /* ───────── Рендер на секцията ───────── */
 function renderPackagesSection() {
   const m = window.PACKAGES || {};
@@ -346,9 +378,9 @@ function renderPackageOverlay(model) {
               </select>
             ` : `<div class="opacity-75">Един размер</div>`}
 
-            <div class="d-flex align-items-center justify-content-between mt-3">
+            <div class="d-flex flex-lg-row flex-column text-center text-lg-end justify-content-between mt-3">
               <div class="pkg-label">Ориентировъчна цена</div>
-              <div class="pkg-price text-end">
+              <div class="pkg-price">
                 <div id="pkgPrice"></div>
                 <div
                   class="opacity-75 small"
@@ -382,7 +414,7 @@ function renderPackageOverlay(model) {
                       <label class="pkg-addon d-flex align-items-center gap-2 mb-2">
                         <input type="checkbox" ${a.checked ? 'checked' : ''} data-price="${a.price || 0}">
                         <span class="flex-grow-1">${esc(a.label)}</span>
-                        ${a.price ? `<span class="opacity-75">
+                        ${a.price ? `<span class="opacity-75 text-nowrap">
                           ${placeMoney(a.price, getCurrency(), false)}
                           ${(() => { const s = getSecondaryConfig();
                             if (!s.enabled || !s.rate || !s.label) return '';
@@ -410,7 +442,7 @@ function renderPackageOverlay(model) {
                         <label class="pkg-addon d-flex align-items-center gap-2 mb-2">
                           <input type="checkbox" ${a.checked ? 'checked' : ''} data-price="${a.price || 0}">
                           <span class="flex-grow-1">${esc(a.label)}</span>
-                          ${a.price ? `<span class="opacity-75">
+                          ${a.price ? `<span class="opacity-75 text-nowrap">
                             ${placeMoney(a.price, getCurrency(), false)}
                             ${(() => { const s = getSecondaryConfig();
                               if (!s.enabled || !s.rate || !s.label) return '';
@@ -601,6 +633,7 @@ document.addEventListener('click', (e) => {
 /* ───────── Попълване на бейджа и формата ───────── */
 function applySelection(model, choice, priceTextStr) {
   const badge = document.getElementById('selectedPackageBadge');
+  const label = document.getElementById('selectedPackageLabel');
   const val   = badge?.querySelector('.value');
 
   const hfPkg        = document.getElementById('packageField');
@@ -630,6 +663,7 @@ function applySelection(model, choice, priceTextStr) {
   if (badge && val) {
     val.textContent = summaryText;
     badge.classList.remove('d-none');
+    label.classList.remove('d-none');
   }
 
   if (hfPkg)      { hfPkg.value = summaryText; hfPkg.dispatchEvent(new Event('change', { bubbles: true })); }

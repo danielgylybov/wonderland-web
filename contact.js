@@ -511,6 +511,7 @@
       markSent();
       form.reset();
       document.getElementById('selectedPackageBadge')?.classList.add('d-none');
+      document.getElementById('selectedPackageLabel')?.classList.add('d-none');
       showSuccessModal();
       extraWrap.innerHTML = '';
       if (eventTypeSel) eventTypeSel.value = '';

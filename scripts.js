@@ -326,8 +326,10 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('#selectedPackageBadge .clear')) return;
   const badge = document.getElementById('selectedPackageBadge');
   const field = document.getElementById('packageField');
+  const label = document.getElementById('selectedPackageLabel');
   if (badge) badge.classList.add('d-none');
   if (field) field.value = '';
+  if (label) label.classList.add('d-none');
 });
 
 /* Минимална дата = днес (локално време) */
