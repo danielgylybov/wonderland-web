@@ -1,6 +1,6 @@
 html, body { color-scheme: light !important; }
 /* ===========================
-   1) ШРИФТОВЕ
+   1) Fonts
 =========================== */
 @font-face {
   font-family: "Rosarium";
@@ -54,7 +54,7 @@ html, body { color-scheme: light !important; }
 }
 
 /* ===========================
-   2) ПАЛИТРА / БАЗА
+   2) Pallet / Base
 =========================== */
 :root{
   /* Тема */
@@ -63,16 +63,16 @@ html, body { color-scheme: light !important; }
   --text:#f7f8ff;
   --muted:#b8c6ff;
 
-  --blue:#657bbb; /* звездички */
+  --blue:#657bbb;
   --blue-2:#8ea2ff;
   --blue-3:#aebcff;
 
-  --gold:#d89e58;   /* бранд злато */
-  --gold-2:#f1c37a; /* по-светло за shimmer */
+  --gold:#d89e58;
+  --gold-2:#f1c37a;
 
   --shadow:rgba(0,0,0,.35);
 
-  /* Съвместимост със старо име */
+  /* Backwards compatible with old name */
   --wantgold:var(--gold);
 
   /* iOS safe area */
@@ -98,11 +98,10 @@ body{
   font-family:"CraftworkGrotesk",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-/* Заглавия с бранд шрифт */
 h1,h2,h3{font-family:"Rosarium",serif;color:var(--text)}
 
 /* ===========================
-   3) ЗВЕЗДНО НЕБЕ (реални SVG звезди)
+   3) Starfield
 =========================== */
 .starfield{
   position:fixed;inset:0;height:100svh;width:100%;
@@ -125,12 +124,11 @@ h1,h2,h3{font-family:"Rosarium",serif;color:var(--text)}
   100%{transform:translate(-2%,-2%)}
 }
 
-/* Ако има стар „fake stars“ фон през ::before/::after – скрий го, когато ползваме истински звезди */
 body.use-real-stars::before,
 body.use-real-stars::after{display:none!important}
 
 /* ===========================
-   4) HEADER / ЛОГО
+   4) HEADER / LOGO
 =========================== */
 .magic-header{
   position:fixed;top:0;left:0;right:0;
@@ -147,7 +145,7 @@ body.use-real-stars::after{display:none!important}
   background:rgba(7,12,27,.82);
 }
 
-/* Текстово лого (fallback) */
+/* Fallback */
 .logo-text{
   font-family:"Rosarium",serif;font-size:1.8rem;
   background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
@@ -158,7 +156,6 @@ body.use-real-stars::after{display:none!important}
 }
 .magic-header.show-logo .logo-text{opacity:1;transform:scale(1)}
 
-/* SVG лого в Header (маска) — ако го използваш */
 .header-logo-svg{
   height:52px;margin-top:14px;
   background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
@@ -186,7 +183,6 @@ body.use-real-stars::after{display:none!important}
 }
 .hero .hero-logo-text.fade-out{opacity:0;transform:translateY(-10px) scale(.94)}
 
-/* SVG лого (маска) — responsive височина */
 .logo-svg{
   width:100%;height:320px; /* мобилно */
   background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold));
@@ -198,7 +194,7 @@ body.use-real-stars::after{display:none!important}
 @media (min-width:1200px){.logo-svg{height:520px}} /* десктоп */
 
 /* ===========================
-   6) СЕКЦИИ / КОМПОНЕНТИ
+   6) Sections / Components
 =========================== */
 /* Карти / панели */
 .card{
@@ -208,7 +204,7 @@ body.use-real-stars::after{display:none!important}
   color:var(--text);
 }
 
-/* Бутони */
+/* Buttons */
 .btn-primary{
   color:#1d1205;
   background:linear-gradient(180deg,var(--gold-2),var(--gold));
@@ -230,7 +226,7 @@ body.use-real-stars::after{display:none!important}
 }
 
 /* ===========================
-   7) ГАЛЕРИЯ (Bootstrap Carousel + Drive)
+   7) Gallery (Bootstrap Carousel + Drive)
 =========================== */
 .carousel{box-shadow:0 0 20px rgba(0,0,0,.4);border-radius:16px;overflow:hidden}
 .carousel-item img{display:block;width:100%}
@@ -253,12 +249,11 @@ body.use-real-stars::after{display:none!important}
 }
 
 /* ===========================
-   8) ФОРМА ЗА ЗАПИТВАНЕ
+   8) Question form
 =========================== */
 .contact{background:transparent}
 h2{color:var(--gold);font-size:42px;text-align:center}
 
-/* — тъмни текстови полета */
 .contact .form-control{
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);
@@ -270,7 +265,6 @@ h2{color:var(--gold);font-size:42px;text-align:center}
   box-shadow:0 0 0 .2rem rgba(216,158,88,.25);
 }
 
-/* — тъмни селекти (новото падащо меню) */
 .contact .form-select{
   background-color:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);
@@ -289,11 +283,9 @@ h2{color:var(--gold);font-size:42px;text-align:center}
   color:var(--text);
 }
 
-/* — date/time полета да не „избеляват“ */
 .contact input[type="date"].form-control,
 .contact input[type="time"].form-control{ background-color:rgba(255,255,255,.06); color:var(--text); }
 
-/* — чекбокси/радио (ако се появят динамично) */
 .contact .form-check-input{
   background-color:rgba(255,255,255,.1);
   border-color:rgba(255,255,255,.3);
@@ -303,7 +295,6 @@ h2{color:var(--gold);font-size:42px;text-align:center}
   border-color:var(--wantgold);
 }
 
-/* — autofill fix (Chrome/Safari) да не става бял */
 .contact input:-webkit-autofill,
 .contact textarea:-webkit-autofill,
 .contact select:-webkit-autofill{
@@ -317,7 +308,6 @@ h2{color:var(--gold);font-size:42px;text-align:center}
   -webkit-text-fill-color:var(--text);
 }
 
-/* бутони на формата */
 .contact .btn{
   background:linear-gradient(180deg,var(--gold-2),var(--gold));
   color:#1d1205;border:0;transition:box-shadow .3s ease,transform .1s ease-in-out;
@@ -331,12 +321,11 @@ h2{color:var(--gold);font-size:42px;text-align:center}
 footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#ccc}
 
 /* ===========================
-   10) ЗАВЕСА (Intro Curtain)
+   10) Intro Curtain
 =========================== */
 #intro-curtain{
   position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;
 }
-/* Ляво/дясно перде */
 #intro-curtain .curtain-panel{
   position:absolute;top:0;bottom:0;width:50%;
   background:rgba(7,12,27,.92);
@@ -345,7 +334,6 @@ footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#cc
 #intro-curtain .curtain-panel.left{left:0;transform:translateX(0)}
 #intro-curtain .curtain-panel.right{right:0;transform:translateX(0)}
 
-/* Център (линии + лого) е „захванат“ за разреза на дясното перде */
 #intro-curtain .curtain-center{
   position:absolute;left:0;top:50%;
   transform:translate(-50%,-50%);
@@ -354,7 +342,6 @@ footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#cc
 #intro-curtain .curtain-line{width:2px;height:16vh;background:linear-gradient(var(--wantgold),transparent);opacity:.9}
 #intro-curtain .curtain-line.top{background:linear-gradient(transparent,var(--wantgold))}
 
-/* Лого (маска) + златен пръстен, който се движи с дясната завеса */
 #intro-curtain .curtain-logo{
   width:min(36vw,250px);height:min(28vw,150px);
   background:linear-gradient(90deg,var(--wantgold),var(--gold-2),var(--wantgold));
@@ -369,7 +356,6 @@ footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#cc
   box-shadow:inset 0 0 0 3px var(--wantgold),0 8px 28px rgba(216,158,88,.35);z-index:3;
 }
 
-/* Анимации за завесата */
 @keyframes logo-pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes curtain-open-left{to{transform:translateX(-100%)}}
 @keyframes curtain-open-right{to{transform:translateX(100%)}}
@@ -380,7 +366,7 @@ footer{txt-align:center;text-align:center;padding:20px;font-size:.9rem;color:#cc
 #intro-curtain.open{animation:curtain-fade-out .5s ease .9s forwards}
 
 /* ===========================
-   11) SNAP НА СЕКЦИИ (поток: Как работи → Пакети → Галерия → Форма)
+   11) SNAP SECTIONED
 =========================== */
 main.page-snap{scroll-snap-type:y mandatory;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0)}
 section.snap{
@@ -388,7 +374,6 @@ section.snap{
   scroll-snap-align:start;scroll-snap-stop:always;scroll-margin-top:0;
 }
 
-/* Карти за Пакети */
 .pack-card{
   background:rgba(255,255,255,.04);
   border:1px solid rgba(212,175,55,.18);
@@ -405,7 +390,7 @@ section.snap{
 .view-more{margin-top:auto}
 
 /* ===========================
-   13) ДОСТЪПНОСТ
+   13) Accessibility
 =========================== */
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -433,7 +418,6 @@ section.snap{
           mask:url('assets/img/Gold-6-trimmed.svg') no-repeat center/contain;
 }
 
-/* ===== Scroll Indicator (fixed + safe-area, голям тап-таргет) ===== */
 .scroll-indicator{
   position:fixed;left:50%;
   bottom:calc(14px + env(safe-area-inset-bottom,0px));
@@ -459,7 +443,6 @@ section.snap{
 }
 .scroll-indicator.hidden{opacity:0;pointer-events:none}
 
-/* Избран пакет – пилюлка над формата */
 .selected-package{
   display:flex;gap:.5rem;align-items:center;justify-content:center;
   margin:-6px auto 18px;padding:.5rem .75rem;width:fit-content;border-radius:999px;
@@ -514,10 +497,8 @@ section.snap{
 .detail-curtain .panel.left{left:0;transform:translateX(-100%)}
 .detail-curtain .panel.right{right:0;transform:translateX(100%)}
 
-/* state: closing → затваряме към центъра */
 .detail-curtain.is-closing .panel.left{animation:dc-close-left .5s ease forwards}
 .detail-curtain.is-closing .panel.right{animation:dc-close-right .5s ease forwards}
-/* state: opening → отваряме от центъра */
 .detail-curtain.is-opening .panel.left{animation:dc-open-left .5s ease forwards}
 .detail-curtain.is-opening .panel.right{animation:dc-open-right .5s ease forwards}
 
@@ -526,7 +507,7 @@ section.snap{
 @keyframes dc-open-left{to{transform:translateX(-100%)}}
 @keyframes dc-open-right{to{transform:translateX(100%)}}
 
-/* ===== Overlay лист (модал) ===== */
+/* ===== Overlay modal ===== */
 .package-overlay{
   position:fixed;inset:0;z-index:12000;
   display:grid;place-items:end center;
@@ -582,7 +563,6 @@ section.snap{
   background:linear-gradient(180deg,rgba(12,18,38,.85),rgba(12,18,38,.95));
 }
 
-/* селект – тъмен фон и видим текст и в отвореното меню */
 .pkg-select,
 .pkg-select.form-select{
   background-color:#0f1730!important;
@@ -599,24 +579,18 @@ section.snap{
   box-shadow:0 0 0 .2rem rgba(216,158,88,.25);
 }
 
-/* (ако липсваше) селектът в картите на пакетите на светъл фон */
 .pack-card select.form-select{background:#0f1730;color:#fff;border-color:rgba(255,255,255,.12)}
 
-/* --- Допълнение за реюз на интро-завесите като анимирани --- */
 #intro-curtain.gone{display:none!important}
 
-/* затваряне към центъра (за показване на модела) */
 @keyframes curtain-close-left{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes curtain-close-right{from{transform:translateX(100%)}to{transform:translateX(0)}}
 #intro-curtain.closing .curtain-panel.left{animation:curtain-close-left .6s ease forwards}
 #intro-curtain.closing .curtain-panel.right{animation:curtain-close-right .6s ease forwards}
 
-/* отваряне от центъра (след като модела се затвори) */
 #intro-curtain.opening .curtain-panel.left{animation:curtain-open-left .6s ease forwards}
 #intro-curtain.opening .curtain-panel.right{animation:curtain-open-right .6s ease forwards}
 
-/* === Re-use на интро завесите за пакети === */
-/* ЗАТВАРЯНЕ към центъра (при отваряне на модала) */
 #intro-curtain.closing .curtain-panel.left{animation:curtain-close-left .9s ease forwards}
 #intro-curtain.closing .curtain-panel.right{animation:curtain-close-right .9s ease forwards}
 
@@ -632,21 +606,20 @@ section.snap{
 }
 
 .pkg-card .carousel-inner img {
-  height: 200px;       /* малък, „апетитен“ размер */
-  object-fit: cover;   /* изрязва красиво */
+  height: 200px;
+  object-fit: cover;
 }
 @media (min-width: 768px) {
   .pkg-card .carousel-inner img { height: 240px; }
 }
 
-/* блокира скрола на бекграунда, без да „подскача“ layout-а */
 .no-scroll {
   position: fixed;
-  overflow-y: scroll; /* пази височината/ширината */
+  overflow-y: scroll;
   width: 100%;
 }
 
-/* === Invite (A4 PDF only) — без preview, без watermark === */
+/* === Invite === */
 .invite .card{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
 /* тъмни формови контроли в секцията */
 .invite .form-control,.invite .form-select{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); }
@@ -655,87 +628,6 @@ section.snap{
 .invite .form-check-input{ background-color:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3); }
 .invite .form-check-input:checked{ background-color:var(--wantgold); border-color:var(--wantgold); }
 .invite .form-select option{ background:#0b1226; color:var(--text); }
-
-/* ---------- FIXED A4 PDF STAGE (off-screen, device-independent) ---------- */
-.invite-pdf-stage{
-  position:fixed; left:-100000px; top:0;
-  width:1240px; height:1754px;              /* 210×297мм @ ~150dpi */
-  background:#fff; color:#111; overflow:hidden;
-
-  /* контролни променливи */
-  --pad:72px;              /* равен бял пас от всички страни + долния до линията */
-  --gap:28px;
-  --card-pad:48px;
-  --border-inset:32px;
-
-  --logo-w:520px; --logo-h:140px;
-  --sub-size:30px; --title-size:76px; --text-size:30px; --note-size:28px;
-}
-.invite-pdf-stage.theme-dark{ background:#fff; color:#111; }
-
-/* вътрешен layout на страницата */
-.invite-pdf-stage .page{
-  position:relative;
-  width:1240px; height:1754px;
-  padding:var(--pad); box-sizing:border-box;
-  display:grid;
-  grid-template-rows: 1fr; /* само един ред -> без „въздушна“ ивица отдолу */
-  gap: 0;                  /* няма празно пространство между редове */
-}
-
-/* карта/платно */
-.invite-pdf-stage .card{
-  position:relative; border-radius:20px; padding:var(--card-pad);
-  background:#fff; color:#111; overflow:hidden; border:1px solid #ececf2;
-}
-.invite-pdf-stage.theme-dark .card{
-  background:#0f1730; color:#f7f8ff; border-color:rgba(255,255,255,.18);
-}
-
-/* SVG звезди — пълно платно, зад съдържанието */
-.invite-pdf-stage .stars--full{
-  position:absolute; inset:var(--border-inset);
-  z-index:0; pointer-events:none; border-radius:14px;
-}
-
-/* brand контейнер — инлайн SVG се оцветява през currentColor */
-.invite-pdf-stage .brand{ width:var(--logo-w); margin:6px auto 12px; line-height:0; color:#d89e58; }
-.invite-pdf-stage.theme-dark .brand{ color:#f1c37a; }
-.invite-pdf-stage .brand svg{ display:block; width:100%; height:auto; }
-
-* типография */
-.invite-pdf-stage .sub{ text-align:center; margin-top:12px; font-family:"CraftworkGrotesk",system-ui; font-size:var(--sub-size); opacity:.88; }
-.invite-pdf-stage .rule{ height:1px; background:currentColor; opacity:.16; margin:12px 0 24px; }
-.invite-pdf-stage .title{ font-family:"Rosarium",serif; font-size:var(--title-size); color:#d89e58; margin:0 0 12px; }
-.invite-pdf-stage.theme-dark .title{ color:#f1c37a; }
-.invite-pdf-stage .text{ font-size:var(--text-size); line-height:1.55; margin:0 0 12px; }
-.invite-pdf-stage .text b{ font-weight:700; }
-.invite-pdf-stage .note{ margin-top:10px; font-size:var(--note-size); line-height:1.5; opacity:.98; }
-
-/* EXTRA (магичен блок) */
-.invite-pdf-stage .extra.magic{
-  position:relative; margin-top:22px; padding:28px 30px 24px;
-  border-radius:16px; background:transparent; border:1.5px dashed rgba(216,158,88,.55);
-}
-.invite-pdf-stage.theme-dark .extra.magic{ border-color:rgba(241,195,122,.65); }
-.invite-pdf-stage .extra.magic::after{
-  content:""; position:absolute; inset:6px; pointer-events:none; opacity:.35; border-radius:12px;
-  background:
-    radial-gradient(circle 2px, rgba(216,158,88,.75) 98%, transparent) 6px 10px/90px 90px repeat,
-    radial-gradient(circle 1.6px, rgba(174,188,255,.55) 98%, transparent) 42px 28px/120px 120px repeat;
-}
-.invite-pdf-stage.theme-dark .extra.magic::after{ opacity:.55; }
-.invite-pdf-stage .extra-title{
-  text-align:center; margin:-4px 0 12px; font-size:50px; letter-spacing:.01em; color:#d89e58;
-}
-.invite-pdf-stage.theme-dark .extra-title{ color:#f1c37a; }
-.invite-pdf-stage .extra-title em{ font-style:normal; font-family:"Rosarium",serif; }
-.invite-pdf-stage .extra-title span{ margin:0 10px; }
-.invite-pdf-stage .extra-lead{ margin:0 0 10px 0; font-size:24px; line-height:1.55; }
-.invite-pdf-stage .extra-list{ list-style:none; margin:0; padding:0; display:grid; gap:10px; font-size:24px; line-height:1.5; }
-.invite-pdf-stage .extra-list li{ position:relative; padding-left:28px; }
-.invite-pdf-stage .extra-list li::before{ content:"✶"; position:absolute; left:4px; top:.15em; font-size:18px; line-height:1; color:#d89e58; }
-.invite-pdf-stage.theme-dark .extra-list li::before{ color:#f1c37a; }
 
 /* ===== Success Popup (Wonderland style) ===== */
 .wl-modal-overlay{
@@ -793,7 +685,6 @@ section.snap{
   background:linear-gradient(180deg,rgba(12,18,38,.85),rgba(12,18,38,.95));
 }
 
-/* бутон – бранд злато */
 .wl-btn{
   appearance:none; border:0; border-radius:999px; cursor:pointer;
   padding:.7rem 1.2rem; font-weight:600; font-family:"CraftworkGrotesk",system-ui,sans-serif;
@@ -818,10 +709,8 @@ section.snap{
   box-shadow:0 0 10px rgba(216,158,88,.55);
 }
 
-/* фокус капан (скрит anchor) */
 .wl-visually-hidden{ position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; }
 
-/* Optional invite step */
 .step-box--optional{
   position: relative;
   border: 1px dashed rgba(212,175,55,.6);          /* gold dashed */
@@ -850,7 +739,6 @@ section.snap{
   letter-spacing: .02em;
 }
 
-/* Gold CTA button (ако нямаш вече) */
 .btn-gold{
   background: var(--wantgold);
   color: #0D1B1E;
@@ -896,7 +784,6 @@ section.snap{
 }
 .pkg-error .btn { margin-top: .5rem; }
 
-/* леко скриване докато подменяме */
 #packages-root.loading { opacity:.85; filter:saturate(.9); }
 
 /* ===== Social buttons (Wonderland style) ===== */

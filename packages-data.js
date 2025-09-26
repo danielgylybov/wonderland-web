@@ -6,7 +6,6 @@ async function loadPackagesFromSheetJSONP() {
 
     window[cb] = (payload) => {
       try {
-        // Дефолти + безопасен мердж на EUR конфиг
         const defaults = {
           title: 'Пакети',
           subtitle: '',
@@ -14,8 +13,8 @@ async function loadPackagesFromSheetJSONP() {
           pricePrefix: 'от',
           secondary: {
             enabled: false,
-            rate: 1,    // множител от основната към вторичната
-            label: ''   // напр. '€' или 'лв'
+            rate: 1,
+            label: ''
           },
           packages: []
         };

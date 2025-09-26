@@ -1,12 +1,12 @@
 /**
- * packages.js — ЛЕНИВО рендериране на секцията „Пакети“ + детайлен оувърлей
- * Десктоп: винаги 3 видими карти. Ако са >3 → хоризонтален скрол със стрелки.
+ * packages.js — LAZY rendering of the “Packages” section + detailed overlay
+ * Desktop: always 3 visible cards. If more than 3 → horizontal scroll with arrows.
  */
 
-/* ───────── Мини селектор ───────── */
+/* ───────── Mini selector ───────── */
 const $_ = (s, r = document) => r.querySelector(s);
 
-/* ───────── Динамични текстове/валута ───────── */
+/* ───────── Dynamic texts/currency ───────── */
 function getCopy() {
   const p = window.PACKAGES || {};
   return { viewMore: "Виж още", chooseText: "Избери пакет", pricePrefix: p.pricePrefix || "от" };
@@ -24,13 +24,13 @@ function getSecondaryConfig() {
   };
 }
 
-/* ───────── Форматиране ───────── */
+/* ───────── Formatting ───────── */
 const esc = (s = "") => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
   .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 const fmtPrice  = (num) => Number(num || 0).toLocaleString("bg-BG");
 const fmtMoney2 = (num) => Number(num || 0).toLocaleString("bg-BG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** Символни валути → отпред; всички други → отзад */
+/** Symbol currencies → in front; all others → at the back */
 const PREFIX_SYMBOLS = new Set(['€', '$', '£', '¥', '₩', '₽', '₹', '₪', '₱', '₴', '₺', '฿', '₦', '₫', '₡', '₲', '₭', '₨', '₸', '₮', '₼', '₾']);
 function placeMoney(amount, label, useTwoDecimals = false) {
   const n = Number(amount || 0);
@@ -40,7 +40,7 @@ function placeMoney(amount, label, useTwoDecimals = false) {
   return isPrefix ? `${esc(L)}${numStr}` : `${numStr} ${esc(L)}`;
 }
 
-/** „<primary> (<secondary>)“, ако secondary е активна */
+/** “<primary> (<secondary>)”, if secondary is enabled */
 function formatWithSecondaryHint(amountPrimary) {
   const primaryLabel = getCurrency();
   const { enabled, rate, label: secondaryLabel } = getSecondaryConfig();
@@ -51,21 +51,21 @@ function formatWithSecondaryHint(amountPrimary) {
   return `${primaryText} (${secText})`;
 }
 
-/** „от <primary> (<secondary>)“ */
+/** “from <primary> (<secondary>)” */
 function priceText(base, mult = 1) {
   const { pricePrefix } = getCopy();
   const total = Math.round((Number(base)||0) * (Number(mult)||1));
   return `${esc(pricePrefix)} ${formatWithSecondaryHint(total)}`;
 }
 
-/* ───────── Обновяване на цената върху карта ───────── */
+/* ───────── Update price on card ───────── */
 function setCardPriceById(cardId, absTotal) {
   const { pricePrefix } = getCopy();
   const el = document.querySelector(`.pack-card[data-card-id="${cardId}"] .price`);
   if (el) el.textContent = `${esc(pricePrefix)} ${formatWithSecondaryHint(absTotal)}`;
 }
 
-/* ───────── (Опция) Google Drive за галерия ───────── */
+/* ───────── (Option) Google Drive for gallery ───────── */
 const PACKAGES_PARENT_FOLDER = '144a10jYonm6dXeMWZV7GLSRCkszUggcP';
 const driveThumb = (id, w = 1600) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
 const _driveCache = new Map();
@@ -97,7 +97,7 @@ async function listImagesInFolder(folderId, limit = 8) {
   return (data.files || []).slice(0, limit);
 }
 
-/* ───────── Scroll lock за модала ───────── */
+/* ───────── Scroll lock for modal ───────── */
 const _scrollLock = { y: 0, pad: 0, on: false, prevRest: null };
 function lockScroll() {
   if (_scrollLock.on) return;
@@ -121,7 +121,7 @@ function unlockScroll() {
   _scrollLock.on = false;
 }
 
-/* ───────── Карта на пакет ───────── */
+/* ───────── Package card ───────── */
 function cardInnerHTML(pkg) {
   const { viewMore, chooseText } = getCopy();
   const id = (pkg.name || "").toLowerCase().trim().replace(/\s+/g, "-");
@@ -148,7 +148,7 @@ function cardSlideHTML(pkg){
   return `<div class="pkg-slide">${cardInnerHTML(pkg)}</div>`;
 }
 
-/* ───────── Инжектиране на стилове за хоризонталния скрол (еднократно) ───────── */
+/* ───────── Inject styles for horizontal scroll (one-time) ───────── */
 (function injectScrollerCSS(){
   if (document.getElementById('pkg-scroller-css')) return;
   const css = `
@@ -182,7 +182,7 @@ function cardSlideHTML(pkg){
   document.head.appendChild(el);
 })();
 
-/* ───────── Анти-overflow за модала на пакетите ───────── */
+/* ───────── Anti-overflow for package modal ───────── */
 (function injectPackageModalCSS(){
   if (document.getElementById('pkg-modal-css')) return;
   const css = `
@@ -214,7 +214,7 @@ function cardSlideHTML(pkg){
   document.head.appendChild(el);
 })();
 
-/* ───────── Рендер на секцията ───────── */
+/* ───────── Render section ───────── */
 function renderPackagesSection() {
   const m = window.PACKAGES || {};
   const root = document.getElementById("packages-root");
@@ -253,7 +253,7 @@ function renderPackagesSection() {
   if (useScroller) setupDesktopScroller(root);
 }
 
-/* ───────── Логика за десктоп хоризонталния скрол (3 видими) ───────── */
+/* ───────── Desktop horizontal scroll logic (3 visible) ───────── */
 function setupDesktopScroller(scope){
   const wrap = scope.querySelector('[data-scroller]');
   if (!wrap) return;
@@ -287,7 +287,7 @@ function setupDesktopScroller(scope){
   scrollToIndex(0, false);
 }
 
-/* ───────── Нормализация на добавки (поддържа 3 формата) ───────── */
+/* ───────── Normalization of add-ons (supports 3 formats) ───────── */
 function safeParseJSON(maybeJSON) {
   if (typeof maybeJSON !== 'string') return null;
   try { const val = JSON.parse(maybeJSON); return Array.isArray(val) ? val : null; }
@@ -331,7 +331,7 @@ function normalizeAddons(source) {
   return [];
 }
 
-/* ───────── Оувърлей с детайли ───────── */
+/* ───────── Overlay with details ───────── */
 function renderPackageOverlay(model) {
   const { chooseText } = getCopy();
   const overlay = $_('#package-overlay'); if (!overlay) return;
@@ -605,7 +605,7 @@ function renderPackageOverlay(model) {
   });
 }
 
-/* ───────── Глобални клик хендлъри (карти) ───────── */
+/* ───────── Global click handlers (cards) ───────── */
 document.addEventListener('click', (e) => {
   const viewBtn   = e.target.closest('[data-view]');
   const chooseBtn = e.target.closest('[data-choose]');
@@ -630,7 +630,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-/* ───────── Попълване на бейджа и формата ───────── */
+/* ───────── Fill badge and form ───────── */
 function applySelection(model, choice, priceTextStr) {
   const badge = document.getElementById('selectedPackageBadge');
   const label = document.getElementById('selectedPackageLabel');
@@ -709,5 +709,5 @@ function applySelection(model, choice, priceTextStr) {
   document.dispatchEvent(new CustomEvent('wl:package-selected', { detail: eventDetail }));
 }
 
-/* ───────── Експорт на рендера (вика се от loader-а) ───────── */
+/* ───────── Export render (called from loader) ───────── */
 window.renderPackagesSection = renderPackagesSection;
