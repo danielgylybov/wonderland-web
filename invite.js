@@ -1,24 +1,25 @@
 /**
- * Wonderland — генериране на PDF покани върху два темплейта:
- *   - v1: класически (центрирани редове)
- *   - v2: „заек“ (ляво подравняване + индивидуални хор. офсети на всеки ред)
+ * Wonderland — PDF invitation generation on two templates:
+ *   - v1: classic (centered lines)
+ *   - v2: “rabbit” (left-aligned + individual horizontal offsets for each line)
  *
- * Зависимости (зареждат се динамично при нужда):
+ * Dependencies (loaded dynamically when needed):
  *   - pdf-lib (https://unpkg.com/pdf-lib)
- *   - @pdf-lib/fontkit (за TTF/OTF и кирилица)
+ *   - @pdf-lib/fontkit (for TTF/OTF and Cyrillic)
  *
- * Нужни файлове:
+ * Required files:
  *   - assets/invite/invite.pdf        (template v1)
  *   - assets/invite/invite_2.pdf      (template v2)
- *   - assets/Rosarium.ttf             (Regular; с кирилица)
- *   - assets/Rosarium.ttf (или Bold)  (Bold/семиболд; при липса – отново Regular)
+ *   - assets/Rosarium.ttf             (Regular; with Cyrillic)
+ *   - assets/Rosarium.ttf (or Bold)   (Bold/Semibold; if missing – use Regular again)
  *
- * Какво да пипаш най-често:
- *   1) Офсети за v2 (масив OFFSETS_V2_CONTENT) — по един offset за всеки „съдържателен“ ред.
- *      Редовете са 11 (датата е на отделен ред; „Точно в …“ и „{Име} ще навърши …“ са два реда).
- *   2) Размер/цвят/сянка на последния ред във v2 (V2_LASTLINE и логиката в рендъра).
- *      Цветът е #d89e58. Сянката е дискретна (offset 1px, opacity 0.35).
- *   3) Геометрия/типография: startY, maxWidth, fontSize, leading.
+ * Things you’ll most often need to tweak:
+ *   1) Offsets for v2 (array OFFSETS_V2_CONTENT) — one offset per “content” line.
+ *      There are 11 lines (the date is on a separate line;
+ *      “Exactly at …” and “{Name} will turn …” are two lines).
+ *   2) Size/color/shadow of the last line in v2 (V2_LASTLINE and the rendering logic).
+ *      Color is #d89e58. Shadow is subtle (1px offset, 0.35 opacity).
+ *   3) Geometry/typography: startY, maxWidth, fontSize, leading.
  */
 
 (() => {
@@ -35,14 +36,14 @@
   const BOLD_FONT_URL    = 'assets/Rosarium.ttf'; // ако имаш Rosarium-Bold.ttf – посочи го тук
 
   /**
-   * Режим за офсети при v2:
-   *  - 'content': offset по „съдържателен ред“ (преносите споделят офсет) — стабилно и препоръчително
-   *  - 'visual' : offset по „визуален ред“ (вкл. преноси)
+   * Offset mode for v2:
+   *  - 'content': offset per “content line” (line wraps share the same offset) — stable and recommended
+   *  - 'visual' : offset per “visual line” (including wrapped lines)
    */
   const RABBIT_OFFSET_MODE = 'content';
   const DEBUG_INDEX = false; // true → показва индекс на реда в PDF за бърза калибрация
 
-  /** Офсети по съдържателни редове за v2 (11 реда) */
+  /** Offsets per content line for v2 (11 lines) */
   const OFFSETS_V2_CONTENT = [
     67, // 1: "Време е да се впуснем в"
     78, // 2: "чудна веселба на DD.MM.YYYYг."
@@ -58,14 +59,12 @@
   ];
   const OFFSETS_V2_VISUAL = OFFSETS_V2_CONTENT.slice();
 
-  /** Стил за последния ред във v2: по-голям + златен + лека сянка */
   const V2_LASTLINE = {
     size: 30,
     gold: { r: 216/255, g: 158/255, b: 88/255 }, // #d89e58
     shadow: { offset: 1, opacity: 0.35 }         // деликатна сянка
   };
 
-  /** ---------- Зареждане на pdf-lib и fontkit при нужда ---------- */
   async function ensurePdfLibAndFontkit() {
     async function load(src) {
       await new Promise((resolve, reject) => {
@@ -80,7 +79,6 @@
     if (!window.fontkit) await load('https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js');
   }
 
-  /** ---------- Форматиране на дата/час ---------- */
   function fmtDateDots(dateStr) {
     try {
       const d = new Date(dateStr);
@@ -99,14 +97,12 @@
     } catch { return timeStr || ''; }
   }
 
-  /** ---------- Малки помощници за рисуване ---------- */
+  /** ---------- Small drawing helpers ---------- */
 
-  /** Обща ширина на inline части при даден шрифт/размер */
   function lineWidth(parts, fontSize) {
     return parts.reduce((sum, p) => sum + p.font.widthOfTextAtSize(p.text, fontSize), 0);
   }
 
-  /** Пише малък индекс до реда (за калибрация на офсети) */
   function drawDebugIndex(page, idx, x, y, font, size) {
     if (!DEBUG_INDEX) return;
     const label = `[${idx}]`;
@@ -114,7 +110,7 @@
   }
 
   /**
-   * Рисува един inline ред (без пренасяне).
+   * Draws a single inline line (no wrapping).
    * @param {PDFPage} page
    * @param {{text:string,font:PDFFont}[]} parts
    * @param {number} y - baseline Y
@@ -130,9 +126,6 @@
     }
   }
 
-  /**
-   * Рисува един plain ред (без пренасяне).
-   */
   function drawSingleLine(page, text, y, { align, centerX, leftX, font, fontSize, color, opacity = 1, offsetPx = 0, debugIndex, debugFont }) {
     const wpx = font.widthOfTextAtSize(text, fontSize);
     const x = (align === 'left') ? (leftX + offsetPx) : (centerX - wpx / 2 + offsetPx);
@@ -140,10 +133,6 @@
     page.drawText(text, { x, y, size: fontSize, font, color, opacity });
   }
 
-  /**
-   * Wrap + рисуване на plain текст (един „съдържателен“ ред, потенциално на няколко визуални).
-   * В режим 'content' всички визуални преноси използват един и същ offset.
-   */
   function drawPlain(page, text, y, {
     align, centerX, leftX, maxWidth, lineHeight,
     font, fontSize, color, opacity = 1, getVisualOffset, fixedOffset,
@@ -178,7 +167,7 @@
     return yy;
   }
 
-  /** ---------- Съдържание по редове ---------- */
+  /** ---------- Content by row ---------- */
   function buildLines(fonts, values) {
     const dateInline = `чудна веселба на ${fmtDateDots(values.date)}`;
     return [
@@ -198,7 +187,7 @@
     ];
   }
 
-  /** ---------- Главно генериране ---------- */
+  /** ---------- General render ---------- */
   async function generatePdf(values) {
     await ensurePdfLibAndFontkit();
     const { PDFDocument, rgb } = window.PDFLib;
@@ -366,7 +355,7 @@
       }
     }
 
-    /** Сваляне */
+    /** Download */
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const a = document.createElement('a');
@@ -378,10 +367,10 @@
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
 
-  /** ---------- Събиране на стойностите от формата ---------- */
+  /** ---------- Collect form values ---------- */
   function collectValues() {
     const fd = new FormData(form);
-    const name = (fd.get('from') || '').toString().trim(); // „От“ = име на рожденика
+    const name = (fd.get('from') || '').toString().trim();
     let age = (fd.get('age') || '').toString().trim();
     if (age) {
       const n = parseInt(age, 10);
@@ -396,7 +385,7 @@
     };
   }
 
-  /** ---------- Събития ---------- */
+  /** ---------- Events ---------- */
   btnDownload?.addEventListener('click', async () => {
     if (!form.reportValidity()) return;
     try {

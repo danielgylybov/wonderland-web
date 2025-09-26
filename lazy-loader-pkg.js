@@ -74,7 +74,7 @@
     });
   }
 
-  // 4) Cache helpers
+  // ------------ Cache heloers ------------
   function setCache(data) {
     try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(), data})); } catch(_) {}
   }
@@ -89,7 +89,6 @@
     } catch(_) { return null; }
   }
 
-  // 5) Основен ленив старт
   let started = false;
   async function startLazyLoad(force=false) {
     if (started && !force) return;
@@ -98,7 +97,6 @@
     const root = document.getElementById('packages-root');
     if (!root) return;
 
-    // 5.1 Първо пробвай кеш → мигновен рендер
     const cached = getCache();
     if (cached && !force) {
       window.PACKAGES = cached;
@@ -107,12 +105,10 @@
         root.classList.remove('loading');
         root.classList.add('fade-in');
       }
-      // тихо обновяване на заден план (без да блокираме) – по желание
       loadPackagesFromSheetJSONP().then(data => setCache(data)).catch(()=>{});
       return;
     }
 
-    // 5.2 Показвай skeleton и зареди
     renderSkeleton(3);
     try {
       const data = await loadPackagesFromSheetJSONP();
@@ -129,7 +125,6 @@
     }
   }
 
-  // 6) Тригери: IntersectionObserver + префеч при hover/клик на навигация
   document.addEventListener('DOMContentLoaded', () => {
     const root = document.getElementById('packages-root');
 
@@ -166,6 +161,5 @@
     }
   });
 
-  // опционално: глобална кука, ако искаш ръчно
   window.triggerPackagesRender = () => startLazyLoad(true);
 })();

@@ -67,7 +67,7 @@ document.addEventListener('click', (e) => {
 });
 
 /* ---------------------------------------------------------
-   3) Starfield (реални SVG звезди)
+   3) Starfield
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const svg = $('#starfield');
@@ -189,23 +189,20 @@ function curtainsOpen(){
 }
 
 /* ---------------------------------------------------------
-   5) Desktop „one-notch“ Snap (без прескачане на секции)
-      - Работи само на pointer:fine и ширина ≥ 992px
-      - 1 действие на колело → 1 секция (lock по време на анимация)
-      - Momentum/trackpad не водят до прескачане
+   5) Desktop „one-notch“ Snap
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  const isDesktop = window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 992;
-  if (!isDesktop) return;
+  const isDesktop    = window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 992;
+  const isTallEnough = window.innerHeight > 780;
+  if (!isDesktop || !isTallEnough) return;
 
   const sections = $$('.snap').filter(s => s.id);
   if (!sections.length) return;
 
-  const FUDGE = 40; // линия за подравняване: top + header + FUDGE
+  const FUDGE = 40;
   const SCROLL_LOCK_MS = 650;
-  const DELTA_THRESHOLD = 90; // колко wheel delta да съберем преди да преместим
+  const DELTA_THRESHOLD = 90;
 
-  // Текущ индекс според близост до линията за подравняване
   function currentIndex() {
     const y = window.scrollY + getHeaderH() + FUDGE;
     let best = 0, bestDist = Infinity;
@@ -230,14 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
     unlockTimer = setTimeout(() => { animating = false; }, SCROLL_LOCK_MS);
   }
 
-  // Wheel handler — 1 стъпка на действие, без прескачане
   const onWheel = (e) => {
     if (isOverlayOpen()) return;
-    if (animating) { e.preventDefault(); return; } // игнорирай momentum
-
+    if (animating) { e.preventDefault(); return; }
     wheelAcc += e.deltaY;
 
-    // ако сме много близо до средата на секция, счита го за „готово за ход“
     const nearIdx = currentIndex();
     if (nearIdx !== idx) idx = nearIdx;
 
@@ -253,12 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.addEventListener('wheel', onWheel, { passive: false });
 
-  // При нормален скрол (лентата/инерция) – поддържай актуален индекс
   window.addEventListener('scroll', () => {
     if (!animating && !isOverlayOpen()) idx = currentIndex();
   }, { passive: true });
 
-  // Клавиатура: секция по секция
   window.addEventListener('keydown', (e) => {
     const t = e.target;
     const isTyping = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
@@ -280,12 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // При resize – дребна синхронизация на индекса
   window.addEventListener('resize', debounce(() => { if (!isOverlayOpen()) idx = currentIndex(); }, 150));
 });
 
+
 /* ---------------------------------------------------------
-   6) Scroll Indicator visibility: показвай само на Hero
+   6) Scroll Indicator visibility: Hero only
 --------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const indicator = document.getElementById('scroll-indicator');
@@ -300,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ---------------------------------------------------------
-   7) Enquire → избери пакет + скрол към формата
+   7) Enquire → chose a package & scroll to form
 --------------------------------------------------------- */
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-enquire-package]');
@@ -315,13 +307,11 @@ document.addEventListener('click', (e) => {
     valueEl.textContent = name;
     field.value = name;
     badge.classList.remove('d-none');
-    // лека пулсация
     badge.style.animation = 'none'; void badge.offsetWidth; badge.style.animation = '';
   }
   scrollToWithOffset('#contact');
 });
 
-/* Изчистване на избрания пакет */
 document.addEventListener('click', (e) => {
   if (!e.target.closest('#selectedPackageBadge .clear')) return;
   const badge = document.getElementById('selectedPackageBadge');
@@ -332,7 +322,6 @@ document.addEventListener('click', (e) => {
   if (label) label.classList.add('d-none');
 });
 
-/* Минимална дата = днес (локално време) */
 document.addEventListener('DOMContentLoaded', () => {
   const date = document.getElementById('dateField');
   if (!date) return;

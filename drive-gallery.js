@@ -19,7 +19,6 @@ function numericNameCompare(a, b) {
 }
 
 function thumbUrl(id, w) {
-  // само thumbnail endpoint
   return `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
 }
 
@@ -76,8 +75,7 @@ function buildCarousel(files) {
     img.className = "d-block w-100";
     img.loading = i > 1 ? "lazy" : "eager";
     img.decoding = "async";
-    img.referrerPolicy = "no-referrer"; // по-„чисти“ заявки
-    // ако даден размер е блокиран → опитай по-малък thumbnail (пак thumbnail endpoint)
+    img.referrerPolicy = "no-referrer";
     img.onerror = () => {
       const sizes = [1600, 1200, 800, 600, 500, 400];
       const curr  = parseInt((img.src.match(/sz=w(\d+)/)||[])[1] || w, 10);
@@ -108,7 +106,6 @@ function buildCarousel(files) {
     if (!files.length) return;
     buildCarousel(files);
 
-    // при resize → обнови само thumbnail размера (оставаш на thumbnail endpoint)
     window.addEventListener("resize", debounce(() => {
       const w = thumbWidth();
       document.querySelectorAll("#galleryCarousel img").forEach(img => {
