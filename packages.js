@@ -133,7 +133,24 @@ function cardInnerHTML(pkg) {
       <h3 class="mb-2" style="font-family:'Rosarium',serif;">${esc(pkg.name)}</h3>
       <p class="opacity-75 mb-3">${esc(pkg.desc || "")}</p>
       <div class="price mb-3">${priceText(pkg.basePrice, firstMult)}</div>
-      ${feats.length ? `<ul class="mb-4 opacity-90">${feats.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>` : ""}
+      ${feats.length
+        ? (
+            feats.length === 1
+              ? (() => {
+                  const fullText = esc(feats[0]);
+                  const maxLen = 200;
+                  if (fullText.length > maxLen) {
+                    const short = fullText.slice(0, maxLen) + "...";
+                    return `<div class="mb-4 opacity-90">
+                              ${short} <a href="#" class="see-more" data-view="${esc(id)}">виж още</a>
+                            </div>`;
+                  }
+                  return `<div class="mb-4 opacity-90">${fullText}</div>`;
+                })()
+              : `<ul class="mb-4 opacity-90">${feats.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`
+          )
+        : ""
+      }
       <div class="d-flex gap-2 mt-auto">
         <button class="btn btn-outline-light w-50" type="button" data-view="${esc(id)}">${esc(viewMore)}</button>
         <button class="btn btn-primary w-50" type="button" data-choose="${esc(id)}">${esc(chooseText)}</button>
@@ -367,7 +384,11 @@ function renderPackageOverlay(model) {
         <div class="pkg-grid">
           <div class="pkg-card">
             <div class="pkg-label mb-2">Какво включва:</div>
-            <ul class="mb-0">${(model.features || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+            ${
+              (model.features || []).length === 1
+                ? `<div>${esc(model.features[0])}</div>`
+                : `<ul class="mb-0">${(model.features || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>`
+            }
           </div>
 
           <div class="pkg-card">
@@ -404,7 +425,11 @@ function renderPackageOverlay(model) {
               ${hasExtra ? `
                 <div class="pkg-card">
                   <div class="pkg-label mb-2">Допълнителна информация</div>
-                  <ul class="mb-0">${model.extraInfo.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+                  ${
+                    model.extraInfo.length === 1
+                      ? `<div>${esc(model.extraInfo[0])}</div>`
+                      : `<ul class="mb-0">${model.extraInfo.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`
+                  }
                 </div>` : ''}
               ${hasAdds ? `
                 <div class="pkg-card">
