@@ -635,6 +635,7 @@ document.addEventListener('click', (e) => {
   const viewBtn   = e.target.closest('[data-view]');
   const chooseBtn = e.target.closest('[data-choose]');
   if (!viewBtn && !chooseBtn) return;
+  e.preventDefault();
 
   const id = (viewBtn?.getAttribute('data-view') || chooseBtn?.getAttribute('data-choose') || '').trim();
   const list = window.PACKAGES?.packages || [];
