@@ -392,9 +392,23 @@ section.snap{
 /* ===========================
    13) Accessibility
 =========================== */
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
+/* Keep curtains + header animations; tone down everything else */
+@media (prefers-reduced-motion: reduce){
+  :root{ scroll-behavior: auto; }
+
+  body *:not(#intro-curtain):not(#intro-curtain *)
+         :not(.detail-curtain):not(.detail-curtain *)
+         :not(.magic-header):not(.magic-header *) {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .magic-header{
+    transition-duration: .2s !important;
+    animation-duration: .2s !important;
+  }
 }
+
 
 /* Стъпки (златни кръгове с числа) */
 .step-box{
